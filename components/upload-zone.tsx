@@ -151,7 +151,7 @@ export default function UploadZone({ onUploadComplete }: UploadZoneProps) {
         `}
       >
         {/* Animated background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-50" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-sky-500/10 opacity-60" />
 
         {/* Dot grid pattern */}
         <div className="absolute inset-0 dot-grid opacity-20" />
@@ -210,7 +210,7 @@ export default function UploadZone({ onUploadComplete }: UploadZoneProps) {
                     transition={{ duration: 2, repeat: Infinity }}
                     className="absolute inset-0 flex items-center justify-center"
                   >
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/30">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-sky-500 flex items-center justify-center shadow-lg shadow-primary/30">
                       {(() => {
                         const StepIcon = processingSteps[currentStep]?.icon || Brain
                         return <StepIcon className="w-7 h-7 text-white" />
@@ -243,17 +243,17 @@ export default function UploadZone({ onUploadComplete }: UploadZoneProps) {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: idx * 0.1 }}
                         className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-300 ${isActive
-                            ? "bg-primary/10 border border-primary/30"
-                            : isComplete
-                              ? "bg-emerald-500/5 border border-emerald-500/20"
-                              : "bg-white/[0.02] border border-white/5"
+                          ? "bg-primary/10 border border-primary/30"
+                          : isComplete
+                            ? "bg-emerald-500/5 border border-emerald-500/20"
+                            : "bg-white/[0.02] border border-white/5"
                           }`}
                       >
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${isActive
-                            ? "bg-primary/20"
-                            : isComplete
-                              ? "bg-emerald-500/20"
-                              : "bg-white/5"
+                          ? "bg-primary/20"
+                          : isComplete
+                            ? "bg-emerald-500/20"
+                            : "bg-white/5"
                           }`}>
                           {isComplete ? (
                             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
@@ -269,10 +269,10 @@ export default function UploadZone({ onUploadComplete }: UploadZoneProps) {
                           )}
                         </div>
                         <span className={`text-sm font-medium transition-colors ${isActive
-                            ? "text-primary"
-                            : isComplete
-                              ? "text-emerald-400"
-                              : "text-muted-foreground/50"
+                          ? "text-primary"
+                          : isComplete
+                            ? "text-emerald-400"
+                            : "text-muted-foreground/50"
                           }`}>
                           {step.label}
                         </span>
@@ -308,8 +308,8 @@ export default function UploadZone({ onUploadComplete }: UploadZoneProps) {
                     animate={isDragging ? { scale: [1, 1.1, 1] } : {}}
                     transition={{ duration: 0.5, repeat: isDragging ? Infinity : 0 }}
                     className={`w-20 h-20 rounded-2xl flex items-center justify-center transition-all duration-300 ${isDragging
-                        ? "bg-gradient-to-br from-primary to-accent shadow-xl shadow-primary/30"
-                        : "bg-gradient-to-br from-primary/10 to-accent/10 border border-white/10"
+                      ? "bg-gradient-to-br from-primary to-sky-500 shadow-xl shadow-primary/30"
+                      : "bg-gradient-to-br from-primary/10 to-sky-500/20 border border-white/10"
                       }`}
                   >
                     {isDragging ? (

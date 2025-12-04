@@ -259,7 +259,7 @@ function HealthSummary({ allData }: { allData: any }) {
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.1 }}
-          className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 mx-auto mb-3 flex items-center justify-center border border-white/10"
+          className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-sky-500/20 mx-auto mb-3 flex items-center justify-center border border-white/10"
         >
           <Activity className="w-7 h-7 text-primary" />
         </motion.div>
@@ -288,8 +288,8 @@ function HealthSummary({ allData }: { allData: any }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           className={`p-3 rounded-xl border ${analysis.abnormal > 0
-              ? "bg-rose-500/10 border-rose-500/20"
-              : "bg-white/5 border-white/10"
+            ? "bg-rose-500/10 border-rose-500/20"
+            : "bg-white/5 border-white/10"
             }`}
         >
           <div className="flex items-center gap-2 mb-1">
@@ -420,10 +420,10 @@ function TestDetails({ test, onAskAI }: { test: Test; onAskAI?: (context: string
             <h2 className="text-xl font-bold text-white/90">{test.name}</h2>
           </div>
           <div className={`px-2.5 py-1 rounded-lg text-xs font-medium ${test.status === "normal"
-              ? "bg-emerald-500/20 text-emerald-400"
-              : test.status === "borderline"
-                ? "bg-amber-500/20 text-amber-400"
-                : "bg-rose-500/20 text-rose-400"
+            ? "bg-emerald-500/20 text-emerald-400"
+            : test.status === "borderline"
+              ? "bg-amber-500/20 text-amber-400"
+              : "bg-rose-500/20 text-rose-400"
             }`}>
             {test.status === "normal" ? "✓ Normal" : test.status === "borderline" ? "⚠ Borderline" : "⚠ Abnormal"}
           </div>
@@ -455,10 +455,10 @@ function TestDetails({ test, onAskAI }: { test: Test; onAskAI?: (context: string
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15 }}
         className={`p-4 rounded-xl border ${test.status === "normal"
-            ? "bg-emerald-500/5 border-emerald-500/20"
-            : test.status === "borderline"
-              ? "bg-amber-500/5 border-amber-500/20"
-              : "bg-rose-500/5 border-rose-500/20"
+          ? "bg-emerald-500/5 border-emerald-500/20"
+          : test.status === "borderline"
+            ? "bg-amber-500/5 border-amber-500/20"
+            : "bg-rose-500/5 border-rose-500/20"
           }`}
       >
         <div className="flex items-center gap-2 mb-2">
@@ -538,10 +538,10 @@ function TestDetails({ test, onAskAI }: { test: Test; onAskAI?: (context: string
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="p-4 rounded-xl bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30"
+        className="p-4 rounded-xl bg-gradient-to-r from-primary/20 to-sky-500/20 border border-primary/30"
       >
         <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/20">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-sky-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/20">
             <Sparkles className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1">

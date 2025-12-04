@@ -143,10 +143,10 @@ export default function ChatDrawer({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsOpen(true)}
-              className="relative group flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-medium shadow-2xl shadow-primary/30"
+              className="relative group flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-gradient-to-r from-primary to-sky-500 text-white font-medium shadow-2xl shadow-primary/30"
             >
               {/* Glow effect */}
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-50 blur-xl transition-opacity" />
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary to-sky-500 opacity-0 group-hover:opacity-50 blur-xl transition-opacity" />
 
               <div className="relative flex items-center gap-3">
                 <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center">
@@ -214,7 +214,7 @@ export default function ChatDrawer({
                 {/* Header */}
                 <div className="flex items-center justify-between px-5 py-3 border-b border-white/5">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-sky-500 flex items-center justify-center shadow-lg shadow-primary/20">
                       <Sparkles className="w-5 h-5 text-white" />
                     </div>
                     <div>
@@ -273,7 +273,7 @@ export default function ChatDrawer({
                       animate={{ opacity: 1, y: 0 }}
                       className="h-full flex flex-col items-center justify-center py-8"
                     >
-                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-4 border border-white/10">
+                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-sky-500/20 flex items-center justify-center mb-4 border border-white/10">
                         <Bot className="w-8 h-8 text-primary" />
                       </div>
                       <h4 className="text-lg font-medium text-white/90 mb-2">How can I help you?</h4>
@@ -309,8 +309,8 @@ export default function ChatDrawer({
                         >
                           {/* Avatar */}
                           <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${message.role === "user"
-                              ? "bg-primary/20"
-                              : "bg-gradient-to-br from-primary to-accent"
+                            ? "bg-primary/20"
+                            : "bg-gradient-to-br from-primary to-accent"
                             }`}>
                             {message.role === "user" ? (
                               <User className="w-4 h-4 text-primary" />
@@ -322,8 +322,8 @@ export default function ChatDrawer({
                           {/* Message bubble */}
                           <div
                             className={`max-w-[80%] p-4 rounded-2xl ${message.role === "user"
-                                ? "bg-primary/20 border border-primary/30"
-                                : "bg-white/5 border border-white/10"
+                              ? "bg-primary/20 border border-primary/30"
+                              : "bg-white/5 border border-white/10"
                               }`}
                           >
                             {message.role === "assistant" ? (

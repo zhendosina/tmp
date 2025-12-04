@@ -109,7 +109,7 @@ export default function Home() {
             scale: [1, 1.2, 1],
           }}
           transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -bottom-1/4 -right-1/4 w-[700px] h-[700px] bg-gradient-to-tl from-accent/15 via-purple-500/5 to-transparent rounded-full blur-[100px]"
+          className="absolute -bottom-1/4 -right-1/4 w-[700px] h-[700px] bg-gradient-to-tl from-primary/15 via-sky-500/5 to-transparent rounded-full blur-[100px]"
         />
         {/* Center glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-radial from-primary/5 to-transparent rounded-full" />
@@ -134,7 +134,7 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <motion.div
               whileHover={{ scale: 1.05, rotate: 5 }}
-              className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-primary via-primary to-accent flex items-center justify-center shadow-lg shadow-primary/25"
+              className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-primary via-sky-500 to-sky-400 flex items-center justify-center shadow-lg shadow-primary/25"
             >
               <Activity className="w-4 h-4 md:w-5 md:h-5 text-white" />
             </motion.div>
@@ -204,7 +204,7 @@ export default function Home() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.1 }}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 mb-6 md:mb-8"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mb-6 md:mb-8"
                     >
                       <motion.div
                         animate={{ rotate: 360 }}
@@ -212,7 +212,7 @@ export default function Home() {
                       >
                         <Sparkles className="w-4 h-4 text-primary" />
                       </motion.div>
-                      <span className="text-sm font-medium bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                      <span className="text-sm font-medium bg-gradient-to-r from-sky-400 to-cyan-300 bg-clip-text text-transparent">
                         Powered by Gemini AI
                       </span>
                     </motion.div>
@@ -227,7 +227,7 @@ export default function Home() {
                       <span className="text-white">Decode Your</span>
                       <br />
                       <span className="relative">
-                        <span className="bg-gradient-to-r from-primary via-violet-400 to-accent bg-clip-text text-transparent">
+                        <span className="bg-gradient-to-r from-sky-400 via-cyan-300 to-emerald-300 bg-clip-text text-transparent">
                           Blood Report
                         </span>
                         {/* Underline accent */}
@@ -235,7 +235,7 @@ export default function Home() {
                           initial={{ scaleX: 0 }}
                           animate={{ scaleX: 1 }}
                           transition={{ delay: 0.6, duration: 0.6 }}
-                          className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-primary via-accent to-primary rounded-full origin-left"
+                          className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-sky-400 via-cyan-300 to-emerald-300 rounded-full origin-left"
                         />
                       </span>
                     </motion.h1>
@@ -293,7 +293,7 @@ export default function Home() {
                       <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-2">
                         How it works
                       </h3>
-                      <div className="w-12 h-0.5 bg-gradient-to-r from-primary to-accent mx-auto rounded-full" />
+                      <div className="w-12 h-0.5 bg-gradient-to-r from-primary to-sky-500 mx-auto rounded-full" />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
@@ -310,7 +310,7 @@ export default function Home() {
                           icon: Brain,
                           title: "AI Analysis",
                           description: "Gemini AI extracts and interprets every biomarker",
-                          color: "from-primary/20 to-violet-500/20",
+                          color: "from-primary/20 to-sky-500/20",
                           iconColor: "text-primary",
                           step: "02"
                         },

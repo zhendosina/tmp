@@ -65,9 +65,9 @@ const categoryConfig: Record<string, { icon: any; color: string; gradient: strin
   },
   "Vitamins & Minerals": {
     icon: Zap,
-    color: "text-violet-400",
-    gradient: "from-violet-500 to-purple-500",
-    bgGradient: "from-violet-500/10 to-purple-500/5"
+    color: "text-sky-400",
+    gradient: "from-sky-500 to-cyan-500",
+    bgGradient: "from-sky-500/10 to-cyan-500/5"
   },
   "Other": {
     icon: Activity,
@@ -322,7 +322,7 @@ export default function ResultsPanel({
         transition={{ duration: 0.5 }}
         className="relative overflow-hidden rounded-2xl"
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-sky-500/10" />
         <div className="relative p-6 rounded-2xl glass-card">
           <div className="flex flex-col sm:flex-row items-center gap-6">
             {/* Score Ring */}
@@ -362,8 +362,8 @@ export default function ResultsPanel({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6 }}
                   className={`p-3 rounded-xl border ${stats.abnormalTests > 0
-                      ? "bg-rose-500/10 border-rose-500/30"
-                      : "bg-rose-500/5 border-rose-500/10"
+                    ? "bg-rose-500/10 border-rose-500/30"
+                    : "bg-rose-500/5 border-rose-500/10"
                     }`}
                 >
                   <div className="text-xl font-bold text-rose-400">{stats.abnormalTests}</div>
