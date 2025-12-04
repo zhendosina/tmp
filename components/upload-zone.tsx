@@ -53,8 +53,8 @@ export default function UploadZone({ onUploadComplete }: UploadZoneProps) {
     setFileName(file.name)
     setError(null)
 
-    if (file.size > 10 * 1024 * 1024) {
-      setError("File too large. Maximum size is 10MB")
+    if (file.size > 4 * 1024 * 1024) {
+      setError("File too large. Maximum size is 4MB")
       setIsProcessing(false)
       return
     }
@@ -359,7 +359,7 @@ export default function UploadZone({ onUploadComplete }: UploadZoneProps) {
                   <span className="px-2 py-1 rounded bg-white/5 border border-white/10">PNG</span>
                   <span className="px-2 py-1 rounded bg-white/5 border border-white/10">JPG</span>
                   <span className="text-muted-foreground/40">•</span>
-                  <span>Max 10MB</span>
+                  <span>Max 4MB</span>
                 </div>
               </motion.div>
             )}
