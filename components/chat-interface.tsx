@@ -58,7 +58,7 @@ export default function ChatInterface({ testData }: ChatInterfaceProps) {
       const data = await response.json()
       setMessages((prev) => [...prev, { role: "assistant", content: data.answer }])
     } catch (error) {
-      console.error("[v0] Chat error:", error)
+      console.error("Chat error:", error)
       setMessages((prev) => [
         ...prev,
         { role: "assistant", content: "Sorry, I encountered an error. Please try again." },
@@ -92,11 +92,10 @@ export default function ChatInterface({ testData }: ChatInterfaceProps) {
               )}
 
               <div
-                className={`max-w-[80%] p-4 rounded-xl ${
-                  message.role === "user"
+                className={`max-w-[80%] p-4 rounded-xl ${message.role === "user"
                     ? "bg-primary text-primary-foreground"
                     : "bg-secondary text-secondary-foreground"
-                }`}
+                  }`}
               >
                 {message.role === "assistant" ? (
                   <div className="prose prose-sm prose-invert max-w-none">

@@ -1,15 +1,17 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import UploadZone from "@/components/upload-zone"
 import ResultsPanel from "@/components/results-panel"
 import InsightsPanel from "@/components/insights-panel"
 import ChatDrawer from "@/components/chat-drawer"
+import ExportModal from "@/components/export-modal"
+import MobileInsightsSheet from "@/components/mobile-insights-sheet"
 import {
   Upload, Download, Activity, Shield,
   HeartPulse, FileText, ArrowRight,
-  Lock, Clock, Droplets
+  Lock, Clock, Droplets, Info
 } from "lucide-react"
 
 // Organic floating shape component
@@ -40,6 +42,45 @@ export default function Home() {
   const [hoveredTest, setHoveredTest] = useState<any>(null)
   const [chatOpen, setChatOpen] = useState(false)
   const [chatContext, setChatContext] = useState<string>("")
+  const [exportOpen, setExportOpen] = useState(false)
+  const [mobileInsightsOpen, setMobileInsightsOpen] = useState(false)
+
+  // Storage key for persisting results
+  const STORAGE_KEY = "bloodparser_results"
+
+  // Load saved results on mount
+  useEffect(() => {
+    try {
+      const savedData = localStorage.getItem(STORAGE_KEY)
+      if (savedData) {
+        const parsed = JSON.parse(savedData)
+        // Check if data is recent (less than 24 hours old)
+        const savedAt = parsed._savedAt
+        const isRecent = savedAt && (Date.now() - savedAt) < 24 * 60 * 60 * 1000
+        if (isRecent && parsed.tests?.length > 0) {
+          setTestData(parsed)
+          setStep("results")
+        } else {
+          // Clear stale data
+          localStorage.removeItem(STORAGE_KEY)
+        }
+      }
+    } catch {
+      // Ignore parse errors
+    }
+  }, [])
+
+  // Save results when they change
+  useEffect(() => {
+    if (testData && testData.tests?.length > 0) {
+      try {
+        const dataToSave = { ...testData, _savedAt: Date.now() }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave))
+      } catch {
+        // Ignore quota errors
+      }
+    }
+  }, [testData])
 
   const handleUploadComplete = (data: any) => {
     setTestData(data)
@@ -51,6 +92,12 @@ export default function Home() {
     setTestData(null)
     setSelectedTest(null)
     setHoveredTest(null)
+    // Clear saved data
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+    } catch {
+      // Ignore errors
+    }
   }
 
   const handleTestHover = useCallback((test: any) => {
@@ -60,6 +107,10 @@ export default function Home() {
   const handleTestSelect = useCallback((test: any) => {
     setSelectedTest(test)
     setHoveredTest(null)
+    // Open mobile insights sheet on mobile devices
+    if (window.innerWidth < 1024) {
+      setMobileInsightsOpen(true)
+    }
   }, [])
 
   const handleAskAI = useCallback((context: string) => {
@@ -121,6 +172,7 @@ export default function Home() {
                   animate={{ opacity: 1, scale: 1 }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
+                  onClick={() => setExportOpen(true)}
                   className="px-3 md:px-4 py-2 rounded-xl bg-secondary hover:bg-secondary/80 border border-border transition-all flex items-center gap-2 text-sm"
                 >
                   <Download className="w-4 h-4" />
@@ -363,6 +415,39 @@ export default function Home() {
           onOpenChange={setChatOpen}
           initialContext={chatContext}
         />
+      )}
+
+      {/* Export Modal */}
+      {testData && (
+        <ExportModal
+          isOpen={exportOpen}
+          onClose={() => setExportOpen(false)}
+          data={testData}
+        />
+      )}
+
+      {/* Mobile Insights Sheet */}
+      {step === "results" && testData && (
+        <MobileInsightsSheet
+          isOpen={mobileInsightsOpen}
+          onClose={() => setMobileInsightsOpen(false)}
+          selectedTest={selectedTest}
+          hoveredTest={hoveredTest}
+          allData={testData}
+          onAskAI={handleAskAI}
+        />
+      )}
+
+      {/* Mobile Insights FAB - only on mobile when results visible */}
+      {step === "results" && testData && (
+        <motion.button
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          onClick={() => setMobileInsightsOpen(true)}
+          className="fixed bottom-24 left-6 z-30 lg:hidden w-12 h-12 rounded-2xl bg-card border border-border shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
+        >
+          <Info className="w-5 h-5 text-primary" />
+        </motion.button>
       )}
     </main>
   )
