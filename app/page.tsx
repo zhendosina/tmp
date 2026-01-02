@@ -7,47 +7,29 @@ import ResultsPanel from "@/components/results-panel"
 import InsightsPanel from "@/components/insights-panel"
 import ChatDrawer from "@/components/chat-drawer"
 import {
-  Upload, Download, Activity, Shield, Zap, Brain,
-  HeartPulse, Microscope, FlaskConical, ArrowRight,
-  Sparkles, Lock, Clock
+  Upload, Download, Activity, Shield,
+  HeartPulse, FileText, ArrowRight,
+  Lock, Clock, Droplets
 } from "lucide-react"
 
-// Floating particle component
-function FloatingParticle({ delay, duration, x, y }: { delay: number; duration: number; x: string; y: string }) {
+// Organic floating shape component
+function OrganicBlob({ className, delay = 0 }: { className?: string; delay?: number }) {
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0 }}
+      initial={{ opacity: 0, scale: 0.8 }}
       animate={{
-        opacity: [0, 1, 1, 0],
-        scale: [0.5, 1, 1, 0.5],
-        y: [0, -30, -60, -90],
+        opacity: [0.3, 0.5, 0.3],
+        scale: [1, 1.1, 1],
+        rotate: [0, 180, 360],
       }}
       transition={{
         delay,
-        duration,
+        duration: 20,
         repeat: Infinity,
-        ease: "easeOut"
+        ease: "easeInOut"
       }}
-      className="absolute w-1 h-1 bg-primary/60 rounded-full"
-      style={{ left: x, top: y }}
+      className={`absolute rounded-full blur-3xl ${className}`}
     />
-  )
-}
-
-// Animated stat counter
-function StatCounter({ value, label, suffix = "" }: { value: number; label: string; suffix?: string }) {
-  return (
-    <div className="text-center">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ type: "spring", delay: 0.5 }}
-        className="text-2xl md:text-3xl font-bold text-white"
-      >
-        {value}{suffix}
-      </motion.div>
-      <div className="text-xs text-muted-foreground mt-1">{label}</div>
-    </div>
   )
 }
 
@@ -88,59 +70,46 @@ export default function Home() {
   const activeTest = selectedTest || hoveredTest
 
   return (
-    <main className="min-h-screen bg-[#06060a] text-foreground relative overflow-hidden">
-      {/* Animated gradient background */}
+    <main className="min-h-screen bg-background text-foreground relative overflow-hidden">
+      {/* Warm ambient background */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {/* Primary gradient blob */}
-        <motion.div
-          animate={{
-            x: [0, 30, 0],
-            y: [0, -20, 0],
-            scale: [1, 1.1, 1],
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -top-1/4 -left-1/4 w-[800px] h-[800px] bg-gradient-to-br from-primary/20 via-primary/5 to-transparent rounded-full blur-[100px]"
+        {/* Primary warm blob */}
+        <OrganicBlob
+          className="w-[600px] h-[600px] -top-48 -left-48 bg-primary/20"
+          delay={0}
         />
-        {/* Accent gradient blob */}
-        <motion.div
-          animate={{
-            x: [0, -40, 0],
-            y: [0, 30, 0],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -bottom-1/4 -right-1/4 w-[700px] h-[700px] bg-gradient-to-tl from-primary/15 via-sky-500/5 to-transparent rounded-full blur-[100px]"
+        {/* Accent blob */}
+        <OrganicBlob
+          className="w-[500px] h-[500px] -bottom-32 -right-32 bg-accent/15"
+          delay={2}
         />
-        {/* Center glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-radial from-primary/5 to-transparent rounded-full" />
+        {/* Subtle center glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-radial from-primary/5 to-transparent rounded-full" />
 
-        {/* Grid overlay */}
-        <div
-          className="absolute inset-0 opacity-[0.015]"
-          style={{
-            backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-            backgroundSize: '60px 60px'
-          }}
-        />
+        {/* Subtle dot pattern */}
+        <div className="absolute inset-0 dot-pattern opacity-30" />
+
+        {/* Paper texture */}
+        <div className="absolute inset-0 paper-texture" />
       </div>
 
       {/* Header */}
       <motion.header
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#06060a]/80 backdrop-blur-2xl"
+        className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl"
       >
         <div className="container mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <motion.div
-              whileHover={{ scale: 1.05, rotate: 5 }}
-              className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-primary via-sky-500 to-sky-400 flex items-center justify-center shadow-lg shadow-primary/25"
+              whileHover={{ scale: 1.05 }}
+              className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg breathe-glow"
             >
-              <Activity className="w-4 h-4 md:w-5 md:h-5 text-white" />
+              <Droplets className="w-4 h-4 md:w-5 md:h-5 text-primary-foreground" />
             </motion.div>
             <div>
-              <h1 className="text-base md:text-lg font-bold tracking-tight text-white">BloodParser</h1>
-              <p className="text-[9px] md:text-[10px] text-muted-foreground font-medium tracking-wider uppercase">AI Analysis</p>
+              <h1 className="text-base md:text-lg font-serif font-semibold tracking-tight text-foreground">BloodParser</h1>
+              <p className="text-[9px] md:text-[10px] text-muted-foreground font-medium tracking-wider uppercase">Health Insights</p>
             </div>
           </div>
 
@@ -152,7 +121,7 @@ export default function Home() {
                   animate={{ opacity: 1, scale: 1 }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="px-3 md:px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all flex items-center gap-2 text-sm"
+                  className="px-3 md:px-4 py-2 rounded-xl bg-secondary hover:bg-secondary/80 border border-border transition-all flex items-center gap-2 text-sm"
                 >
                   <Download className="w-4 h-4" />
                   <span className="font-medium hidden sm:inline">Export</span>
@@ -163,7 +132,7 @@ export default function Home() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleReset}
-                  className="px-3 md:px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 transition-all flex items-center gap-2 text-sm shadow-lg shadow-primary/20"
+                  className="px-3 md:px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground transition-all flex items-center gap-2 text-sm shadow-lg glow-primary"
                 >
                   <Upload className="w-4 h-4" />
                   <span className="font-medium hidden sm:inline">New Report</span>
@@ -186,89 +155,67 @@ export default function Home() {
               className="min-h-[calc(100vh-3.5rem)] md:min-h-[calc(100vh-4rem)]"
             >
               {/* Hero Section */}
-              <div className="container mx-auto px-4 md:px-6 pt-8 md:pt-16 pb-8">
-                <div className="max-w-5xl mx-auto">
-                  {/* Floating particles */}
-                  <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <FloatingParticle delay={0} duration={4} x="10%" y="20%" />
-                    <FloatingParticle delay={1} duration={5} x="85%" y="30%" />
-                    <FloatingParticle delay={2} duration={4.5} x="20%" y="60%" />
-                    <FloatingParticle delay={0.5} duration={5.5} x="75%" y="70%" />
-                    <FloatingParticle delay={1.5} duration={4} x="50%" y="40%" />
-                  </div>
-
+              <div className="container mx-auto px-4 md:px-6 pt-12 md:pt-20 pb-8">
+                <div className="max-w-4xl mx-auto">
                   {/* Main hero content */}
-                  <div className="text-center mb-10 md:mb-14 relative">
-                    {/* Badge */}
+                  <div className="text-center mb-12 md:mb-16 relative">
+                    {/* Decorative element */}
                     <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 }}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mb-6 md:mb-8"
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.2, type: "spring" }}
+                      className="w-20 h-20 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center border border-primary/20 pulse-life"
                     >
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                      >
-                        <Sparkles className="w-4 h-4 text-primary" />
-                      </motion.div>
-                      <span className="text-sm font-medium bg-gradient-to-r from-sky-400 to-cyan-300 bg-clip-text text-transparent">
-                        Powered by Gemini AI
-                      </span>
+                      <HeartPulse className="w-10 h-10 text-primary" />
                     </motion.div>
 
-                    {/* Main heading */}
+                    {/* Main heading - Editorial style */}
                     <motion.h1
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2 }}
-                      className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-[1.1] tracking-tight"
+                      transition={{ delay: 0.3 }}
+                      className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-medium mb-6 leading-[1.1] tracking-tight"
                     >
-                      <span className="text-white">Decode Your</span>
+                      <span className="text-foreground">Understand Your</span>
                       <br />
-                      <span className="relative">
-                        <span className="bg-gradient-to-r from-sky-400 via-cyan-300 to-emerald-300 bg-clip-text text-transparent">
-                          Blood Report
-                        </span>
-                        {/* Underline accent */}
-                        <motion.div
-                          initial={{ scaleX: 0 }}
-                          animate={{ scaleX: 1 }}
-                          transition={{ delay: 0.6, duration: 0.6 }}
-                          className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-sky-400 via-cyan-300 to-emerald-300 rounded-full origin-left"
-                        />
-                      </span>
+                      <span className="text-gradient-primary">Blood Report</span>
                     </motion.h1>
 
                     {/* Subtitle */}
                     <motion.p
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3 }}
-                      className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8"
+                      transition={{ delay: 0.4 }}
+                      className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed mb-10"
                     >
                       Upload your lab results and instantly understand what each biomarker means.
-                      Get personalized insights powered by advanced AI.
+                      Get personalized insights to take control of your health.
                     </motion.p>
 
                     {/* Trust indicators */}
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.4 }}
-                      className="flex flex-wrap items-center justify-center gap-4 md:gap-6 text-xs text-muted-foreground mb-10"
+                      transition={{ delay: 0.5 }}
+                      className="flex flex-wrap items-center justify-center gap-6 md:gap-8 text-sm text-muted-foreground"
                     >
-                      <div className="flex items-center gap-1.5">
-                        <Lock className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>100% Private</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center">
+                          <Lock className="w-4 h-4 text-success" />
+                        </div>
+                        <span>Private & Secure</span>
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-amber-400" />
-                        <span>Results in seconds</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-warning/10 flex items-center justify-center">
+                          <Clock className="w-4 h-4 text-warning" />
+                        </div>
+                        <span>Results in Seconds</span>
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        <Shield className="w-3.5 h-3.5 text-primary" />
-                        <span>No data stored</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <Shield className="w-4 h-4 text-primary" />
+                        </div>
+                        <span>No Data Stored</span>
                       </div>
                     </motion.div>
                   </div>
@@ -277,49 +224,43 @@ export default function Home() {
                   <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
+                    transition={{ delay: 0.6 }}
                   >
                     <UploadZone onUploadComplete={handleUploadComplete} />
                   </motion.div>
 
-                  {/* Features section */}
+                  {/* How it works section */}
                   <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 }}
-                    className="mt-12 md:mt-16"
+                    transition={{ delay: 0.7 }}
+                    className="mt-16 md:mt-24"
                   >
-                    <div className="text-center mb-8">
-                      <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-2">
+                    <div className="text-center mb-10">
+                      <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-3">
                         How it works
                       </h3>
-                      <div className="w-12 h-0.5 bg-gradient-to-r from-primary to-sky-500 mx-auto rounded-full" />
+                      <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto" />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
                       {[
                         {
-                          icon: Microscope,
+                          icon: FileText,
                           title: "Upload Report",
                           description: "Drop your PDF or image of blood test results",
-                          color: "from-rose-500/20 to-pink-500/20",
-                          iconColor: "text-rose-400",
                           step: "01"
                         },
                         {
-                          icon: Brain,
-                          title: "AI Analysis",
-                          description: "Gemini AI extracts and interprets every biomarker",
-                          color: "from-primary/20 to-sky-500/20",
-                          iconColor: "text-primary",
+                          icon: Activity,
+                          title: "Instant Analysis",
+                          description: "AI extracts and interprets every biomarker",
                           step: "02"
                         },
                         {
                           icon: HeartPulse,
-                          title: "Get Insights",
+                          title: "Health Insights",
                           description: "Understand your health with clear explanations",
-                          color: "from-emerald-500/20 to-teal-500/20",
-                          iconColor: "text-emerald-400",
                           step: "03"
                         },
                       ].map((feature, index) => (
@@ -327,21 +268,19 @@ export default function Home() {
                           key={index}
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.7 + index * 0.1 }}
-                          whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                          transition={{ delay: 0.8 + index * 0.1 }}
                           className="group relative"
                         >
-                          <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity blur-xl`} />
-                          <div className="relative p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all">
+                          <div className="relative p-6 rounded-2xl card-warm hover-lift">
                             {/* Step number */}
-                            <div className="absolute top-4 right-4 text-4xl font-bold text-white/[0.03]">
+                            <div className="absolute top-4 right-4 text-5xl font-serif font-light text-primary/10">
                               {feature.step}
                             </div>
 
-                            <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 border border-white/10`}>
-                              <feature.icon className={`w-6 h-6 ${feature.iconColor}`} />
+                            <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4">
+                              <feature.icon className="w-6 h-6 text-primary" />
                             </div>
-                            <h4 className="font-semibold text-white mb-2">{feature.title}</h4>
+                            <h4 className="font-serif font-medium text-lg text-foreground mb-2">{feature.title}</h4>
                             <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
                           </div>
                         </motion.div>
@@ -349,15 +288,16 @@ export default function Home() {
                     </div>
                   </motion.div>
 
-                  {/* Bottom CTA section */}
+                  {/* Bottom note */}
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ delay: 1 }}
+                    transition={{ delay: 1.1 }}
                     className="mt-16 text-center pb-8"
                   >
-                    <p className="text-sm text-muted-foreground/60">
-                      Your data never leaves your browser. We don't store any reports.
+                    <p className="text-sm text-muted-foreground/60 max-w-md mx-auto">
+                      Your data is processed locally and never stored on our servers.
+                      We respect your privacy completely.
                     </p>
                   </motion.div>
                 </div>
@@ -396,7 +336,7 @@ export default function Home() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}
-                className="hidden lg:flex lg:flex-col w-[40%] border-l border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent"
+                className="hidden lg:flex lg:flex-col w-[40%] border-l border-border bg-gradient-to-b from-card/50 to-transparent"
               >
                 <div className="flex-1 overflow-y-auto scrollbar-thin">
                   <div className="sticky top-0 p-6">

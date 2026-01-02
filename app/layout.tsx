@@ -1,17 +1,35 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Source_Sans_3, Newsreader, JetBrains_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 
-const _geist = Geist({ subsets: ["latin"] })
-const _geistMono = Geist_Mono({ subsets: ["latin"] })
+// Primary body font - Humanist sans-serif for readability
+const sourceSans = Source_Sans_3({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+})
+
+// Display font - Elegant serif for headings
+const newsreader = Newsreader({
+  subsets: ["latin"],
+  variable: "--font-serif",
+  display: "swap",
+})
+
+// Monospace font - For values and data
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+})
 
 export const metadata: Metadata = {
-  title: "BloodParser - AI Blood Report Analyzer",
+  title: "BloodParser - Understand Your Blood Report",
   description:
-    "Upload your blood test report and get instant AI-powered analysis with clear explanations of your results",
-  keywords: ["blood test", "lab results", "health analysis", "AI", "medical"],
+    "Upload your blood test report and instantly understand what each biomarker means. Get personalized health insights powered by AI.",
+  keywords: ["blood test", "lab results", "health analysis", "biomarkers", "medical report"],
   authors: [{ name: "BloodParser" }],
   icons: {
     icon: "/favicon.svg",
@@ -32,7 +50,7 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-icon.svg" />
       </head>
-      <body className={`font-sans antialiased`}>
+      <body className={`${sourceSans.variable} ${newsreader.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
         {children}
         <Analytics />
       </body>

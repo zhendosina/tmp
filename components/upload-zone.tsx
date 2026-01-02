@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState, useCallback, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Upload, FileText, Scan, CheckCircle2, Sparkles, Zap, Brain, FileSearch, MousePointerClick } from "lucide-react"
+import { Upload, FileText, CheckCircle2, Activity, FileSearch, HeartPulse, Droplets } from "lucide-react"
 
 interface UploadZoneProps {
   onUploadComplete: (data: any) => void
@@ -11,10 +11,10 @@ interface UploadZoneProps {
 
 const processingSteps = [
   { id: 1, label: "Uploading document", icon: Upload, duration: 800 },
-  { id: 2, label: "Scanning pages", icon: Scan, duration: 1500 },
-  { id: 3, label: "AI reading content", icon: FileSearch, duration: 2000 },
-  { id: 4, label: "Extracting biomarkers", icon: Brain, duration: 2500 },
-  { id: 5, label: "Generating insights", icon: Sparkles, duration: 1000 },
+  { id: 2, label: "Reading pages", icon: FileSearch, duration: 1500 },
+  { id: 3, label: "Extracting biomarkers", icon: Droplets, duration: 2000 },
+  { id: 4, label: "Analyzing results", icon: Activity, duration: 2500 },
+  { id: 5, label: "Preparing insights", icon: HeartPulse, duration: 1000 },
 ]
 
 export default function UploadZone({ onUploadComplete }: UploadZoneProps) {
@@ -144,21 +144,15 @@ export default function UploadZone({ onUploadComplete }: UploadZoneProps) {
         onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}
         className={`
-          relative border-2 border-dashed rounded-3xl p-10 md:p-12 text-center transition-all duration-500 overflow-hidden
-          ${isDragging ? "border-primary bg-primary/5 scale-[1.02]" : "border-white/10 hover:border-primary/40"}
-          ${isProcessing ? "pointer-events-none" : "cursor-pointer hover:bg-white/[0.02]"}
-          ${error ? "border-rose-500/50" : ""}
+          relative border-2 border-dashed rounded-2xl p-10 md:p-14 text-center transition-all duration-500 overflow-hidden
+          ${isDragging ? "border-primary bg-primary/5 scale-[1.01]" : "border-border hover:border-primary/50"}
+          ${isProcessing ? "pointer-events-none" : "cursor-pointer hover:bg-card/50"}
+          ${error ? "border-danger/50" : ""}
+          card-warm
         `}
       >
-        {/* Animated background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-sky-500/10 opacity-60" />
-
-        {/* Dot grid pattern */}
-        <div className="absolute inset-0 dot-grid opacity-20" />
-
-        {/* Corner accents */}
-        <div className="absolute top-0 left-0 w-20 h-20 border-l-2 border-t-2 border-primary/20 rounded-tl-3xl" />
-        <div className="absolute bottom-0 right-0 w-20 h-20 border-r-2 border-b-2 border-accent/20 rounded-br-3xl" />
+        {/* Subtle pattern background */}
+        <div className="absolute inset-0 dot-pattern opacity-20" />
 
         {/* Scanning line animation during processing */}
         <AnimatePresence>
@@ -184,24 +178,39 @@ export default function UploadZone({ onUploadComplete }: UploadZoneProps) {
                 exit={{ opacity: 0, scale: 0.9 }}
                 className="flex flex-col items-center gap-8 py-4"
               >
-                {/* Central processing animation */}
+                {/* Central processing animation - organic pulse */}
                 <div className="relative">
-                  {/* Outer ring */}
+                  {/* Outer breathing ring */}
+                  <motion.div
+                    animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute inset-0 rounded-full bg-primary/20"
+                    style={{ margin: "-12px" }}
+                  />
+
+                  {/* Main circle */}
                   <motion.div
                     animate={{ rotate: 360 }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                    className="w-28 h-28 rounded-full border-2 border-primary/20"
+                    transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                    className="w-24 h-24 rounded-full border-2 border-primary/30 relative"
                   >
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-primary rounded-full shadow-lg shadow-primary/50" />
+                    {/* Orbiting dot */}
+                    <motion.div
+                      className="absolute w-3 h-3 bg-primary rounded-full shadow-lg"
+                      style={{ top: "-6px", left: "50%", marginLeft: "-6px" }}
+                    />
                   </motion.div>
 
-                  {/* Inner ring */}
+                  {/* Inner circle */}
                   <motion.div
                     animate={{ rotate: -360 }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                    className="absolute inset-3 rounded-full border-2 border-accent/30"
+                    transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+                    className="absolute inset-4 rounded-full border-2 border-accent/40"
                   >
-                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-accent rounded-full" />
+                    <motion.div
+                      className="absolute w-2 h-2 bg-accent rounded-full"
+                      style={{ bottom: "-4px", left: "50%", marginLeft: "-4px" }}
+                    />
                   </motion.div>
 
                   {/* Center icon */}
@@ -210,10 +219,10 @@ export default function UploadZone({ onUploadComplete }: UploadZoneProps) {
                     transition={{ duration: 2, repeat: Infinity }}
                     className="absolute inset-0 flex items-center justify-center"
                   >
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-sky-500 flex items-center justify-center shadow-lg shadow-primary/30">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
                       {(() => {
-                        const StepIcon = processingSteps[currentStep]?.icon || Brain
-                        return <StepIcon className="w-7 h-7 text-white" />
+                        const StepIcon = processingSteps[currentStep]?.icon || Activity
+                        return <StepIcon className="w-6 h-6 text-primary-foreground" />
                       })()}
                     </div>
                   </motion.div>
@@ -221,10 +230,10 @@ export default function UploadZone({ onUploadComplete }: UploadZoneProps) {
 
                 {/* File name */}
                 <div className="text-center">
-                  <p className="text-lg font-semibold text-white mb-2">
+                  <p className="text-lg font-serif font-medium text-foreground mb-2">
                     Analyzing Report
                   </p>
-                  <p className="text-sm text-muted-foreground font-mono bg-white/5 px-4 py-1.5 rounded-lg border border-white/10">
+                  <p className="text-sm text-muted-foreground font-mono bg-muted/50 px-4 py-1.5 rounded-lg border border-border">
                     {fileName}
                   </p>
                 </div>
@@ -245,22 +254,22 @@ export default function UploadZone({ onUploadComplete }: UploadZoneProps) {
                         className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-300 ${isActive
                           ? "bg-primary/10 border border-primary/30"
                           : isComplete
-                            ? "bg-emerald-500/5 border border-emerald-500/20"
-                            : "bg-white/[0.02] border border-white/5"
+                            ? "bg-success/5 border border-success/20"
+                            : "bg-muted/30 border border-border/50"
                           }`}
                       >
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${isActive
                           ? "bg-primary/20"
                           : isComplete
-                            ? "bg-emerald-500/20"
-                            : "bg-white/5"
+                            ? "bg-success/20"
+                            : "bg-muted/50"
                           }`}>
                           {isComplete ? (
-                            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                            <CheckCircle2 className="w-4 h-4 text-success" />
                           ) : isActive ? (
                             <motion.div
                               animate={{ rotate: 360 }}
-                              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
                             >
                               <StepIcon className="w-4 h-4 text-primary" />
                             </motion.div>
@@ -271,7 +280,7 @@ export default function UploadZone({ onUploadComplete }: UploadZoneProps) {
                         <span className={`text-sm font-medium transition-colors ${isActive
                           ? "text-primary"
                           : isComplete
-                            ? "text-emerald-400"
+                            ? "text-success"
                             : "text-muted-foreground/50"
                           }`}>
                           {step.label}
@@ -282,7 +291,7 @@ export default function UploadZone({ onUploadComplete }: UploadZoneProps) {
                             transition={{ duration: 1.5, repeat: Infinity }}
                             className="ml-auto"
                           >
-                            <div className="w-2 h-2 rounded-full bg-primary" />
+                            <div className="status-dot status-normal" />
                           </motion.div>
                         )}
                       </motion.div>
@@ -296,7 +305,7 @@ export default function UploadZone({ onUploadComplete }: UploadZoneProps) {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                className="flex flex-col items-center gap-5"
+                className="flex flex-col items-center gap-6"
               >
                 {/* Upload icon with animation */}
                 <motion.div
@@ -305,36 +314,36 @@ export default function UploadZone({ onUploadComplete }: UploadZoneProps) {
                   className="relative"
                 >
                   <motion.div
-                    animate={isDragging ? { scale: [1, 1.1, 1] } : {}}
+                    animate={isDragging ? { scale: [1, 1.05, 1] } : {}}
                     transition={{ duration: 0.5, repeat: isDragging ? Infinity : 0 }}
                     className={`w-20 h-20 rounded-2xl flex items-center justify-center transition-all duration-300 ${isDragging
-                      ? "bg-gradient-to-br from-primary to-sky-500 shadow-xl shadow-primary/30"
-                      : "bg-gradient-to-br from-primary/10 to-sky-500/20 border border-white/10"
+                      ? "bg-gradient-to-br from-primary to-accent shadow-xl glow-primary"
+                      : "bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20"
                       }`}
                   >
                     {isDragging ? (
-                      <Upload className="w-9 h-9 text-white" />
+                      <Upload className="w-9 h-9 text-primary-foreground" />
                     ) : (
                       <FileText className="w-9 h-9 text-primary" />
                     )}
                   </motion.div>
 
-                  {/* Floating elements */}
+                  {/* Decorative elements */}
                   {!isDragging && (
                     <>
                       <motion.div
-                        animate={{ y: [-5, 5, -5], rotate: [0, 10, 0] }}
+                        animate={{ y: [-3, 3, -3], rotate: [0, 5, 0] }}
                         transition={{ duration: 4, repeat: Infinity }}
-                        className="absolute -top-2 -right-3"
+                        className="absolute -top-1 -right-2"
                       >
-                        <Sparkles className="w-5 h-5 text-amber-400" />
+                        <div className="w-4 h-4 rounded-full bg-success/20 border border-success/30" />
                       </motion.div>
                       <motion.div
-                        animate={{ y: [5, -5, 5], rotate: [0, -10, 0] }}
+                        animate={{ y: [3, -3, 3], rotate: [0, -5, 0] }}
                         transition={{ duration: 3.5, repeat: Infinity }}
-                        className="absolute -bottom-2 -left-3"
+                        className="absolute -bottom-1 -left-2"
                       >
-                        <Zap className="w-4 h-4 text-primary" />
+                        <div className="w-3 h-3 rounded-full bg-accent/30 border border-accent/40" />
                       </motion.div>
                     </>
                   )}
@@ -342,23 +351,23 @@ export default function UploadZone({ onUploadComplete }: UploadZoneProps) {
 
                 <div className="text-center space-y-2">
                   <motion.h3
-                    animate={{ scale: isDragging ? 1.05 : 1 }}
-                    className="text-xl font-semibold text-white"
+                    animate={{ scale: isDragging ? 1.02 : 1 }}
+                    className="text-xl font-serif font-medium text-foreground"
                   >
                     {isDragging ? "Drop your file here" : "Upload Blood Report"}
                   </motion.h3>
                   <p className="text-muted-foreground text-sm">
                     Drag and drop or{" "}
-                    <span className="text-primary font-medium">click to browse</span>
+                    <span className="text-primary font-medium hover:underline">click to browse</span>
                   </p>
                 </div>
 
                 {/* Supported formats */}
-                <div className="flex items-center gap-2 text-xs text-muted-foreground/60">
-                  <span className="px-2 py-1 rounded bg-white/5 border border-white/10">PDF</span>
-                  <span className="px-2 py-1 rounded bg-white/5 border border-white/10">PNG</span>
-                  <span className="px-2 py-1 rounded bg-white/5 border border-white/10">JPG</span>
-                  <span className="text-muted-foreground/40">•</span>
+                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                  <span className="px-3 py-1.5 rounded-lg bg-muted/50 border border-border font-medium">PDF</span>
+                  <span className="px-3 py-1.5 rounded-lg bg-muted/50 border border-border font-medium">PNG</span>
+                  <span className="px-3 py-1.5 rounded-lg bg-muted/50 border border-border font-medium">JPG</span>
+                  <span className="text-border">|</span>
                   <span>Max 4MB</span>
                 </div>
               </motion.div>
@@ -372,7 +381,7 @@ export default function UploadZone({ onUploadComplete }: UploadZoneProps) {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="px-4 py-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm"
+                className="px-4 py-3 rounded-xl bg-danger/10 border border-danger/30 text-danger text-sm"
               >
                 {error}
               </motion.div>

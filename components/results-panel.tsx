@@ -2,9 +2,9 @@
 
 import { motion, AnimatePresence } from "framer-motion"
 import {
-  Activity, Droplet, Heart, Zap, TrendingUp, TrendingDown, Minus,
+  Activity, Droplets, Heart, Zap, TrendingUp, TrendingDown,
   AlertCircle, CheckCircle, AlertTriangle, Beaker, Flame, Shield,
-  ChevronDown, Info, ArrowRight, Sparkles
+  ChevronDown, ArrowRight, MessageCircle
 } from "lucide-react"
 import { useState, useMemo, useEffect } from "react"
 
@@ -26,78 +26,70 @@ interface ResultsPanelProps {
   hoveredTest: Test | null
 }
 
-const categoryConfig: Record<string, { icon: any; color: string; gradient: string; bgGradient: string }> = {
+const categoryConfig: Record<string, { icon: any; color: string; bgColor: string }> = {
   "Complete Blood Count": {
-    icon: Droplet,
-    color: "text-rose-400",
-    gradient: "from-rose-500 to-red-500",
-    bgGradient: "from-rose-500/10 to-red-500/5"
+    icon: Droplets,
+    color: "text-primary",
+    bgColor: "bg-primary/10"
   },
   "Metabolic Panel": {
     icon: Activity,
-    color: "text-sky-400",
-    gradient: "from-sky-500 to-blue-500",
-    bgGradient: "from-sky-500/10 to-blue-500/5"
+    color: "text-accent",
+    bgColor: "bg-accent/10"
   },
   "Lipid Profile": {
     icon: Heart,
-    color: "text-pink-400",
-    gradient: "from-pink-500 to-rose-500",
-    bgGradient: "from-pink-500/10 to-rose-500/5"
+    color: "text-danger",
+    bgColor: "bg-danger/10"
   },
   "Liver Function": {
     icon: Beaker,
-    color: "text-amber-400",
-    gradient: "from-amber-500 to-orange-500",
-    bgGradient: "from-amber-500/10 to-orange-500/5"
+    color: "text-warning",
+    bgColor: "bg-warning/10"
   },
   "Kidney Function": {
     icon: Shield,
-    color: "text-emerald-400",
-    gradient: "from-emerald-500 to-teal-500",
-    bgGradient: "from-emerald-500/10 to-teal-500/5"
+    color: "text-success",
+    bgColor: "bg-success/10"
   },
   "Thyroid Function": {
     icon: Flame,
-    color: "text-orange-400",
-    gradient: "from-orange-500 to-amber-500",
-    bgGradient: "from-orange-500/10 to-amber-500/5"
+    color: "text-warning",
+    bgColor: "bg-warning/10"
   },
   "Vitamins & Minerals": {
     icon: Zap,
-    color: "text-sky-400",
-    gradient: "from-sky-500 to-cyan-500",
-    bgGradient: "from-sky-500/10 to-cyan-500/5"
+    color: "text-accent",
+    bgColor: "bg-accent/10"
   },
   "Other": {
     icon: Activity,
-    color: "text-slate-400",
-    gradient: "from-slate-500 to-gray-500",
-    bgGradient: "from-slate-500/10 to-gray-500/5"
+    color: "text-muted-foreground",
+    bgColor: "bg-muted/50"
   },
 }
 
 const statusConfig = {
   normal: {
     icon: CheckCircle,
-    color: "text-emerald-400",
-    bgColor: "bg-emerald-500/10",
-    borderColor: "border-emerald-500/20",
-    glowClass: "",
+    color: "text-success",
+    bgColor: "bg-success/10",
+    borderColor: "border-success/20",
+    label: "Normal",
   },
   borderline: {
     icon: AlertTriangle,
-    color: "text-amber-400",
-    bgColor: "bg-amber-500/10",
-    borderColor: "border-amber-500/20",
-    glowClass: "shadow-amber-500/10",
+    color: "text-warning",
+    bgColor: "bg-warning/10",
+    borderColor: "border-warning/20",
+    label: "Borderline",
   },
   abnormal: {
     icon: AlertCircle,
-    color: "text-rose-400",
-    bgColor: "bg-rose-500/10",
-    borderColor: "border-rose-500/30",
-    glowClass: "shadow-rose-500/20",
+    color: "text-danger",
+    bgColor: "bg-danger/10",
+    borderColor: "border-danger/30",
+    label: "Abnormal",
   },
 }
 
@@ -113,40 +105,26 @@ function RangeVisualization({ test, animate = true }: { test: Test; animate?: bo
   const valuePercent = Math.max(0, Math.min(100, ((value - extendedMin) / totalRange) * 100))
 
   const markerColor = status === "normal"
-    ? "bg-emerald-400"
+    ? "bg-success"
     : status === "borderline"
-      ? "bg-amber-400"
-      : "bg-rose-400"
-
-  const markerGlow = status === "normal"
-    ? "shadow-emerald-400/50"
-    : status === "borderline"
-      ? "shadow-amber-400/50"
-      : "shadow-rose-400/50"
+      ? "bg-warning"
+      : "bg-danger"
 
   return (
-    <div className="relative h-2 group">
+    <div className="relative h-2.5 group mt-3">
       {/* Background track */}
-      <div className="absolute inset-0 bg-white/5 rounded-full overflow-hidden">
+      <div className="absolute inset-0 bg-muted/50 rounded-full overflow-hidden">
         {/* Normal range highlight */}
         <motion.div
           initial={animate ? { opacity: 0 } : false}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="absolute h-full bg-gradient-to-r from-emerald-500/20 via-emerald-500/30 to-emerald-500/20 rounded-full"
+          className="absolute h-full bg-success/20 rounded-full"
           style={{
             left: `${normalStartPercent}%`,
             width: `${normalWidthPercent}%`
           }}
         />
-      </div>
-
-      {/* Min/Max labels on hover */}
-      <div className="absolute -bottom-5 left-0 text-[9px] text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity">
-        {normalRange.min}
-      </div>
-      <div className="absolute -bottom-5 right-0 text-[9px] text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity">
-        {normalRange.max}
       </div>
 
       {/* Value marker */}
@@ -156,40 +134,40 @@ function RangeVisualization({ test, animate = true }: { test: Test; animate?: bo
         transition={{ duration: 0.8, ease: [0.34, 1.56, 0.64, 1], delay: 0.2 }}
         className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2"
       >
-        <div className={`w-3.5 h-3.5 rounded-full ${markerColor} shadow-lg ${markerGlow} ring-2 ring-background`} />
+        <div className={`w-4 h-4 rounded-full ${markerColor} shadow-lg ring-2 ring-background`} />
       </motion.div>
     </div>
   )
 }
 
-function HealthScoreRing({ score, size = 120 }: { score: number; size?: number }) {
-  const radius = (size - 16) / 2
+function HealthScoreRing({ score, size = 140 }: { score: number; size?: number }) {
+  const radius = (size - 20) / 2
   const circumference = 2 * Math.PI * radius
   const strokeDashoffset = circumference - (score / 100) * circumference
 
   const getScoreColor = () => {
-    if (score >= 80) return { stroke: "url(#scoreGradientGood)", text: "text-emerald-400" }
-    if (score >= 60) return { stroke: "url(#scoreGradientOk)", text: "text-amber-400" }
-    return { stroke: "url(#scoreGradientBad)", text: "text-rose-400" }
+    if (score >= 80) return { stroke: "url(#scoreGradientGood)", text: "text-success", label: "Excellent" }
+    if (score >= 60) return { stroke: "url(#scoreGradientOk)", text: "text-warning", label: "Good" }
+    return { stroke: "url(#scoreGradientBad)", text: "text-danger", label: "Needs Attention" }
   }
 
   const colors = getScoreColor()
 
   return (
-    <div className="relative" style={{ width: size, height: size }}>
+    <div className="relative health-ring" style={{ width: size, height: size }}>
       <svg className="w-full h-full transform -rotate-90">
         <defs>
           <linearGradient id="scoreGradientGood" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#10b981" />
-            <stop offset="100%" stopColor="#34d399" />
+            <stop offset="0%" stopColor="oklch(0.65 0.14 145)" />
+            <stop offset="100%" stopColor="oklch(0.70 0.16 145)" />
           </linearGradient>
           <linearGradient id="scoreGradientOk" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#f59e0b" />
-            <stop offset="100%" stopColor="#fbbf24" />
+            <stop offset="0%" stopColor="oklch(0.70 0.15 70)" />
+            <stop offset="100%" stopColor="oklch(0.75 0.16 70)" />
           </linearGradient>
           <linearGradient id="scoreGradientBad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#f43f5e" />
-            <stop offset="100%" stopColor="#fb7185" />
+            <stop offset="0%" stopColor="oklch(0.60 0.18 25)" />
+            <stop offset="100%" stopColor="oklch(0.65 0.16 25)" />
           </linearGradient>
         </defs>
         {/* Background circle */}
@@ -198,9 +176,9 @@ function HealthScoreRing({ score, size = 120 }: { score: number; size?: number }
           cy={size / 2}
           r={radius}
           stroke="currentColor"
-          strokeWidth="8"
+          strokeWidth="10"
           fill="none"
-          className="text-white/5"
+          className="text-muted/30"
         />
         {/* Progress circle */}
         <motion.circle
@@ -208,7 +186,7 @@ function HealthScoreRing({ score, size = 120 }: { score: number; size?: number }
           cy={size / 2}
           r={radius}
           stroke={colors.stroke}
-          strokeWidth="8"
+          strokeWidth="10"
           fill="none"
           strokeLinecap="round"
           initial={{ strokeDasharray: circumference, strokeDashoffset: circumference }}
@@ -222,11 +200,11 @@ function HealthScoreRing({ score, size = 120 }: { score: number; size?: number }
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.6, duration: 0.4, type: "spring" }}
-          className={`text-3xl font-bold ${colors.text}`}
+          className={`text-4xl font-serif font-medium ${colors.text}`}
         >
           {score}
         </motion.span>
-        <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Health Score</span>
+        <span className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{colors.label}</span>
       </div>
     </div>
   )
@@ -320,56 +298,53 @@ export default function ResultsPanel({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="relative overflow-hidden rounded-2xl"
+        className="relative overflow-hidden rounded-2xl card-warm p-6"
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-sky-500/10" />
-        <div className="relative p-6 rounded-2xl glass-card">
-          <div className="flex flex-col sm:flex-row items-center gap-6">
-            {/* Score Ring */}
-            <HealthScoreRing score={stats.healthScore} />
+        <div className="flex flex-col sm:flex-row items-center gap-6">
+          {/* Score Ring */}
+          <HealthScoreRing score={stats.healthScore} />
 
-            {/* Stats */}
-            <div className="flex-1 w-full">
-              <div className="mb-4">
-                <h2 className="text-lg font-semibold text-white/90 mb-1">Overall Assessment</h2>
-                <p className="text-sm text-muted-foreground">
-                  {stats.totalTests} biomarkers analyzed from your report
-                </p>
-              </div>
+          {/* Stats */}
+          <div className="flex-1 w-full">
+            <div className="mb-4">
+              <h2 className="text-xl font-serif font-medium text-foreground mb-1">Your Results</h2>
+              <p className="text-sm text-muted-foreground">
+                {stats.totalTests} biomarkers analyzed from your report
+              </p>
+            </div>
 
-              {/* Mini stat cards */}
-              <div className="grid grid-cols-3 gap-2">
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20"
-                >
-                  <div className="text-xl font-bold text-emerald-400">{stats.normalTests}</div>
-                  <div className="text-[10px] text-emerald-400/70 uppercase tracking-wide">Normal</div>
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                  className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20"
-                >
-                  <div className="text-xl font-bold text-amber-400">{stats.borderlineTests}</div>
-                  <div className="text-[10px] text-amber-400/70 uppercase tracking-wide">Borderline</div>
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 }}
-                  className={`p-3 rounded-xl border ${stats.abnormalTests > 0
-                    ? "bg-rose-500/10 border-rose-500/30"
-                    : "bg-rose-500/5 border-rose-500/10"
-                    }`}
-                >
-                  <div className="text-xl font-bold text-rose-400">{stats.abnormalTests}</div>
-                  <div className="text-[10px] text-rose-400/70 uppercase tracking-wide">Abnormal</div>
-                </motion.div>
-              </div>
+            {/* Mini stat cards */}
+            <div className="grid grid-cols-3 gap-3">
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="p-3 rounded-xl bg-success/10 border border-success/20"
+              >
+                <div className="text-2xl font-mono font-bold text-success">{stats.normalTests}</div>
+                <div className="text-[10px] text-success/80 uppercase tracking-wide font-medium">Normal</div>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="p-3 rounded-xl bg-warning/10 border border-warning/20"
+              >
+                <div className="text-2xl font-mono font-bold text-warning">{stats.borderlineTests}</div>
+                <div className="text-[10px] text-warning/80 uppercase tracking-wide font-medium">Borderline</div>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                className={`p-3 rounded-xl border ${stats.abnormalTests > 0
+                  ? "bg-danger/10 border-danger/30"
+                  : "bg-danger/5 border-danger/10"
+                  }`}
+              >
+                <div className="text-2xl font-mono font-bold text-danger">{stats.abnormalTests}</div>
+                <div className="text-[10px] text-danger/80 uppercase tracking-wide font-medium">Abnormal</div>
+              </motion.div>
             </div>
           </div>
         </div>
@@ -382,21 +357,21 @@ export default function ResultsPanel({
             initial={{ opacity: 0, y: 10, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.98 }}
-            className="p-4 rounded-xl bg-rose-500/5 border border-rose-500/20 backdrop-blur-sm"
+            className="p-4 rounded-xl bg-danger/5 border border-danger/20 breathe-danger"
           >
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-rose-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <AlertCircle className="w-4 h-4 text-rose-400" />
+              <div className="w-10 h-10 rounded-xl bg-danger/10 flex items-center justify-center flex-shrink-0">
+                <AlertCircle className="w-5 h-5 text-danger" />
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="font-medium text-rose-300 text-sm mb-0.5">Attention Required</h4>
-                <p className="text-xs text-muted-foreground leading-relaxed">
+                <h4 className="font-serif font-medium text-danger text-base mb-1">Attention Required</h4>
+                <p className="text-sm text-muted-foreground leading-relaxed">
                   {stats.abnormalTests} test{stats.abnormalTests > 1 ? 's' : ''} outside normal range.
-                  Hover or tap on highlighted cards to see details in the insights panel.
+                  Click on any test card to see detailed insights.
                 </p>
               </div>
-              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs font-medium transition-all flex-shrink-0">
-                <Sparkles className="w-3 h-3" />
+              <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-danger/10 hover:bg-danger/20 text-danger text-sm font-medium transition-all flex-shrink-0 border border-danger/20">
+                <MessageCircle className="w-4 h-4" />
                 Ask AI
               </button>
             </div>
@@ -405,7 +380,7 @@ export default function ResultsPanel({
       </AnimatePresence>
 
       {/* Categories */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {Object.entries(categorizedTests).map(([category, categoryTests], categoryIdx) => {
           const config = categoryConfig[category] || categoryConfig["Other"]
           const Icon = config.icon
@@ -424,29 +399,28 @@ export default function ResultsPanel({
               <button
                 onClick={() => toggleCategory(category)}
                 className={`
-                  w-full flex items-center justify-between p-3 rounded-xl 
-                  bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 hover:border-white/10
-                  transition-all duration-300 mb-2 group
-                  ${categoryAbnormals > 0 ? 'border-rose-500/20 bg-rose-500/[0.02]' : ''}
+                  w-full flex items-center justify-between p-4 rounded-xl
+                  card-warm transition-all duration-300 group
+                  ${categoryAbnormals > 0 ? 'border-danger/30' : ''}
                 `}
               >
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${config.bgGradient} flex items-center justify-center border border-white/5`}>
+                  <div className={`w-11 h-11 rounded-xl ${config.bgColor} flex items-center justify-center border border-border/50`}>
                     <Icon className={`w-5 h-5 ${config.color}`} />
                   </div>
                   <div className="text-left">
-                    <h3 className="font-medium text-sm text-white/90">{category}</h3>
-                    <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                    <h3 className="font-serif font-medium text-foreground">{category}</h3>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
                       <span>{categoryTests.length} tests</span>
                       {categoryAbnormals > 0 && (
-                        <span className="flex items-center gap-1 text-rose-400">
-                          <span className="w-1 h-1 rounded-full bg-rose-400" />
+                        <span className="flex items-center gap-1 text-danger font-medium">
+                          <span className="w-1.5 h-1.5 rounded-full bg-danger" />
                           {categoryAbnormals} abnormal
                         </span>
                       )}
                       {categoryBorderlines > 0 && categoryAbnormals === 0 && (
-                        <span className="flex items-center gap-1 text-amber-400">
-                          <span className="w-1 h-1 rounded-full bg-amber-400" />
+                        <span className="flex items-center gap-1 text-warning font-medium">
+                          <span className="w-1.5 h-1.5 rounded-full bg-warning" />
                           {categoryBorderlines} borderline
                         </span>
                       )}
@@ -456,7 +430,7 @@ export default function ResultsPanel({
                 <motion.div
                   animate={{ rotate: isExpanded ? 180 : 0 }}
                   transition={{ duration: 0.2 }}
-                  className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors"
+                  className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center group-hover:bg-muted transition-colors"
                 >
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 </motion.div>
@@ -472,7 +446,7 @@ export default function ResultsPanel({
                     transition={{ duration: 0.25, ease: "easeInOut" }}
                     className="overflow-hidden"
                   >
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pb-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3">
                       {categoryTests.map((test, testIdx) => {
                         const testConfig = statusConfig[test.status]
                         const StatusIcon = testConfig.icon
@@ -491,35 +465,35 @@ export default function ResultsPanel({
                             onClick={() => handleTestClick(test)}
                             className={`
                               relative p-4 rounded-xl border cursor-pointer
-                              transition-all duration-200 group/card
+                              transition-all duration-200 card-interactive
                               ${testConfig.borderColor} ${testConfig.bgColor}
                               ${isHighlighted
-                                ? "ring-1 ring-primary/50 scale-[1.01] shadow-lg shadow-primary/10 bg-primary/5"
-                                : "hover:bg-white/[0.04] hover:border-white/10"
+                                ? "ring-2 ring-primary/50 scale-[1.01] shadow-lg"
+                                : "hover:shadow-md"
                               }
-                              ${test.status === "abnormal" ? "shadow-lg shadow-rose-500/10" : ""}
+                              ${test.status === "abnormal" ? "breathe-danger" : ""}
                             `}
                           >
                             {/* Abnormal indicator dot */}
                             {test.status === "abnormal" && (
                               <motion.div
-                                animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+                                animate={{ scale: [1, 1.2, 1], opacity: [0.6, 1, 0.6] }}
                                 transition={{ duration: 2, repeat: Infinity }}
-                                className="absolute top-3 right-3 w-2 h-2 rounded-full bg-rose-400"
+                                className="absolute top-3 right-3 w-2.5 h-2.5 rounded-full bg-danger"
                               />
                             )}
 
                             {/* Content */}
-                            <div className="flex items-start justify-between gap-3 mb-3">
+                            <div className="flex items-start justify-between gap-3 mb-1">
                               <div className="flex-1 min-w-0">
-                                <h4 className="font-medium text-sm text-white/90 truncate mb-0.5">{test.name}</h4>
-                                <div className="flex items-baseline gap-1.5">
-                                  <span className="text-2xl font-mono font-semibold text-white">{test.value}</span>
+                                <h4 className="font-medium text-sm text-foreground truncate">{test.name}</h4>
+                                <div className="flex items-baseline gap-2 mt-1">
+                                  <span className="text-2xl font-mono font-semibold text-foreground">{test.value}</span>
                                   <span className="text-xs text-muted-foreground">{test.unit}</span>
                                 </div>
                               </div>
-                              <div className={`w-7 h-7 rounded-lg ${testConfig.bgColor} flex items-center justify-center border ${testConfig.borderColor}`}>
-                                <StatusIcon className={`w-3.5 h-3.5 ${testConfig.color}`} />
+                              <div className={`w-8 h-8 rounded-lg ${testConfig.bgColor} flex items-center justify-center border ${testConfig.borderColor}`}>
+                                <StatusIcon className={`w-4 h-4 ${testConfig.color}`} />
                               </div>
                             </div>
 
@@ -533,10 +507,10 @@ export default function ResultsPanel({
                               className="mt-3 flex items-center justify-between text-[10px]"
                             >
                               <span className={`${testConfig.color} font-medium`}>
-                                {test.status === "normal" ? "Within range" : test.status === "borderline" ? "Near boundary" : "Outside range"}
+                                {testConfig.label}
                               </span>
-                              <span className="flex items-center gap-1 text-primary">
-                                View insights <ArrowRight className="w-2.5 h-2.5" />
+                              <span className="flex items-center gap-1 text-primary font-medium">
+                                View details <ArrowRight className="w-3 h-3" />
                               </span>
                             </motion.div>
                           </motion.div>

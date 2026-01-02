@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
-  MessageSquare, Send, Maximize2, Minimize2, X, Sparkles,
+  MessageCircle, Send, Maximize2, Minimize2, X, HeartPulse,
   Bot, User, AlertCircle, RefreshCw, ChevronUp, Loader2
 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
@@ -21,22 +21,22 @@ const suggestedQuestions = [
   {
     text: "Explain all my abnormal results",
     icon: AlertCircle,
-    color: "text-rose-400 bg-rose-500/10 border-rose-500/20"
+    color: "text-danger bg-danger/10 border-danger/20"
   },
   {
     text: "What lifestyle changes do you recommend?",
-    icon: Sparkles,
-    color: "text-amber-400 bg-amber-500/10 border-amber-500/20"
+    icon: HeartPulse,
+    color: "text-warning bg-warning/10 border-warning/20"
   },
   {
     text: "Should I be concerned about anything?",
     icon: AlertCircle,
-    color: "text-sky-400 bg-sky-500/10 border-sky-500/20"
+    color: "text-primary bg-primary/10 border-primary/20"
   },
   {
     text: "Give me a summary of my overall health",
     icon: Bot,
-    color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
+    color: "text-success bg-success/10 border-success/20"
   },
 ]
 
@@ -143,17 +143,17 @@ export default function ChatDrawer({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsOpen(true)}
-              className="relative group flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-gradient-to-r from-primary to-sky-500 text-white font-medium shadow-2xl shadow-primary/30"
+              className="relative group flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium shadow-2xl glow-primary"
             >
               {/* Glow effect */}
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary to-sky-500 opacity-0 group-hover:opacity-50 blur-xl transition-opacity" />
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-50 blur-xl transition-opacity" />
 
               <div className="relative flex items-center gap-3">
                 <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4" />
+                  <MessageCircle className="w-4 h-4" />
                 </div>
-                <span className="text-sm">Ask AI Assistant</span>
-                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+                <span className="text-sm">Ask Health Assistant</span>
+                <div className="w-2 h-2 bg-success rounded-full animate-pulse" />
               </div>
             </motion.button>
           </motion.div>
@@ -168,11 +168,11 @@ export default function ChatDrawer({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-0 left-1/2 -translate-x-1/2 z-30 px-6 py-2 rounded-t-xl bg-white/5 border border-b-0 border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all group"
+            className="fixed bottom-0 left-1/2 -translate-x-1/2 z-30 px-6 py-2 rounded-t-xl bg-card/80 border border-b-0 border-border backdrop-blur-sm hover:bg-card transition-all group"
           >
-            <div className="flex items-center gap-2 text-sm text-muted-foreground group-hover:text-white transition-colors">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground group-hover:text-foreground transition-colors">
               <ChevronUp className="w-4 h-4" />
-              <span>AI Chat</span>
+              <span>Health Assistant</span>
             </div>
           </motion.button>
         )}
@@ -202,31 +202,31 @@ export default function ChatDrawer({
               className="fixed bottom-0 left-0 right-0 z-50 flex flex-col"
             >
               {/* Glass background */}
-              <div className="absolute inset-0 bg-[#0a0a0f]/95 backdrop-blur-2xl rounded-t-3xl border-t border-white/10" />
+              <div className="absolute inset-0 bg-card/95 backdrop-blur-2xl rounded-t-3xl border-t border-border" />
 
               {/* Content */}
               <div className="relative flex flex-col h-full rounded-t-3xl overflow-hidden">
                 {/* Drag handle */}
                 <div className="flex justify-center pt-3 pb-1">
-                  <div className="w-12 h-1 rounded-full bg-white/20" />
+                  <div className="w-12 h-1 rounded-full bg-border" />
                 </div>
 
                 {/* Header */}
-                <div className="flex items-center justify-between px-5 py-3 border-b border-white/5">
+                <div className="flex items-center justify-between px-5 py-3 border-b border-border">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-sky-500 flex items-center justify-center shadow-lg shadow-primary/20">
-                      <Sparkles className="w-5 h-5 text-white" />
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg pulse-life">
+                      <MessageCircle className="w-5 h-5 text-primary-foreground" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-white/90">AI Health Assistant</h3>
-                      <p className="text-[10px] text-muted-foreground">Powered by Gemini</p>
+                      <h3 className="font-serif font-medium text-foreground">Health Assistant</h3>
+                      <p className="text-[10px] text-muted-foreground">Ask about your results</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5">
                     {messages.length > 0 && (
                       <button
                         onClick={handleClearChat}
-                        className="p-2 rounded-lg hover:bg-white/10 transition-colors text-muted-foreground hover:text-white"
+                        className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
                         title="Clear chat"
                       >
                         <RefreshCw className="w-4 h-4" />
@@ -234,13 +234,13 @@ export default function ChatDrawer({
                     )}
                     <button
                       onClick={() => setIsMaximized(!isMaximized)}
-                      className="p-2 rounded-lg hover:bg-white/10 transition-colors text-muted-foreground hover:text-white"
+                      className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
                     >
                       {isMaximized ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
                     </button>
                     <button
                       onClick={() => setIsOpen(false)}
-                      className="p-2 rounded-lg hover:bg-white/10 transition-colors text-muted-foreground hover:text-white"
+                      className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -273,10 +273,10 @@ export default function ChatDrawer({
                       animate={{ opacity: 1, y: 0 }}
                       className="h-full flex flex-col items-center justify-center py-8"
                     >
-                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-sky-500/20 flex items-center justify-center mb-4 border border-white/10">
+                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-4 border border-border pulse-life">
                         <Bot className="w-8 h-8 text-primary" />
                       </div>
-                      <h4 className="text-lg font-medium text-white/90 mb-2">How can I help you?</h4>
+                      <h4 className="text-lg font-serif font-medium text-foreground mb-2">How can I help you?</h4>
                       <p className="text-sm text-muted-foreground text-center max-w-sm mb-6">
                         Ask me anything about your blood test results. I'll provide personalized insights and explanations.
                       </p>
@@ -290,7 +290,7 @@ export default function ChatDrawer({
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.1 + idx * 0.05 }}
                             onClick={() => handleSubmit(question.text)}
-                            className={`flex items-center gap-2 p-3 rounded-xl border text-left transition-all hover:scale-[1.02] ${question.color}`}
+                            className={`flex items-center gap-2 p-3 rounded-xl border text-left transition-all hover:scale-[1.02] card-interactive ${question.color}`}
                           >
                             <question.icon className="w-4 h-4 flex-shrink-0" />
                             <span className="text-xs font-medium">{question.text}</span>
@@ -315,7 +315,7 @@ export default function ChatDrawer({
                             {message.role === "user" ? (
                               <User className="w-4 h-4 text-primary" />
                             ) : (
-                              <Bot className="w-4 h-4 text-white" />
+                              <Bot className="w-4 h-4 text-primary-foreground" />
                             )}
                           </div>
 
@@ -323,15 +323,15 @@ export default function ChatDrawer({
                           <div
                             className={`max-w-[80%] p-4 rounded-2xl ${message.role === "user"
                               ? "bg-primary/20 border border-primary/30"
-                              : "bg-white/5 border border-white/10"
+                              : "bg-muted/50 border border-border"
                               }`}
                           >
                             {message.role === "assistant" ? (
-                              <div className="prose prose-invert prose-sm max-w-none prose-p:text-white/80 prose-headings:text-white/90 prose-strong:text-white prose-li:text-white/80">
+                              <div className="prose prose-sm max-w-none prose-p:text-foreground/80 prose-headings:text-foreground prose-strong:text-foreground prose-li:text-foreground/80 prose-a:text-primary">
                                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
                               </div>
                             ) : (
-                              <p className="text-sm text-white/90">{message.content}</p>
+                              <p className="text-sm text-foreground">{message.content}</p>
                             )}
                           </div>
                         </motion.div>
@@ -345,9 +345,9 @@ export default function ChatDrawer({
                           className="flex gap-3"
                         >
                           <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0">
-                            <Bot className="w-4 h-4 text-white" />
+                            <Bot className="w-4 h-4 text-primary-foreground" />
                           </div>
-                          <div className="bg-white/5 border border-white/10 px-5 py-4 rounded-2xl">
+                          <div className="bg-muted/50 border border-border px-5 py-4 rounded-2xl">
                             <div className="flex items-center gap-2">
                               <Loader2 className="w-4 h-4 text-primary animate-spin" />
                               <span className="text-sm text-muted-foreground">Analyzing...</span>
@@ -362,7 +362,7 @@ export default function ChatDrawer({
                 </div>
 
                 {/* Input Area */}
-                <div className="p-4 border-t border-white/5 bg-[#0a0a0f]">
+                <div className="p-4 border-t border-border bg-card">
                   <form
                     onSubmit={(e) => {
                       e.preventDefault()
@@ -377,14 +377,14 @@ export default function ChatDrawer({
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         placeholder="Ask about your results..."
-                        className="w-full px-4 py-3 pr-12 rounded-xl bg-white/5 border border-white/10 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm placeholder:text-muted-foreground"
+                        className="w-full px-4 py-3 pr-12 rounded-xl bg-muted/50 border border-border focus:border-primary/50 focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm placeholder:text-muted-foreground"
                         disabled={isLoading}
                       />
                     </div>
                     <button
                       type="submit"
                       disabled={!input.trim() || isLoading}
-                      className="px-5 py-3 rounded-xl bg-gradient-to-r from-primary to-accent text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-all flex items-center gap-2 shadow-lg shadow-primary/20"
+                      className="px-5 py-3 rounded-xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-all flex items-center gap-2 shadow-lg"
                     >
                       {isLoading ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -397,14 +397,14 @@ export default function ChatDrawer({
 
                   {/* Quick actions when chat has messages */}
                   {messages.length > 0 && (
-                    <div className="flex items-center gap-2 mt-2 pt-2 border-t border-white/5">
+                    <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border">
                       <span className="text-[10px] text-muted-foreground">Quick:</span>
                       {["Explain more", "What should I do?", "Are there risks?"].map((q, i) => (
                         <button
                           key={i}
                           onClick={() => handleSubmit(q)}
                           disabled={isLoading}
-                          className="px-2 py-1 rounded-md bg-white/5 hover:bg-white/10 text-[10px] text-muted-foreground hover:text-white transition-all disabled:opacity-50"
+                          className="px-2 py-1 rounded-md bg-muted/50 hover:bg-muted text-[10px] text-muted-foreground hover:text-foreground transition-all disabled:opacity-50 border border-border"
                         >
                           {q}
                         </button>

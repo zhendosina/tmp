@@ -3,88 +3,129 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ============================================
+   BLOODPARSER - "LIVING DOCUMENT" DESIGN SYSTEM
+   A warm, clinical aesthetic that feels alive
+   ============================================ */
+
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.55 0.20 255);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.92 0.03 250);
-  --secondary-foreground: oklch(0.15 0 0);
-  --muted: oklch(0.90 0.02 250);
-  --muted-foreground: oklch(0.55 0 0);
-  --accent: oklch(0.78 0.15 210);
-  --accent-foreground: oklch(0.08 0 0);
-  --destructive: oklch(0.57 0.24 27.3);
+  /* Warm Ivory Light Theme */
+  --background: oklch(0.98 0.01 75);
+  --foreground: oklch(0.20 0.02 30);
+  --card: oklch(0.99 0.005 75);
+  --card-foreground: oklch(0.20 0.02 30);
+  --popover: oklch(0.99 0.005 75);
+  --popover-foreground: oklch(0.20 0.02 30);
+
+  /* Primary: Deep Burgundy/Wine */
+  --primary: oklch(0.45 0.15 15);
+  --primary-foreground: oklch(0.98 0.01 75);
+
+  /* Secondary: Warm Taupe */
+  --secondary: oklch(0.92 0.02 60);
+  --secondary-foreground: oklch(0.25 0.02 30);
+
+  /* Muted: Warm Gray */
+  --muted: oklch(0.94 0.01 60);
+  --muted-foreground: oklch(0.50 0.02 30);
+
+  /* Accent: Terracotta */
+  --accent: oklch(0.60 0.14 45);
+  --accent-foreground: oklch(0.98 0.01 75);
+
+  --destructive: oklch(0.55 0.20 25);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.85 0 0);
-  --input: oklch(0.88 0 0);
-  --ring: oklch(0.65 0.20 250);
-  --chart-1: oklch(0.70 0.18 230);
-  --chart-2: oklch(0.65 0.20 200);
-  --chart-3: oklch(0.60 0.16 180);
-  --chart-4: oklch(0.72 0.18 210);
-  --chart-5: oklch(0.68 0.22 140);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.96 0.01 250);
-  --sidebar-foreground: oklch(0.15 0 0);
-  --sidebar-primary: oklch(0.55 0.20 255);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.78 0.15 210);
-  --sidebar-accent-foreground: oklch(0.08 0 0);
-  --sidebar-border: oklch(0.85 0 0);
-  --sidebar-ring: oklch(0.65 0.20 250);
+  --border: oklch(0.88 0.02 60);
+  --input: oklch(0.94 0.01 60);
+  --ring: oklch(0.45 0.15 15);
+
+  /* Medical Status Colors */
+  --success: oklch(0.55 0.14 145);
+  --success-foreground: oklch(0.98 0.01 145);
+  --warning: oklch(0.70 0.15 70);
+  --warning-foreground: oklch(0.20 0.02 70);
+  --danger: oklch(0.55 0.18 25);
+  --danger-foreground: oklch(0.98 0.01 25);
+
+  /* Chart Colors - Warm Palette */
+  --chart-1: oklch(0.45 0.15 15);
+  --chart-2: oklch(0.55 0.14 145);
+  --chart-3: oklch(0.60 0.14 45);
+  --chart-4: oklch(0.70 0.15 70);
+  --chart-5: oklch(0.50 0.12 200);
+
+  --radius: 0.75rem;
+
+  --sidebar: oklch(0.96 0.01 60);
+  --sidebar-foreground: oklch(0.20 0.02 30);
+  --sidebar-primary: oklch(0.45 0.15 15);
+  --sidebar-primary-foreground: oklch(0.98 0.01 75);
+  --sidebar-accent: oklch(0.60 0.14 45);
+  --sidebar-accent-foreground: oklch(0.98 0.01 75);
+  --sidebar-border: oklch(0.88 0.02 60);
+  --sidebar-ring: oklch(0.45 0.15 15);
 }
 
 .dark {
-  /* Deep space cool-blue theme */
-  --background: oklch(0.10 0.03 260);
-  --foreground: oklch(0.98 0 0);
-  --card: oklch(0.12 0.03 260);
-  --card-foreground: oklch(0.97 0 0);
-  --popover: oklch(0.12 0.03 260);
-  --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.72 0.20 240);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.20 0.03 260);
-  --secondary-foreground: oklch(0.90 0 0);
-  --muted: oklch(0.18 0.03 260);
-  --muted-foreground: oklch(0.65 0 0);
-  --accent: oklch(0.70 0.15 210);
-  --accent-foreground: oklch(1 0 0);
-  --destructive: oklch(0.55 0.22 25);
+  /* Deep Warm Charcoal Theme - Like aged paper in low light */
+  --background: oklch(0.14 0.02 45);
+  --foreground: oklch(0.93 0.02 75);
+  --card: oklch(0.17 0.02 45);
+  --card-foreground: oklch(0.92 0.02 75);
+  --popover: oklch(0.17 0.02 45);
+  --popover-foreground: oklch(0.93 0.02 75);
+
+  /* Primary: Warm Rose/Burgundy - The color of life */
+  --primary: oklch(0.65 0.16 15);
+  --primary-foreground: oklch(0.98 0.01 75);
+
+  /* Secondary: Warm Brown */
+  --secondary: oklch(0.25 0.03 45);
+  --secondary-foreground: oklch(0.88 0.02 75);
+
+  /* Muted: Warm Charcoal */
+  --muted: oklch(0.22 0.02 45);
+  --muted-foreground: oklch(0.60 0.02 60);
+
+  /* Accent: Terracotta/Coral */
+  --accent: oklch(0.68 0.14 40);
+  --accent-foreground: oklch(0.98 0.01 75);
+
+  --destructive: oklch(0.60 0.20 25);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.22 0.03 260);
-  --input: oklch(0.16 0.03 260);
-  --ring: oklch(0.70 0.20 240);
-  /* Medical status colors */
-  --success: oklch(0.70 0.18 150);
-  --success-foreground: oklch(1 0 0);
-  --warning: oklch(0.80 0.18 80);
-  --warning-foreground: oklch(0.1 0 0);
-  --danger: oklch(0.60 0.24 25);
-  --danger-foreground: oklch(1 0 0);
-  --chart-1: oklch(0.72 0.20 240);
-  --chart-2: oklch(0.68 0.18 210);
-  --chart-3: oklch(0.70 0.18 180);
-  --chart-4: oolingheadline: var(--color-primary);
-  --chart-5: oklch(0.65 0.24 140);
-  --sidebar: oklch(0.10 0.03 260);
-  --sidebar-foreground: oklch(0.98 0 0);
-  --sidebar-primary: oklch(0.72 0.20 240);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.20 0.03 260);
-  --sidebar-accent-foreground: oklch(0.98 0 0);
-  --sidebar-border: oklch(0.22 0.03 260);
-  --sidebar-ring: oklch(0.45 0.05 260);
+  --border: oklch(0.25 0.02 45);
+  --input: oklch(0.20 0.02 45);
+  --ring: oklch(0.65 0.16 15);
+
+  /* Medical Status Colors - Softer, more organic */
+  --success: oklch(0.65 0.14 145);
+  --success-foreground: oklch(0.98 0.01 145);
+  --warning: oklch(0.75 0.14 70);
+  --warning-foreground: oklch(0.15 0.02 70);
+  --danger: oklch(0.62 0.18 25);
+  --danger-foreground: oklch(0.98 0.01 25);
+
+  /* Chart Colors */
+  --chart-1: oklch(0.65 0.16 15);
+  --chart-2: oklch(0.65 0.14 145);
+  --chart-3: oklch(0.68 0.14 40);
+  --chart-4: oklch(0.75 0.14 70);
+  --chart-5: oklch(0.60 0.12 200);
+
+  --sidebar: oklch(0.14 0.02 45);
+  --sidebar-foreground: oklch(0.93 0.02 75);
+  --sidebar-primary: oklch(0.65 0.16 15);
+  --sidebar-primary-foreground: oklch(0.98 0.01 75);
+  --sidebar-accent: oklch(0.25 0.03 45);
+  --sidebar-accent-foreground: oklch(0.93 0.02 75);
+  --sidebar-border: oklch(0.25 0.02 45);
+  --sidebar-ring: oklch(0.45 0.05 45);
 }
 
 @theme inline {
-  --font-sans: "Geist", "Geist Fallback";
-  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --font-sans: "Source Sans 3", "Source Sans 3 Fallback", system-ui, sans-serif;
+  --font-serif: "Newsreader", "Newsreader Fallback", Georgia, serif;
+  --font-mono: "JetBrains Mono", "JetBrains Mono Fallback", monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -144,10 +185,34 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Custom scrollbar */
+/* ============================================
+   TYPOGRAPHY - Editorial & Medical Journal Feel
+   ============================================ */
+
+.font-display {
+  font-family: var(--font-serif);
+  font-feature-settings: "kern" 1, "liga" 1;
+}
+
+.font-body {
+  font-family: var(--font-sans);
+  font-feature-settings: "kern" 1;
+}
+
+/* Elegant heading styles */
+h1, h2, h3 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+/* ============================================
+   CUSTOM SCROLLBAR - Warm & Subtle
+   ============================================ */
+
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -155,70 +220,347 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-muted);
-  border-radius: 3px;
+  background: color-mix(in oklch, var(--color-primary) 25%, transparent);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: content-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-muted-foreground);
+  background: color-mix(in oklch, var(--color-primary) 40%, transparent);
+  background-clip: content-box;
 }
 
-/* Glow effects */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklch, var(--color-primary) 20%, transparent) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+/* ============================================
+   THE LIVING PULSE - Core Animation System
+   Everything gently breathes like a heartbeat
+   ============================================ */
+
+/* Slow, organic pulse - like a resting heartbeat (60bpm = 1s) */
+@keyframes pulse-life {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.02);
+  }
+}
+
+.pulse-life {
+  animation: pulse-life 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Faster pulse for attention items */
+@keyframes pulse-vital {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.04);
+  }
+}
+
+.pulse-vital {
+  animation: pulse-vital 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Gentle breathing glow */
+@keyframes breathe-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 color-mix(in oklch, var(--color-primary) 0%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 20px 5px color-mix(in oklch, var(--color-primary) 15%, transparent);
+  }
+}
+
+.breathe-glow {
+  animation: breathe-glow 4s ease-in-out infinite;
+}
+
+/* Abnormal value breathing - more urgent */
+@keyframes breathe-danger {
+  0%, 100% {
+    box-shadow:
+      0 0 0 0 color-mix(in oklch, var(--color-danger) 0%, transparent),
+      inset 0 0 0 1px color-mix(in oklch, var(--color-danger) 30%, transparent);
+  }
+  50% {
+    box-shadow:
+      0 0 25px 8px color-mix(in oklch, var(--color-danger) 20%, transparent),
+      inset 0 0 0 1px color-mix(in oklch, var(--color-danger) 50%, transparent);
+  }
+}
+
+.breathe-danger {
+  animation: breathe-danger 2.5s ease-in-out infinite;
+}
+
+/* Success breathing - calm and healthy */
+@keyframes breathe-success {
+  0%, 100% {
+    box-shadow: 0 0 0 0 color-mix(in oklch, var(--color-success) 0%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 15px 3px color-mix(in oklch, var(--color-success) 15%, transparent);
+  }
+}
+
+.breathe-success {
+  animation: breathe-success 5s ease-in-out infinite;
+}
+
+/* ============================================
+   ORGANIC FLOW ANIMATIONS
+   Blood flows, it doesn't teleport
+   ============================================ */
+
+@keyframes flow-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.flow-in {
+  animation: flow-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Staggered flow animations */
+.flow-delay-1 { animation-delay: 0.1s; }
+.flow-delay-2 { animation-delay: 0.2s; }
+.flow-delay-3 { animation-delay: 0.3s; }
+.flow-delay-4 { animation-delay: 0.4s; }
+.flow-delay-5 { animation-delay: 0.5s; }
+
+/* Fluid reveal for text/content */
+@keyframes reveal {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal {
+  animation: reveal 0.5s ease-out forwards;
+}
+
+/* ============================================
+   PAPER & TEXTURE
+   The tactile feeling of a medical document
+   ============================================ */
+
+/* Subtle paper texture overlay */
+.paper-texture::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.02;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* Warm noise overlay for backgrounds */
+.noise-warm::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.015;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+/* ============================================
+   CARD STYLES - Warm & Tactile
+   ============================================ */
+
+.card-warm {
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--color-card) 100%, transparent) 0%,
+    color-mix(in oklch, var(--color-card) 95%, transparent) 100%
+  );
+  border: 1px solid color-mix(in oklch, var(--color-border) 80%, transparent);
+  box-shadow:
+    0 1px 3px color-mix(in oklch, var(--color-primary) 5%, transparent),
+    0 4px 12px color-mix(in oklch, var(--color-primary) 3%, transparent);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-warm:hover {
+  border-color: color-mix(in oklch, var(--color-primary) 30%, transparent);
+  box-shadow:
+    0 2px 8px color-mix(in oklch, var(--color-primary) 8%, transparent),
+    0 8px 24px color-mix(in oklch, var(--color-primary) 5%, transparent);
+  transform: translateY(-2px);
+}
+
+/* Interactive card with subtle lift */
+.card-interactive {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 20px color-mix(in oklch, var(--color-primary) 10%, transparent),
+    0 0 0 1px color-mix(in oklch, var(--color-primary) 20%, transparent);
+}
+
+/* Glass effect - warm tint */
+.glass-warm {
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--color-card) 70%, transparent) 0%,
+    color-mix(in oklch, var(--color-card) 50%, transparent) 100%
+  );
+  backdrop-filter: blur(20px) saturate(1.3);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  border: 1px solid color-mix(in oklch, var(--color-foreground) 6%, transparent);
+}
+
+/* ============================================
+   GLOW EFFECTS - Warm & Organic
+   ============================================ */
+
 .glow-primary {
   box-shadow:
-    0 0 20px color-mix(in oklch, var(--color-primary) 25%, transparent),
-    0 0 40px color-mix(in oklch, var(--color-primary) 15%, transparent);
+    0 0 20px color-mix(in oklch, var(--color-primary) 20%, transparent),
+    0 0 40px color-mix(in oklch, var(--color-primary) 10%, transparent);
 }
 
 .glow-success {
   box-shadow:
-    0 0 20px color-mix(in oklch, var(--color-success) 25%, transparent),
-    0 0 40px color-mix(in oklch, var(--color-success) 15%, transparent);
+    0 0 20px color-mix(in oklch, var(--color-success) 20%, transparent),
+    0 0 40px color-mix(in oklch, var(--color-success) 10%, transparent);
 }
 
 .glow-danger {
   box-shadow:
-    0 0 25px color-mix(in oklch, var(--color-danger) 35%, transparent),
-    0 0 50px color-mix(in oklch, var(--color-danger) 20%, transparent),
-    inset 0 0 20px color-mix(in oklch, var(--color-danger) 5%, transparent);
+    0 0 25px color-mix(in oklch, var(--color-danger) 25%, transparent),
+    0 0 50px color-mix(in oklch, var(--color-danger) 15%, transparent);
 }
 
 .glow-warning {
   box-shadow:
-    0 0 20px color-mix(in oklch, var(--color-warning) 30%, transparent),
-    0 0 40px color-mix(in oklch, var(--color-warning) 15%, transparent);
+    0 0 20px color-mix(in oklch, var(--color-warning) 25%, transparent),
+    0 0 40px color-mix(in oklch, var(--color-warning) 12%, transparent);
 }
 
-.glow-accent {
-  box-shadow:
-    0 0 20px color-mix(in oklch, var(--color-accent) 25%, transparent),
-    0 0 40px color-mix(in oklch, var(--color-accent) 15%, transparent);
+/* ============================================
+   STATUS INDICATORS
+   ============================================ */
+
+.status-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
 }
 
-/* Glassmorphism */
-.glass {
-  background: linear-gradient(135deg,
-      color-mix(in oklch, var(--color-card) 60%, transparent) 0%,
-      color-mix(in oklch, var(--color-card) 40%, transparent) 100%);
-  backdrop-filter: blur(20px) saturate(1.5);
-  -webkit-backdrop-filter: blur(20px) saturate(1.5);
-  border: 1px solid color-mix(in oklch, white 8%, transparent);
+.status-dot::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  animation: pulse-ring 2s ease-out infinite;
 }
 
-.glass-strong {
-  background: linear-gradient(135deg,
-      color-mix(in oklch, var(--color-card) 80%, transparent) 0%,
-      color-mix(in oklch, var(--color-card) 60%, transparent) 100%);
-  backdrop-filter: blur(30px) saturate(1.8);
-  -webkit-backdrop-filter: blur(30px) saturate(1.8);
-  border: 1px solid color-mix(in oklch, white 12%, transparent);
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
 }
 
-/* Gradient borders */
+.status-normal {
+  --status-color: var(--color-success);
+  background: var(--status-color);
+}
+
+.status-normal::after {
+  background: var(--status-color);
+}
+
+.status-borderline {
+  --status-color: var(--color-warning);
+  background: var(--status-color);
+}
+
+.status-borderline::after {
+  background: var(--status-color);
+}
+
+.status-abnormal {
+  --status-color: var(--color-danger);
+  background: var(--status-color);
+}
+
+.status-abnormal::after {
+  background: var(--status-color);
+}
+
+/* ============================================
+   TEXT GRADIENTS - Warm Blood Tones
+   ============================================ */
+
+.text-gradient-primary {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-health {
+  background: linear-gradient(135deg, var(--color-success), oklch(0.70 0.14 145));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-warm {
+  background: linear-gradient(135deg, var(--color-primary), oklch(0.72 0.14 30));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================
+   GRADIENT BORDERS - Organic Feel
+   ============================================ */
+
 .gradient-border {
   position: relative;
   background: var(--color-card);
-  border-radius: 1rem;
+  border-radius: var(--radius);
 }
 
 .gradient-border::before {
@@ -227,429 +569,80 @@ html {
   inset: -1px;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(135deg,
-      var(--color-primary),
-      var(--color-accent));
+  background: linear-gradient(
+    135deg,
+    var(--color-primary),
+    var(--color-accent)
+  );
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
 }
 
-.gradient-border-danger {
-  position: relative;
-}
+/* ============================================
+   SCANNING/PROCESSING ANIMATION
+   More organic, like a pulse wave
+   ============================================ */
 
-.gradient-border-danger::before {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  border-radius: inherit;
-  padding: 2px;
-  background: linear-gradient(135deg,
-      var(--color-danger),
-      var(--color-warning),
-      var(--color-danger));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  animation: gradient-rotate 3s linear infinite;
-}
-
-@keyframes gradient-rotate {
+@keyframes scan-pulse {
   0% {
-    background: linear-gradient(0deg, var(--color-danger), var(--color-warning), var(--color-danger));
-  }
-
-  25% {
-    background: linear-gradient(90deg, var(--color-danger), var(--color-warning), var(--color-danger));
-  }
-
-  50% {
-    background: linear-gradient(180deg, var(--color-danger), var(--color-warning), var(--color-danger));
-  }
-
-  75% {
-    background: linear-gradient(270deg, var(--color-danger), var(--color-warning), var(--color-danger));
-  }
-
-  100% {
-    background: linear-gradient(360deg, var(--color-danger), var(--color-warning), var(--color-danger));
-  }
-}
-
-/* Pulse animation for abnormal values */
-@keyframes pulse-glow {
-
-  0%,
-  100% {
-    box-shadow:
-      0 0 20px color-mix(in oklch, var(--color-danger) 30%, transparent),
-      0 0 40px color-mix(in oklch, var(--color-danger) 15%, transparent);
-  }
-
-  50% {
-    box-shadow:
-      0 0 30px color-mix(in oklch, var(--color-danger) 50%, transparent),
-      0 0 60px color-mix(in oklch, var(--color-danger) 25%, transparent);
-  }
-}
-
-.pulse-glow-danger {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
-/* Shimmer effect for loading */
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-.shimmer {
-  background: linear-gradient(90deg,
-      transparent 0%,
-      color-mix(in oklch, white 5%, transparent) 50%,
-      transparent 100%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-/* Scanning line effect */
-@keyframes scan-line {
-  0% {
-    top: -10%;
+    top: 0%;
     opacity: 0;
+    height: 2px;
   }
-
   10% {
     opacity: 1;
+    height: 4px;
   }
-
   90% {
     opacity: 1;
+    height: 4px;
   }
-
   100% {
-    top: 110%;
+    top: 100%;
     opacity: 0;
+    height: 2px;
   }
 }
 
 .scan-line {
   position: absolute;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg,
-      transparent,
-      var(--color-primary),
-      var(--color-accent),
-      var(--color-primary),
-      transparent);
-  box-shadow:
-    0 0 10px var(--color-primary),
-    0 0 20px var(--color-primary);
-  animation: scan-line 2s ease-in-out infinite;
-}
-
-/* Floating animation */
-@keyframes float {
-
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-.float {
-  animation: float 3s ease-in-out infinite;
-}
-
-/* Stagger animation delays */
-.stagger-1 {
-  animation-delay: 0.1s;
-}
-
-.stagger-2 {
-  animation-delay: 0.2s;
-}
-
-.stagger-3 {
-  animation-delay: 0.3s;
-}
-
-.stagger-4 {
-  animation-delay: 0.4s;
-}
-
-.stagger-5 {
-  animation-delay: 0.5s;
-}
-
-/* Text gradient */
-.text-gradient {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.text-gradient-health {
-  background: linear-gradient(135deg, var(--color-success), #4ade80);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Noise texture overlay */
-.noise-overlay::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0.015;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-}
-
-/* Card hover effects */
-.card-interactive {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.card-interactive:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 10px 40px -10px color-mix(in oklch, var(--color-primary) 20%, transparent),
-    0 0 0 1px color-mix(in oklch, var(--color-primary) 30%, transparent);
-}
-
-/* Progress bar animations */
-@keyframes progress-shine {
-  0% {
-    transform: translateX(-100%);
-  }
-
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-.progress-shine::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg,
-      transparent,
-      color-mix(in oklch, white 30%, transparent),
-      transparent);
-  animation: progress-shine 2s ease-in-out infinite;
-}
-
-/* Dot grid background pattern */
-.dot-grid {
-  background-image: radial-gradient(circle at 1px 1px,
-      color-mix(in oklch, white 5%, transparent) 1px,
-      transparent 0);
-  background-size: 24px 24px;
-}
-
-/* Prose customization for markdown */
-.prose-medical {
-  --tw-prose-body: var(--color-muted-foreground);
-  --tw-prose-headings: var(--color-foreground);
-  --tw-prose-links: var(--color-primary);
-  --tw-prose-bold: var(--color-foreground);
-  --tw-prose-code: var(--color-primary);
-}
-
-.prose-medical :where(code):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-  background: color-mix(in oklch, var(--color-primary) 15%, transparent);
-  padding: 0.2em 0.4em;
-  border-radius: 0.25rem;
-  font-weight: 500;
-}
-
-.prose-medical :where(code):not(:where([class~="not-prose"], [class~="not-prose"] *))::before,
-.prose-medical :where(code):not(:where([class~="not-prose"], [class~="not-prose"] *))::after {
-  content: none;
-}
-
-/* Enhanced glassmorphism cards */
-.glass-card {
-  background: linear-gradient(135deg,
-      color-mix(in oklch, var(--color-card) 70%, transparent) 0%,
-      color-mix(in oklch, var(--color-card) 50%, transparent) 100%);
-  backdrop-filter: blur(24px) saturate(1.6);
-  -webkit-backdrop-filter: blur(24px) saturate(1.6);
-  border: 1px solid color-mix(in oklch, white 6%, transparent);
-  box-shadow:
-    0 4px 30px -4px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 color-mix(in oklch, white 5%, transparent);
-}
-
-.glass-card-hover {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.glass-card-hover:hover {
-  background: linear-gradient(135deg,
-      color-mix(in oklch, var(--color-card) 80%, transparent) 0%,
-      color-mix(in oklch, var(--color-card) 60%, transparent) 100%);
-  border-color: color-mix(in oklch, white 10%, transparent);
-  box-shadow:
-    0 8px 40px -8px rgba(0, 0, 0, 0.4),
-    0 0 0 1px color-mix(in oklch, var(--color-primary) 20%, transparent),
-    inset 0 1px 0 color-mix(in oklch, white 8%, transparent);
-}
-
-/* Radial gradient utility */
-.bg-gradient-radial {
-  background: radial-gradient(circle, var(--tw-gradient-stops));
-}
-
-/* Thin scrollbar */
-.scrollbar-thin {
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in oklch, white 10%, transparent) transparent;
-}
-
-.scrollbar-thin::-webkit-scrollbar {
-  width: 4px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background: color-mix(in oklch, white 10%, transparent);
+  left: 10%;
+  right: 10%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-primary) 20%,
+    var(--color-accent) 50%,
+    var(--color-primary) 80%,
+    transparent 100%
+  );
   border-radius: 2px;
+  box-shadow:
+    0 0 20px var(--color-primary),
+    0 0 40px color-mix(in oklch, var(--color-primary) 50%, transparent);
+  animation: scan-pulse 2.5s ease-in-out infinite;
 }
 
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in oklch, white 20%, transparent);
-}
+/* ============================================
+   RING PROGRESS - Health Score
+   ============================================ */
 
-/* Entrance animations */
-@keyframes slide-up-fade {
-  0% {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translateY(0);
+@keyframes ring-fill {
+  from {
+    stroke-dashoffset: var(--circumference, 314);
   }
 }
 
-.animate-slide-up-fade {
-  animation: slide-up-fade 0.4s ease-out;
+.ring-animated {
+  animation: ring-fill 1.5s ease-out forwards;
 }
 
-@keyframes scale-in {
-  0% {
-    opacity: 0;
-    transform: scale(0.95);
-  }
+/* ============================================
+   FOCUS STATES - Accessible & Beautiful
+   ============================================ */
 
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.animate-scale-in {
-  animation: scale-in 0.3s ease-out;
-}
-
-/* Breathing glow for abnormal indicators */
-@keyframes breathe {
-
-  0%,
-  100% {
-    opacity: 0.5;
-    transform: scale(1);
-  }
-
-  50% {
-    opacity: 1;
-    transform: scale(1.1);
-  }
-}
-
-.animate-breathe {
-  animation: breathe 2s ease-in-out infinite;
-}
-
-/* Gradient text animations */
-@keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
-  }
-
-  50% {
-    background-position: 100% 50%;
-  }
-
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.animate-gradient {
-  background-size: 200% 200%;
-  animation: gradient-shift 3s ease infinite;
-}
-
-/* Status indicator colors */
-.status-normal {
-  --status-color: var(--color-success);
-}
-
-.status-borderline {
-  --status-color: var(--color-warning);
-}
-
-.status-abnormal {
-  --status-color: var(--color-danger);
-}
-
-/* Ambient light effect */
-.ambient-light {
-  position: relative;
-}
-
-.ambient-light::before {
-  content: '';
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  background: linear-gradient(135deg,
-      color-mix(in oklch, var(--color-primary) 30%, transparent),
-      transparent 50%,
-      color-mix(in oklch, var(--color-accent) 30%, transparent));
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: -1;
-  filter: blur(20px);
-}
-
-.ambient-light:hover::before {
-  opacity: 1;
-}
-
-/* Focus ring styles */
 .focus-ring {
   outline: none;
 }
@@ -660,58 +653,243 @@ html {
     0 0 0 4px var(--color-primary);
 }
 
-/* Skeleton loading animation */
-@keyframes skeleton-pulse {
+/* ============================================
+   LOADING STATES
+   ============================================ */
 
-  0%,
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
   100% {
-    opacity: 0.4;
+    background-position: 200% 0;
   }
+}
 
-  50% {
-    opacity: 0.7;
-  }
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in oklch, var(--color-primary) 10%, transparent) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
 }
 
 .skeleton {
-  background: linear-gradient(90deg,
-      color-mix(in oklch, white 5%, transparent) 0%,
-      color-mix(in oklch, white 10%, transparent) 50%,
-      color-mix(in oklch, white 5%, transparent) 100%);
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklch, var(--color-muted) 80%, transparent) 0%,
+    color-mix(in oklch, var(--color-muted) 100%, transparent) 50%,
+    color-mix(in oklch, var(--color-muted) 80%, transparent) 100%
+  );
   background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite, skeleton-pulse 2s ease-in-out infinite;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-sm);
 }
 
-/* Improved hover card effect */
+/* ============================================
+   PROSE - Medical Content Styling
+   ============================================ */
+
+.prose-medical {
+  --tw-prose-body: var(--color-muted-foreground);
+  --tw-prose-headings: var(--color-foreground);
+  --tw-prose-links: var(--color-primary);
+  --tw-prose-bold: var(--color-foreground);
+  --tw-prose-code: var(--color-primary);
+}
+
+.prose-medical :where(code):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  background: color-mix(in oklch, var(--color-primary) 12%, transparent);
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  font-family: var(--font-mono);
+}
+
+.prose-medical :where(code):not(:where([class~="not-prose"], [class~="not-prose"] *))::before,
+.prose-medical :where(code):not(:where([class~="not-prose"], [class~="not-prose"] *))::after {
+  content: none;
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Subtle lift on hover */
 .hover-lift {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .hover-lift:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   box-shadow:
-    0 12px 24px -8px rgba(0, 0, 0, 0.3),
-    0 0 0 1px color-mix(in oklch, white 5%, transparent);
+    0 10px 30px -10px color-mix(in oklch, var(--color-primary) 15%, transparent);
 }
 
-/* Subtle border gradient */
-.border-gradient {
+/* Radial gradient utility */
+.bg-gradient-radial {
+  background: radial-gradient(circle, var(--tw-gradient-stops));
+}
+
+/* Ambient light effect */
+.ambient-light {
   position: relative;
-  background: var(--color-card);
 }
 
-.border-gradient::before {
+.ambient-light::before {
   content: '';
   position: absolute;
-  inset: 0;
+  inset: -2px;
   border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(135deg,
-      color-mix(in oklch, white 15%, transparent),
-      color-mix(in oklch, white 5%, transparent));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--color-primary) 25%, transparent),
+    transparent 50%,
+    color-mix(in oklch, var(--color-accent) 25%, transparent)
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: -1;
+  filter: blur(15px);
+}
+
+.ambient-light:hover::before {
+  opacity: 1;
+}
+
+/* ============================================
+   ENTRANCE ANIMATIONS
+   ============================================ */
+
+@keyframes fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.5s ease-out forwards;
+}
+
+@keyframes scale-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.4s ease-out forwards;
+}
+
+/* ============================================
+   FLOATING/DECORATIVE ELEMENTS
+   ============================================ */
+
+@keyframes float-gentle {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(2deg);
+  }
+}
+
+.float-gentle {
+  animation: float-gentle 6s ease-in-out infinite;
+}
+
+/* Organic blob shapes in background */
+.blob {
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+  animation: morph 8s ease-in-out infinite;
+}
+
+@keyframes morph {
+  0%, 100% {
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+  }
+  50% {
+    border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%;
+  }
+}
+
+/* ============================================
+   DOT PATTERN - More subtle, medical chart feel
+   ============================================ */
+
+.dot-pattern {
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    color-mix(in oklch, var(--color-primary) 8%, transparent) 1px,
+    transparent 0
+  );
+  background-size: 32px 32px;
+}
+
+/* ============================================
+   SPECIAL COMPONENTS
+   ============================================ */
+
+/* Health score ring enhancement */
+.health-ring {
+  filter: drop-shadow(0 0 10px color-mix(in oklch, var(--color-success) 30%, transparent));
+}
+
+/* Category pills */
+.category-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+  transition: all 0.2s ease;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+  .card-warm:hover {
+    transform: none;
+  }
+
+  .hover-lift:hover {
+    transform: none;
+  }
+}
+
+/* Reduce animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .pulse-life,
+  .pulse-vital,
+  .breathe-glow,
+  .breathe-danger,
+  .breathe-success {
+    animation: none;
+  }
 }
