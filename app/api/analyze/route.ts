@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { GoogleGenerativeAI } from "@google/generative-ai"
+import { runGlmOcr } from "@/lib/glm-ocr"
 
 const apiKey = process.env.GEMINI_API_KEY
 if (!apiKey) {
@@ -8,44 +9,14 @@ if (!apiKey) {
 
 const genAI = new GoogleGenerativeAI(apiKey || "")
 
+// Configurable model names
+const GEMINI_TEXT_MODEL = process.env.GEMINI_TEXT_MODEL || "gemini-flash-latest"
+const GEMINI_VISION_MODEL = process.env.GEMINI_VISION_MODEL || "gemini-flash-latest"
+
 export const runtime = "nodejs"
 export const maxDuration = 60
 
-export async function POST(request: NextRequest) {
-  try {
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: "API key not configured. Please set GEMINI_API_KEY environment variable." },
-        { status: 500 }
-      )
-    }
-
-    console.log("[analyze] Starting file analysis")
-
-    const formData = await request.formData()
-    const file = formData.get("file") as File
-
-    if (!file) {
-      return NextResponse.json({ error: "No file provided" }, { status: 400 })
-    }
-
-    console.log("[analyze] File received:", file.name, file.type, file.size, "bytes")
-
-    if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json({ error: "File too large. Maximum size is 10MB" }, { status: 413 })
-    }
-
-    // Convert file to base64
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-    const base64 = buffer.toString("base64")
-
-    console.log("[analyze] File converted to base64, calling Gemini API")
-
-    // Use Gemini Vision to extract blood test data
-    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" })
-
-    const prompt = `
+const extractionPromptBase = `
 You are a specialized medical data extraction AI analyzing a blood report. Extract ALL blood test parameters.
 
 Extract in this exact JSON format:
@@ -73,44 +44,135 @@ EXTRACT every medical test parameter present.
 Return ONLY valid JSON, no markdown or explanation.
 `
 
-    const result = await model.generateContent([
-      prompt,
-      {
-        inlineData: {
-          data: base64,
-          mimeType: file.type,
-        },
-      },
-    ])
+function buildTextExtractionPrompt(ocrMarkdown: string): string {
+  return `${extractionPromptBase}
 
-    const response = result.response.text()
-    console.log("[analyze] Gemini response received:", response.substring(0, 200))
+Here is the OCR text content of the blood test report between the markers. Note: The content may include HTML tags (like <table>, <div>, etc.) for layout formatting - extract the actual test data from these structures.
 
-    let jsonMatch = response.match(/\{[\s\S]*\}/)
+<REPORT>
+${ocrMarkdown}
+</REPORT>
+`
+}
 
-    // Try to extract JSON from markdown code block if direct match fails
-    if (!jsonMatch) {
-      const codeBlockMatch = response.match(/```(?:json)?\s*(\{[\s\S]*\})\s*```/)
-      if (codeBlockMatch) {
-        jsonMatch = [codeBlockMatch[1]]
-      }
+function extractTestsFromResponse(raw: string) {
+  let jsonMatch = raw.match(/\{[\s\S]*\}/)
+
+  // Try to extract JSON from markdown code block if direct match fails
+  if (!jsonMatch) {
+    const codeBlockMatch = raw.match(/```(?:json)?\s*(\{[\s\S]*\})\s*```/)
+    if (codeBlockMatch) {
+      jsonMatch = [codeBlockMatch[1]]
     }
+  }
 
-    if (!jsonMatch) {
-      console.error("[analyze] Could not parse JSON from response:", response)
-      throw new Error("Could not parse blood test data from the image. Please ensure the image is clear and contains blood test results.")
-    }
+  if (!jsonMatch) {
+    console.error("[analyze] Could not parse JSON from response:", raw)
+    throw new Error(
+      "Could not parse blood test data from the report. Please ensure the report is clear and contains blood test results.",
+    )
+  }
 
-    const data = JSON.parse(jsonMatch[0])
-    const tests = data.tests || []
-    
-    console.log("[analyze] Successfully parsed", tests.length, "test results")
+  const data = JSON.parse(jsonMatch[0])
+  const tests = data.tests || []
 
-    if (tests.length === 0) {
+  console.log("[analyze] Successfully parsed", tests.length, "test results")
+
+  if (tests.length === 0) {
+    throw new Error(
+      "No blood test results found in the uploaded file. Please upload a clear image of a blood test report.",
+    )
+  }
+
+  return tests
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    if (!apiKey) {
       return NextResponse.json(
-        { error: "No blood test results found in the uploaded file. Please upload a clear image of a blood test report." },
-        { status: 400 }
+        { error: "API key not configured. Please set GEMINI_API_KEY environment variable." },
+        { status: 500 },
       )
+    }
+
+    console.log("[analyze] Starting file analysis")
+
+    const formData = await request.formData()
+    const file = formData.get("file") as File
+    const ocrEnabledRaw = formData.get("ocrEnabled")
+    const passphraseRaw = formData.get("passphrase")
+
+    const ocrEnabled = typeof ocrEnabledRaw === "string" && ocrEnabledRaw === "true"
+    const passphrase = typeof passphraseRaw === "string" ? passphraseRaw : ""
+
+    if (!file) {
+      return NextResponse.json({ error: "No file provided" }, { status: 400 })
+    }
+
+    console.log("[analyze] File received:", file.name, file.type, file.size, "bytes")
+
+    if (file.size > 10 * 1024 * 1024) {
+      return NextResponse.json({ error: "File too large. Maximum size is 10MB" }, { status: 413 })
+    }
+
+    // Convert file to base64
+    const bytes = await file.arrayBuffer()
+    const buffer = Buffer.from(bytes)
+    const base64 = buffer.toString("base64")
+
+    console.log("[analyze] File converted to base64")
+
+    let tests: any[] = []
+
+    if (ocrEnabled && passphrase) {
+      console.log("[analyze] OCR mode requested")
+
+      const secret = process.env.OCR_PASSPHRASE
+      if (!secret) {
+        console.warn("[analyze] OCR_PASSPHRASE not set; cannot use OCR mode")
+        return NextResponse.json(
+          { error: "OCR mode is not configured on the server." },
+          { status: 500 },
+        )
+      }
+
+      if (passphrase !== secret) {
+        return NextResponse.json({ error: "Invalid OCR passphrase" }, { status: 403 })
+      }
+
+      // 1) Run OCR via GLM-OCR
+      const { markdown } = await runGlmOcr({ base64, mimeType: file.type })
+      console.log("[analyze] OCR completed, length:", markdown.length)
+
+      // 2) Use Gemini text model to extract structured JSON from OCR markdown
+      const textModel = genAI.getGenerativeModel({ model: GEMINI_TEXT_MODEL })
+      const prompt = buildTextExtractionPrompt(markdown)
+      const result = await textModel.generateContent(prompt)
+      const responseText = result.response.text()
+      console.log("[analyze] Gemini text response received:", responseText.substring(0, 200))
+
+      tests = extractTestsFromResponse(responseText)
+    } else {
+      console.log("[analyze] Using default Gemini Vision pipeline")
+
+      // Use Gemini Vision to extract blood test data directly from the image
+      const visionModel = genAI.getGenerativeModel({ model: GEMINI_VISION_MODEL })
+
+      const result = await visionModel.generateContent([
+        extractionPromptBase,
+        {
+          inlineData: {
+            data: base64,
+            mimeType: file.type,
+          },
+        },
+      ])
+
+      const responseText = result.response.text()
+      console.log("[analyze] Gemini vision response received:", responseText.substring(0, 200))
+
+      tests = extractTestsFromResponse(responseText)
     }
 
     // Calculate summary
@@ -134,3 +196,4 @@ Return ONLY valid JSON, no markdown or explanation.
     )
   }
 }
+

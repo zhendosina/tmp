@@ -7,6 +7,8 @@ import { Upload, FileText, CheckCircle2, Activity, FileSearch, HeartPulse, Dropl
 
 interface UploadZoneProps {
   onUploadComplete: (data: any) => void
+  ocrEnabled?: boolean
+  ocrPassphrase?: string
 }
 
 const processingSteps = [
@@ -17,7 +19,7 @@ const processingSteps = [
   { id: 5, label: "Preparing insights", icon: HeartPulse, duration: 1000 },
 ]
 
-export default function UploadZone({ onUploadComplete }: UploadZoneProps) {
+export default function UploadZone({ onUploadComplete, ocrEnabled = false, ocrPassphrase = "" }: UploadZoneProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [fileName, setFileName] = useState<string | null>(null)
@@ -61,6 +63,11 @@ export default function UploadZone({ onUploadComplete }: UploadZoneProps) {
 
     const formData = new FormData()
     formData.append("file", file)
+
+    if (ocrEnabled && ocrPassphrase) {
+      formData.append("ocrEnabled", "true")
+      formData.append("passphrase", ocrPassphrase)
+    }
 
     try {
       const response = await fetch("/api/analyze", {
@@ -229,12 +236,15 @@ export default function UploadZone({ onUploadComplete }: UploadZoneProps) {
                 </div>
 
                 {/* File name */}
-                <div className="text-center">
+                <div className="text-center space-y-1">
                   <p className="text-lg font-serif font-medium text-foreground mb-2">
                     Analyzing Report
                   </p>
                   <p className="text-sm text-muted-foreground font-mono bg-muted/50 px-4 py-1.5 rounded-lg border border-border">
                     {fileName}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Processing...
                   </p>
                 </div>
 

@@ -8,6 +8,9 @@ if (!apiKey) {
 
 const genAI = new GoogleGenerativeAI(apiKey || "")
 
+// Configurable model name
+const GEMINI_CHAT_MODEL = process.env.GEMINI_CHAT_MODEL || "gemini-flash-latest"
+
 export async function POST(request: NextRequest) {
   try {
     if (!apiKey) {
@@ -23,7 +26,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No message provided" }, { status: 400 })
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" })
+    const model = genAI.getGenerativeModel({ model: GEMINI_CHAT_MODEL })
 
     const prompt = `
 You are a medical assistant helping interpret blood test results. Answer based ONLY on the test data provided in the context.

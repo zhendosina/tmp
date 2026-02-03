@@ -13,6 +13,7 @@ import {
   HeartPulse, FileText, ArrowRight,
   Lock, Clock, Droplets, Info
 } from "lucide-react"
+import { OcrUnlockDialog } from "@/components/ocr-unlock-dialog"
 
 // Organic floating shape component
 function OrganicBlob({ className, delay = 0 }: { className?: string; delay?: number }) {
@@ -44,6 +45,9 @@ export default function Home() {
   const [chatContext, setChatContext] = useState<string>("")
   const [exportOpen, setExportOpen] = useState(false)
   const [mobileInsightsOpen, setMobileInsightsOpen] = useState(false)
+  const [ocrUnlocked, setOcrUnlocked] = useState(false)
+  const [ocrPassphrase, setOcrPassphrase] = useState("")
+  const [ocrDialogOpen, setOcrDialogOpen] = useState(false)
 
   // Storage key for persisting results
   const STORAGE_KEY = "bloodparser_results"
@@ -67,6 +71,20 @@ export default function Home() {
       }
     } catch {
       // Ignore parse errors
+    }
+  }, [])
+
+  // Hydrate OCR state from sessionStorage
+  useEffect(() => {
+    try {
+      const unlocked = window.sessionStorage.getItem("ocrUnlocked") === "true"
+      const phrase = window.sessionStorage.getItem("ocrPassphrase") || ""
+      if (unlocked && phrase) {
+        setOcrUnlocked(true)
+        setOcrPassphrase(phrase)
+      }
+    } catch {
+      // ignore
     }
   }, [])
 
@@ -116,6 +134,17 @@ export default function Home() {
   const handleAskAI = useCallback((context: string) => {
     setChatContext(context)
     setChatOpen(true)
+  }, [])
+
+  const handleOcrUnlocked = useCallback((phrase: string) => {
+    setOcrUnlocked(true)
+    setOcrPassphrase(phrase)
+    try {
+      window.sessionStorage.setItem("ocrUnlocked", "true")
+      window.sessionStorage.setItem("ocrPassphrase", phrase)
+    } catch {
+      // ignore
+    }
   }, [])
 
   const activeTest = selectedTest || hoveredTest
@@ -191,6 +220,22 @@ export default function Home() {
                 </motion.button>
               </>
             )}
+            <motion.button
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setOcrDialogOpen(true)}
+              className="px-3 md:px-4 py-2 rounded-xl bg-secondary/60 hover:bg-secondary border border-border/60 transition-all flex items-center gap-2 text-xs md:text-sm"
+            >
+              <Lock className="w-3 h-3 md:w-4 md:h-4" />
+              <span className="font-medium hidden sm:inline">
+                {ocrUnlocked ? "Secure mode active" : "Activate secure mode"}
+              </span>
+              <span className="font-medium sm:hidden">
+                {ocrUnlocked ? "Secure" : "Secure mode"}
+              </span>
+            </motion.button>
           </div>
         </div>
       </motion.header>
@@ -278,7 +323,11 @@ export default function Home() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6 }}
                   >
-                    <UploadZone onUploadComplete={handleUploadComplete} />
+                    <UploadZone
+                      onUploadComplete={handleUploadComplete}
+                      ocrEnabled={ocrUnlocked}
+                      ocrPassphrase={ocrPassphrase}
+                    />
                   </motion.div>
 
                   {/* How it works section */}
@@ -416,6 +465,13 @@ export default function Home() {
           initialContext={chatContext}
         />
       )}
+
+      {/* OCR Unlock Dialog */}
+      <OcrUnlockDialog
+        open={ocrDialogOpen}
+        onOpenChange={setOcrDialogOpen}
+        onUnlocked={handleOcrUnlocked}
+      />
 
       {/* Export Modal */}
       {testData && (
