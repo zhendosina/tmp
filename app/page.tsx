@@ -188,8 +188,8 @@ export default function Home() {
               <Droplets className="w-4 h-4 md:w-5 md:h-5 text-primary-foreground" />
             </motion.div>
             <div>
-              <h1 className="text-base md:text-lg font-serif font-semibold tracking-tight text-foreground">BloodParser</h1>
-              <p className="text-[9px] md:text-[10px] text-muted-foreground font-medium tracking-wider uppercase">Health Insights</p>
+<h1 className="text-base md:text-lg font-serif font-semibold tracking-tight text-foreground">BloodParser</h1>
+<p className="text-[9px] md:text-[10px] text-muted-foreground font-medium tracking-wider uppercase">Медицинские данные</p>
             </div>
           </div>
 
@@ -205,7 +205,7 @@ export default function Home() {
                   className="px-3 md:px-4 py-2 rounded-xl bg-secondary hover:bg-secondary/80 border border-border transition-all flex items-center gap-2 text-sm"
                 >
                   <Download className="w-4 h-4" />
-                  <span className="font-medium hidden sm:inline">Export</span>
+                  <span className="font-medium hidden sm:inline">Экспорт</span>
                 </motion.button>
                 <motion.button
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -216,7 +216,7 @@ export default function Home() {
                   className="px-3 md:px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground transition-all flex items-center gap-2 text-sm shadow-lg glow-primary"
                 >
                   <Upload className="w-4 h-4" />
-                  <span className="font-medium hidden sm:inline">New Report</span>
+                  <span className="font-medium hidden sm:inline">Новый анализ</span>
                 </motion.button>
               </>
             )}
@@ -230,10 +230,10 @@ export default function Home() {
             >
               <Lock className="w-3 h-3 md:w-4 md:h-4" />
               <span className="font-medium hidden sm:inline">
-                {ocrUnlocked ? "Secure mode active" : "Activate secure mode"}
+                {ocrUnlocked ? "Безопасный режим активен" : "Активировать безопасный режим"}
               </span>
               <span className="font-medium sm:hidden">
-                {ocrUnlocked ? "Secure" : "Secure mode"}
+                {ocrUnlocked ? "Безопасно" : "Безопасный режим"}
               </span>
             </motion.button>
           </div>
@@ -273,9 +273,9 @@ export default function Home() {
                       transition={{ delay: 0.3 }}
                       className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-medium mb-6 leading-[1.1] tracking-tight"
                     >
-                      <span className="text-foreground">Understand Your</span>
-                      <br />
-                      <span className="text-gradient-primary">Blood Report</span>
+<span className="text-foreground">Понимание Вашего</span>
+<br />
+<span className="text-gradient-primary">Анализа крови</span>
                     </motion.h1>
 
                     {/* Subtitle */}
@@ -285,8 +285,8 @@ export default function Home() {
                       transition={{ delay: 0.4 }}
                       className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed mb-10"
                     >
-                      Upload your lab results and instantly understand what each biomarker means.
-                      Get personalized insights to take control of your health.
+                      Загрузите результаты анализов и сразу узнайте, что означает каждый биомаркер.
+                      Получите персонализированные рекомендации для контроля вашего здоровья.
                     </motion.p>
 
                     {/* Trust indicators */}
@@ -300,19 +300,19 @@ export default function Home() {
                         <div className="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center">
                           <Lock className="w-4 h-4 text-success" />
                         </div>
-                        <span>Private & Secure</span>
+                        <span>Конфиденциально и безопасно</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-lg bg-warning/10 flex items-center justify-center">
                           <Clock className="w-4 h-4 text-warning" />
                         </div>
-                        <span>Results in Seconds</span>
+                        <span>Результаты за секунды</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                           <Shield className="w-4 h-4 text-primary" />
                         </div>
-                        <span>No Data Stored</span>
+                        <span>Данные не сохраняются</span>
                       </div>
                     </motion.div>
                   </div>
@@ -338,9 +338,9 @@ export default function Home() {
                     className="mt-16 md:mt-24"
                   >
                     <div className="text-center mb-10">
-                      <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-3">
-                        How it works
-                      </h3>
+<h3 className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-3">
+  Как это работает
+</h3>
                       <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto" />
                     </div>
 
@@ -348,20 +348,20 @@ export default function Home() {
                       {[
                         {
                           icon: FileText,
-                          title: "Upload Report",
-                          description: "Drop your PDF or image of blood test results",
+                          title: "Загрузка анализа",
+                          description: "Загрузите PDF или изображение результатов анализов крови",
                           step: "01"
                         },
                         {
                           icon: Activity,
-                          title: "Instant Analysis",
-                          description: "AI extracts and interprets every biomarker",
+                          title: "Мгновенный анализ",
+                          description: "ИИ извлекает и интерпретирует каждый биомаркер",
                           step: "02"
                         },
                         {
                           icon: HeartPulse,
-                          title: "Health Insights",
-                          description: "Understand your health with clear explanations",
+                          title: "Медицинские данные",
+                          description: "Понимание вашего здоровья с четкими объяснениями",
                           step: "03"
                         },
                       ].map((feature, index) => (
@@ -396,10 +396,10 @@ export default function Home() {
                     transition={{ delay: 1.1 }}
                     className="mt-16 text-center pb-8"
                   >
-                    <p className="text-sm text-muted-foreground/60 max-w-md mx-auto">
-                      Your data is processed locally and never stored on our servers.
-                      We respect your privacy completely.
-                    </p>
+<p className="text-sm text-muted-foreground/60 max-w-md mx-auto">
+  Ваши данные обрабатываются локально и никогда не сохраняются на наших серверах.
+  Мы полностью уважаем вашу конфиденциальность.
+</p>
                   </motion.div>
                 </div>
               </div>

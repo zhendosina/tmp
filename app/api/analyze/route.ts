@@ -1,17 +1,26 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { GoogleGenerativeAI } from "@google/generative-ai"
+import OpenAI from "openai"
 import { runGlmOcr } from "@/lib/glm-ocr"
 
-const apiKey = process.env.GEMINI_API_KEY
+const apiKey = process.env.OPENROUTER_API_KEY || process.env.GEMINI_API_KEY
+const baseURL = process.env.OPENROUTER_BASE_URL || "https://openrouter.ai/api/v1"
+
 if (!apiKey) {
-  console.warn("Warning: GEMINI_API_KEY not set in environment variables")
+  console.warn("Warning: OPENROUTER_API_KEY or GEMINI_API_KEY not set in environment variables")
 }
 
-const genAI = new GoogleGenerativeAI(apiKey || "")
+const openai = new OpenAI({
+  baseURL: baseURL,
+  apiKey: apiKey || "",
+  defaultHeaders: {
+    "HTTP-Referer": "http://95.142.45.234",
+    "X-Title": "BloodParser"
+  }
+})
 
 // Configurable model names
-const GEMINI_TEXT_MODEL = process.env.GEMINI_TEXT_MODEL || "gemini-flash-latest"
-const GEMINI_VISION_MODEL = process.env.GEMINI_VISION_MODEL || "gemini-flash-latest"
+const TEXT_MODEL = process.env.TEXT_MODEL || process.env.GEMINI_TEXT_MODEL || "google/gemini-2.5-flash"
+const VISION_MODEL = process.env.VISION_MODEL || process.env.GEMINI_VISION_MODEL || "google/gemini-2.5-flash"
 
 export const runtime = "nodejs"
 export const maxDuration = 60
@@ -19,29 +28,34 @@ export const maxDuration = 60
 const extractionPromptBase = `
 You are a specialized medical data extraction AI analyzing a blood report. Extract ALL blood test parameters.
 
+IMPORTANT: Return all test names and categories in RUSSIAN language.
+
 Extract in this exact JSON format:
 {
   "tests": [
     {
-      "test_name": "Hemoglobin",
+      "test_name": "Гемоглобин",
       "value": "12.5",
-      "unit": "g/dL",
+      "unit": "г/дл",
       "normal_range": "12.0-15.0",
       "status": "Normal",
-      "category": "Complete Blood Count"
+      "category": "Общий анализ крови"
     }
   ]
 }
 
 RULES:
 1. "status" must be exactly "Normal", "High", or "Low" based on reference range comparison
-2. "category" should be one of: "Complete Blood Count", "Metabolic Panel", "Lipid Profile", "Liver Function", "Kidney Function", "Thyroid Function", "Vitamins & Minerals", or "Other"
+2. "category" should be one of these RUSSIAN categories: "Общий анализ крови", "Метаболическая панель", "Липидный профиль", "Функция печени", "Функция почек", "Функция щитовидной железы", "Витамины и минералы", or "Другое"
 3. "value" should be the numeric value as a string
 4. "normal_range" should be in format "min-max" (e.g., "12.0-15.0")
+5. "test_name" must be in RUSSIAN language (e.g., "Глюкоза", "Креатинин", "Тестостерон")
+6. "unit" should be in standard format (keep units as they appear: г/дл, ммоль/л, Ед/л, etc.)
 
 DO NOT INCLUDE administrative data (patient info, dates, addresses).
 EXTRACT every medical test parameter present.
 Return ONLY valid JSON, no markdown or explanation.
+TRANSLATE all test names to Russian before returning.
 `
 
 function buildTextExtractionPrompt(ocrMarkdown: string): string {
@@ -91,7 +105,7 @@ export async function POST(request: NextRequest) {
   try {
     if (!apiKey) {
       return NextResponse.json(
-        { error: "API key not configured. Please set GEMINI_API_KEY environment variable." },
+        { error: "API key not configured. Please set OPENROUTER_API_KEY environment variable." },
         { status: 500 },
       )
     }
@@ -145,32 +159,49 @@ export async function POST(request: NextRequest) {
       const { markdown } = await runGlmOcr({ base64, mimeType: file.type })
       console.log("[analyze] OCR completed, length:", markdown.length)
 
-      // 2) Use Gemini text model to extract structured JSON from OCR markdown
-      const textModel = genAI.getGenerativeModel({ model: GEMINI_TEXT_MODEL })
+      // 2) Use text model to extract structured JSON from OCR markdown
       const prompt = buildTextExtractionPrompt(markdown)
-      const result = await textModel.generateContent(prompt)
-      const responseText = result.response.text()
-      console.log("[analyze] Gemini text response received:", responseText.substring(0, 200))
+      const completion = await openai.chat.completions.create({
+        model: TEXT_MODEL,
+        messages: [
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+      })
+      
+      const responseText = completion.choices[0]?.message?.content || ""
+      console.log("[analyze] Text model response received:", responseText.substring(0, 200))
 
       tests = extractTestsFromResponse(responseText)
     } else {
-      console.log("[analyze] Using default Gemini Vision pipeline")
+      console.log("[analyze] Using default vision pipeline")
 
-      // Use Gemini Vision to extract blood test data directly from the image
-      const visionModel = genAI.getGenerativeModel({ model: GEMINI_VISION_MODEL })
-
-      const result = await visionModel.generateContent([
-        extractionPromptBase,
-        {
-          inlineData: {
-            data: base64,
-            mimeType: file.type,
+      // Use vision model to extract blood test data directly from the image
+      const completion = await openai.chat.completions.create({
+        model: VISION_MODEL,
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: extractionPromptBase,
+              },
+              {
+                type: "image_url",
+                image_url: {
+                  url: `data:${file.type};base64,${base64}`,
+                },
+              },
+            ],
           },
-        },
-      ])
+        ],
+      })
 
-      const responseText = result.response.text()
-      console.log("[analyze] Gemini vision response received:", responseText.substring(0, 200))
+      const responseText = completion.choices[0]?.message?.content || ""
+      console.log("[analyze] Vision model response received:", responseText.substring(0, 200))
 
       tests = extractTestsFromResponse(responseText)
     }
@@ -196,4 +227,3 @@ export async function POST(request: NextRequest) {
     )
   }
 }
-

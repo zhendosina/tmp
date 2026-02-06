@@ -1,21 +1,30 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { GoogleGenerativeAI } from "@google/generative-ai"
+import OpenAI from "openai"
 
-const apiKey = process.env.GEMINI_API_KEY
+const apiKey = process.env.OPENROUTER_API_KEY || process.env.GEMINI_API_KEY
+const baseURL = process.env.OPENROUTER_BASE_URL || "https://openrouter.ai/api/v1"
+
 if (!apiKey) {
-  console.warn("Warning: GEMINI_API_KEY not set in environment variables")
+  console.warn("Warning: OPENROUTER_API_KEY or GEMINI_API_KEY not set in environment variables")
 }
 
-const genAI = new GoogleGenerativeAI(apiKey || "")
+const openai = new OpenAI({
+  baseURL: baseURL,
+  apiKey: apiKey || "",
+  defaultHeaders: {
+    "HTTP-Referer": "http://95.142.45.234",
+    "X-Title": "BloodParser"
+  }
+})
 
 // Configurable model name
-const GEMINI_CHAT_MODEL = process.env.GEMINI_CHAT_MODEL || "gemini-flash-latest"
+const CHAT_MODEL = process.env.CHAT_MODEL || process.env.GEMINI_CHAT_MODEL || "google/gemini-2.5-flash"
 
 export async function POST(request: NextRequest) {
   try {
     if (!apiKey) {
       return NextResponse.json(
-        { error: "API key not configured. Please set GEMINI_API_KEY environment variable." },
+        { error: "API key not configured. Please set OPENROUTER_API_KEY environment variable." },
         { status: 500 }
       )
     }
@@ -25,8 +34,6 @@ export async function POST(request: NextRequest) {
     if (!message) {
       return NextResponse.json({ error: "No message provided" }, { status: 400 })
     }
-
-    const model = genAI.getGenerativeModel({ model: GEMINI_CHAT_MODEL })
 
     const prompt = `
 You are a medical assistant helping interpret blood test results. Answer based ONLY on the test data provided in the context.
@@ -47,8 +54,17 @@ GUIDELINES:
 YOUR ANSWER:
 `
 
-    const result = await model.generateContent(prompt)
-    const response = result.response.text()
+    const completion = await openai.chat.completions.create({
+      model: CHAT_MODEL,
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+    })
+
+    const response = completion.choices[0]?.message?.content || "No response generated"
 
     return NextResponse.json({ response })
   } catch (error) {

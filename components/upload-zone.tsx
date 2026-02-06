@@ -12,11 +12,11 @@ interface UploadZoneProps {
 }
 
 const processingSteps = [
-  { id: 1, label: "Uploading document", icon: Upload, duration: 800 },
-  { id: 2, label: "Reading pages", icon: FileSearch, duration: 1500 },
-  { id: 3, label: "Extracting biomarkers", icon: Droplets, duration: 2000 },
-  { id: 4, label: "Analyzing results", icon: Activity, duration: 2500 },
-  { id: 5, label: "Preparing insights", icon: HeartPulse, duration: 1000 },
+{ id: 1, label: "Загрузка документа", icon: Upload, duration: 800 },
+{ id: 2, label: "Чтение страниц", icon: FileSearch, duration: 1500 },
+{ id: 3, label: "Извлечение биомаркеров", icon: Droplets, duration: 2000 },
+{ id: 4, label: "Анализ результатов", icon: Activity, duration: 2500 },
+{ id: 5, label: "Подготовка данных", icon: HeartPulse, duration: 1000 },
 ]
 
 export default function UploadZone({ onUploadComplete, ocrEnabled = false, ocrPassphrase = "" }: UploadZoneProps) {
@@ -56,7 +56,7 @@ export default function UploadZone({ onUploadComplete, ocrEnabled = false, ocrPa
     setError(null)
 
     if (file.size > 4 * 1024 * 1024) {
-      setError("File too large. Maximum size is 4MB")
+      setError("Файл слишком большой. Максимальный размер 4MB")
       setIsProcessing(false)
       return
     }
@@ -109,7 +109,7 @@ export default function UploadZone({ onUploadComplete, ocrEnabled = false, ocrPa
     if (file && (file.type === "application/pdf" || file.type.startsWith("image/"))) {
       processFile(file)
     } else {
-      setError("Invalid file type. Please upload a PDF or image file.")
+      setError("Неверный тип файла. Пожалуйста, загрузите PDF или изображение.")
     }
   }, [])
 
@@ -237,15 +237,15 @@ export default function UploadZone({ onUploadComplete, ocrEnabled = false, ocrPa
 
                 {/* File name */}
                 <div className="text-center space-y-1">
-                  <p className="text-lg font-serif font-medium text-foreground mb-2">
-                    Analyzing Report
-                  </p>
+<p className="text-lg font-serif font-medium text-foreground mb-2">
+  Анализ отчета
+</p>
                   <p className="text-sm text-muted-foreground font-mono bg-muted/50 px-4 py-1.5 rounded-lg border border-border">
                     {fileName}
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    Processing...
-                  </p>
+<p className="text-xs text-muted-foreground">
+  Обработка...
+</p>
                 </div>
 
                 {/* Processing steps */}
@@ -364,11 +364,11 @@ export default function UploadZone({ onUploadComplete, ocrEnabled = false, ocrPa
                     animate={{ scale: isDragging ? 1.02 : 1 }}
                     className="text-xl font-serif font-medium text-foreground"
                   >
-                    {isDragging ? "Drop your file here" : "Upload Blood Report"}
+                    {isDragging ? "Перетащите файл сюда" : "Загрузить анализ крови"}
                   </motion.h3>
-                  <p className="text-muted-foreground text-sm">
-                    Drag and drop or{" "}
-                    <span className="text-primary font-medium hover:underline">click to browse</span>
+<p className="text-muted-foreground text-sm">
+                    Перетащите файл или{" "}
+                    <span className="text-primary font-medium hover:underline">нажмите для выбора</span>
                   </p>
                 </div>
 
@@ -378,7 +378,7 @@ export default function UploadZone({ onUploadComplete, ocrEnabled = false, ocrPa
                   <span className="px-3 py-1.5 rounded-lg bg-muted/50 border border-border font-medium">PNG</span>
                   <span className="px-3 py-1.5 rounded-lg bg-muted/50 border border-border font-medium">JPG</span>
                   <span className="text-border">|</span>
-                  <span>Max 4MB</span>
+                  <span>Макс. 4MB</span>
                 </div>
               </motion.div>
             )}

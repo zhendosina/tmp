@@ -19,22 +19,22 @@ interface ChatDrawerProps {
 
 const suggestedQuestions = [
   {
-    text: "Explain all my abnormal results",
+    text: "Объясните все мои отклонения от нормы",
     icon: AlertCircle,
     color: "text-danger bg-danger/10 border-danger/20"
   },
   {
-    text: "What lifestyle changes do you recommend?",
+    text: "Какие изменения в образе жизни вы рекомендуете?",
     icon: HeartPulse,
     color: "text-warning bg-warning/10 border-warning/20"
   },
   {
-    text: "Should I be concerned about anything?",
+    text: "Должен ли я беспокоиться о чем-то?",
     icon: AlertCircle,
     color: "text-primary bg-primary/10 border-primary/20"
   },
   {
-    text: "Give me a summary of my overall health",
+    text: "Дайте мне сводку о моем общем здоровье",
     icon: Bot,
     color: "text-success bg-success/10 border-success/20"
   },
@@ -152,7 +152,7 @@ export default function ChatDrawer({
                 <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center">
                   <MessageCircle className="w-4 h-4" />
                 </div>
-                <span className="text-sm">Ask Health Assistant</span>
+                <span className="text-sm">Спросить медицинского ассистента</span>
                 <div className="w-2 h-2 bg-success rounded-full animate-pulse" />
               </div>
             </motion.button>
@@ -172,7 +172,7 @@ export default function ChatDrawer({
           >
             <div className="flex items-center gap-2 text-sm text-muted-foreground group-hover:text-foreground transition-colors">
               <ChevronUp className="w-4 h-4" />
-              <span>Health Assistant</span>
+              <span>Медицинский ассистент</span>
             </div>
           </motion.button>
         )}
@@ -218,8 +218,8 @@ export default function ChatDrawer({
                       <MessageCircle className="w-5 h-5 text-primary-foreground" />
                     </div>
                     <div>
-                      <h3 className="font-serif font-medium text-foreground">Health Assistant</h3>
-                      <p className="text-[10px] text-muted-foreground">Ask about your results</p>
+                      <h3 className="font-serif font-medium text-foreground">Медицинский ассистент</h3>
+                      <p className="text-[10px] text-muted-foreground">Спросите о ваших результатах</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -227,7 +227,7 @@ export default function ChatDrawer({
                       <button
                         onClick={handleClearChat}
                         className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-                        title="Clear chat"
+                        title="Очистить чат"
                       >
                         <RefreshCw className="w-4 h-4" />
                       </button>
@@ -256,7 +256,7 @@ export default function ChatDrawer({
                   >
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                      <span className="text-xs text-muted-foreground">Context:</span>
+                      <span className="text-xs text-muted-foreground">Контекст:</span>
                       <span className="text-xs text-primary font-medium">{selectedTest.name}</span>
                       <span className="text-xs text-muted-foreground">
                         ({selectedTest.value} {selectedTest.unit})
@@ -276,9 +276,9 @@ export default function ChatDrawer({
                       <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-4 border border-border pulse-life">
                         <Bot className="w-8 h-8 text-primary" />
                       </div>
-                      <h4 className="text-lg font-serif font-medium text-foreground mb-2">How can I help you?</h4>
+                      <h4 className="text-lg font-serif font-medium text-foreground mb-2">Чем я могу вам помочь?</h4>
                       <p className="text-sm text-muted-foreground text-center max-w-sm mb-6">
-                        Ask me anything about your blood test results. I'll provide personalized insights and explanations.
+                        Спросите меня о результатах анализов крови. Я предоставлю персонализированные рекомендации и объяснения.
                       </p>
 
                       {/* Suggested questions */}
@@ -376,7 +376,7 @@ export default function ChatDrawer({
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        placeholder="Ask about your results..."
+                        placeholder="Спросите о ваших результатах..."
                         className="w-full px-4 py-3 pr-12 rounded-xl bg-muted/50 border border-border focus:border-primary/50 focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm placeholder:text-muted-foreground"
                         disabled={isLoading}
                       />
@@ -391,15 +391,15 @@ export default function ChatDrawer({
                       ) : (
                         <Send className="w-4 h-4" />
                       )}
-                      <span className="hidden sm:inline">Send</span>
+                      <span className="hidden sm:inline">Отправить</span>
                     </button>
                   </form>
 
                   {/* Quick actions when chat has messages */}
                   {messages.length > 0 && (
                     <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border">
-                      <span className="text-[10px] text-muted-foreground">Quick:</span>
-                      {["Explain more", "What should I do?", "Are there risks?"].map((q, i) => (
+                      <span className="text-[10px] text-muted-foreground">Быстро:</span>
+                      {["Объясните подробнее", "Что мне делать?", "Есть ли риски?"].map((q, i) => (
                         <button
                           key={i}
                           onClick={() => handleSubmit(q)}

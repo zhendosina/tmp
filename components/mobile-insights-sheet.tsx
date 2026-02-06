@@ -69,10 +69,10 @@ export default function MobileInsightsSheet({
                   </div>
                   <div>
                     <h3 className="font-serif font-medium text-foreground text-sm">
-                      {selectedTest ? selectedTest.name : "Health Overview"}
+                      {selectedTest ? selectedTest.name : "Обзор здоровья"}
                     </h3>
                     <p className="text-[10px] text-muted-foreground">
-                      {selectedTest ? "Test Details" : "Tap a test for details"}
+                      {selectedTest ? "Детали анализа" : "Нажмите на анализ для деталей"}
                     </p>
                   </div>
                 </div>

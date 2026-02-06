@@ -19,30 +19,30 @@ type ExportFormat = "pdf" | "csv" | "json" | "print"
 const exportOptions = [
   {
     id: "pdf" as const,
-    name: "PDF Report",
-    description: "Professional document for doctors",
+    name: "PDF Отчет",
+    description: "Профессиональный документ для врачей",
     icon: FileText,
     recommended: true,
     color: "text-danger bg-danger/10 border-danger/20"
   },
   {
     id: "csv" as const,
-    name: "CSV Spreadsheet",
-    description: "For Excel or Google Sheets",
+    name: "CSV Таблица",
+    description: "Для Excel или Google Таблиц",
     icon: Table,
     color: "text-success bg-success/10 border-success/20"
   },
   {
     id: "json" as const,
-    name: "JSON Data",
-    description: "Raw data for developers",
+    name: "JSON Данные",
+    description: "Сырые данные для разработчиков",
     icon: FileJson,
     color: "text-primary bg-primary/10 border-primary/20"
   },
   {
     id: "print" as const,
-    name: "Print View",
-    description: "Open in browser for printing",
+    name: "Версия для печати",
+    description: "Открыть в браузере для печати",
     icon: Printer,
     color: "text-warning bg-warning/10 border-warning/20"
   }
@@ -130,9 +130,9 @@ export default function ExportModal({ isOpen, onClose, data }: ExportModalProps)
                     <FileDown className="w-6 h-6 text-primary-foreground" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-serif font-medium text-foreground">Export Report</h2>
+                    <h2 className="text-lg font-serif font-medium text-foreground">Экспорт отчета</h2>
                     <p className="text-sm text-muted-foreground">
-                      {testCount} tests • {abnormalCount} requiring attention
+                      {testCount} анализов • {abnormalCount} требуют внимания
                     </p>
                   </div>
                 </div>
@@ -165,7 +165,7 @@ export default function ExportModal({ isOpen, onClose, data }: ExportModalProps)
                           <span className="font-medium text-foreground">{option.name}</span>
                           {option.recommended && (
                             <span className="px-2 py-0.5 rounded-full bg-primary/20 text-primary text-[10px] font-medium">
-                              Recommended
+                              Рекомендуется
                             </span>
                           )}
                         </div>
@@ -180,7 +180,7 @@ export default function ExportModal({ isOpen, onClose, data }: ExportModalProps)
               {/* Footer note */}
               <div className="px-6 pb-6">
                 <p className="text-[11px] text-muted-foreground text-center">
-                  Your data is processed locally and never stored on our servers
+                  Ваши данные обрабатываются локально и никогда не сохраняются на наших серверах
                 </p>
               </div>
             </div>

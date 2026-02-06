@@ -106,10 +106,10 @@ export function OcrUnlockDialog({ open, onOpenChange, onUnlocked }: OcrUnlockDia
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Lock className="w-4 h-4" />
-            Secure processing
+            Безопасная обработка
           </DialogTitle>
           <DialogDescription>
-            Enter your private phrase to enable the secure processing pipeline for your reports.
+            Введите вашу секретную фразу для активации безопасной обработки отчетов.
           </DialogDescription>
         </DialogHeader>
 
@@ -119,7 +119,7 @@ export function OcrUnlockDialog({ open, onOpenChange, onUnlocked }: OcrUnlockDia
               type={showPassword ? "text" : "password"}
               value={passphrase}
               onChange={(e) => setPassphrase(e.target.value)}
-              placeholder="Enter secret phrase"
+              placeholder="Введите секретную фразу"
               disabled={isDisabled}
               aria-invalid={!!error}
               className="pr-10"
@@ -129,7 +129,7 @@ export function OcrUnlockDialog({ open, onOpenChange, onUnlocked }: OcrUnlockDia
               onClick={() => setShowPassword(!showPassword)}
               disabled={isDisabled}
               className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-label={showPassword ? "Скрыть пароль" : "Показать пароль"}
             >
               {showPassword ? (
                 <EyeOff className="w-4 h-4" />
@@ -141,8 +141,8 @@ export function OcrUnlockDialog({ open, onOpenChange, onUnlocked }: OcrUnlockDia
           {error && <p className="text-xs text-destructive">{error}</p>}
           {cooldownSeconds > 0 && (
             <p className="text-xs text-muted-foreground">
-              Try again in {cooldownSeconds}
-              s
+              Попробуйте снова через {cooldownSeconds}
+              сек
             </p>
           )}
 
@@ -151,7 +151,7 @@ export function OcrUnlockDialog({ open, onOpenChange, onUnlocked }: OcrUnlockDia
               type="submit"
               disabled={isDisabled || !passphrase.trim()}
             >
-              {cooldownSeconds > 0 ? "Locked" : isSubmitting ? "Checking..." : "Enable"}
+              {cooldownSeconds > 0 ? "Заблокировано" : isSubmitting ? "Проверка..." : "Активировать"}
             </Button>
           </DialogFooter>
         </form>

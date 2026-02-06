@@ -51,11 +51,11 @@ export default function ResultsDisplay({ data }: ResultsDisplayProps) {
           className="p-6 bg-card border border-border rounded-xl"
         >
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-muted-foreground">Total Tests</p>
+            <p className="text-sm text-muted-foreground">Всего тестов</p>
             <Activity className="w-5 h-5 text-primary" />
           </div>
           <p className="text-3xl font-bold text-foreground">{summary.total}</p>
-          <p className="text-xs text-muted-foreground mt-1">Parameters analyzed</p>
+          <p className="text-xs text-muted-foreground mt-1">Параметров проанализировано</p>
         </motion.div>
 
         <motion.div
@@ -65,12 +65,12 @@ export default function ResultsDisplay({ data }: ResultsDisplayProps) {
           className="p-6 bg-success/10 border border-success/20 rounded-xl relative overflow-hidden"
         >
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-success">Normal</p>
+            <p className="text-sm text-success">Норма</p>
             <CheckCircle className="w-5 h-5 text-success" />
           </div>
           <p className="text-3xl font-bold text-success">{summary.normal}</p>
           <p className="text-xs text-success/70 mt-1">
-            {summary.total > 0 ? Math.round((summary.normal / summary.total) * 100) : 0}% of tests
+            {summary.total > 0 ? Math.round((summary.normal / summary.total) * 100) : 0}% анализов
           </p>
           <div className="absolute inset-0 bg-gradient-to-br from-success/5 to-transparent pointer-events-none" />
         </motion.div>
@@ -82,12 +82,12 @@ export default function ResultsDisplay({ data }: ResultsDisplayProps) {
           className="p-6 bg-warning/10 border border-warning/20 rounded-xl relative overflow-hidden"
         >
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-warning">Needs Attention</p>
+            <p className="text-sm text-warning">Требует внимания</p>
             <AlertTriangle className="w-5 h-5 text-warning" />
           </div>
           <p className="text-3xl font-bold text-warning">{summary.abnormal}</p>
           <p className="text-xs text-warning/70 mt-1">
-            {summary.total > 0 ? Math.round((summary.abnormal / summary.total) * 100) : 0}% of tests
+            {summary.total > 0 ? Math.round((summary.abnormal / summary.total) * 100) : 0}% анализов
           </p>
           <div className="absolute inset-0 bg-gradient-to-br from-warning/5 to-transparent pointer-events-none" />
         </motion.div>
@@ -103,7 +103,7 @@ export default function ResultsDisplay({ data }: ResultsDisplayProps) {
         >
           <div className="flex items-center gap-3 mb-6">
             <AlertTriangle className="w-6 h-6 text-warning" />
-            <h3 className="text-xl font-bold text-foreground">Results Needing Attention</h3>
+            <h3 className="text-xl font-bold text-foreground">Результаты, требующие внимания</h3>
           </div>
 
           <div className="space-y-3">
@@ -134,7 +134,7 @@ export default function ResultsDisplay({ data }: ResultsDisplayProps) {
                             test.status === "High" ? "bg-danger/20 text-danger" : "bg-warning/20 text-warning"
                           }`}
                         >
-                          {test.status}
+                          {test.status === "High" ? "Повышено" : test.status === "Low" ? "Понижено" : test.status}
                         </span>
                       </div>
                       <div className="flex items-baseline gap-2 mb-3">
@@ -157,7 +157,7 @@ export default function ResultsDisplay({ data }: ResultsDisplayProps) {
                           />
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          Reference: <span className="font-medium text-foreground">{test.referenceRange}</span>{" "}
+                          Референс: <span className="font-medium text-foreground">{test.referenceRange}</span>{" "}
                           {test.units}
                         </p>
                       </div>
@@ -179,7 +179,7 @@ export default function ResultsDisplay({ data }: ResultsDisplayProps) {
       >
         <div className="flex items-center gap-3 mb-6">
           <CheckCircle className="w-6 h-6 text-success" />
-          <h3 className="text-xl font-bold text-foreground">Normal Results</h3>
+          <h3 className="text-xl font-bold text-foreground">Результаты в норме</h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -212,7 +212,7 @@ export default function ResultsDisplay({ data }: ResultsDisplayProps) {
                       className="absolute left-0 top-0 h-full bg-success"
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground">Range: {test.referenceRange}</p>
+                  <p className="text-xs text-muted-foreground">Диапазон: {test.referenceRange}</p>
                 </div>
               </motion.div>
             )

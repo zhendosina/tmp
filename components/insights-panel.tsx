@@ -25,6 +25,91 @@ interface InsightsPanelProps {
   onAskAI?: (context: string) => void
 }
 
+// Category translations
+const categoryTranslations: Record<string, string> = {
+  "Complete Blood Count": "Общий анализ крови",
+  "Metabolic Panel": "Метаболическая панель",
+  "Lipid Profile": "Липидный профиль",
+  "Liver Function": "Функция печени",
+  "Kidney Function": "Функция почек",
+  "Thyroid Function": "Функция щитовидной железы",
+  "Vitamins & Minerals": "Витамины и минералы",
+  "Other": "Другое"
+}
+
+// Status translations
+const statusTranslations: Record<string, string> = {
+  "Normal": "Норма",
+  "High": "Повышено",
+  "Low": "Понижено",
+  "Borderline": "Погранично"
+}
+
+// Test name translations
+const testNameTranslations: Record<string, string> = {
+  "WBC": "Лейкоциты",
+  "RBC": "Эритроциты",
+  "Hemoglobin": "Гемоглобин",
+  "Hematocrit": "Гематокрит",
+  "Platelets": "Тромбоциты",
+  "MCV": "Средний объем эритроцита",
+  "MCH": "Среднее содержание Hb",
+  "MCHC": "Средняя концентрация Hb",
+  "RDW": "Ширина распределения эритроцитов",
+  "Glucose": "Глюкоза",
+  "Creatinine": "Креатинин",
+  "Urea": "Мочевина",
+  "Uric Acid": "Мочевая кислота",
+  "Total Protein": "Общий белок",
+  "Albumin": "Альбумин",
+  "Globulin": "Глобулин",
+  "Bilirubin": "Билирубин",
+  "ALT": "АЛТ",
+  "AST": "АСТ",
+  "ALP": "ЩФ",
+  "GGT": "ГГТ",
+  "Cholesterol": "Холестерин",
+  "Triglycerides": "Триглицериды",
+  "HDL": "ЛПВП",
+  "LDL": "ЛПНП",
+  "VLDL": "ЛПОНП",
+  "Sodium": "Натрий",
+  "Potassium": "Калий",
+  "Calcium": "Кальций",
+  "Phosphorus": "Фосфор",
+  "Magnesium": "Магний",
+  "Iron": "Железо",
+  "Ferritin": "Ферритин",
+  "Vitamin D": "Витамин D",
+  "Vitamin B12": "Витамин B12",
+  "Folate": "Фолат",
+  "TSH": "ТТГ",
+  "T3": "Т3",
+  "T4": "Т4",
+  "C-Reactive Protein": "С-реактивный белок",
+  "ESR": "СОЭ",
+  "Neutrophils": "Нейтрофилы",
+  "Lymphocytes": "Лимфоциты",
+  "Monocytes": "Моноциты",
+  "Eosinophils": "Эозинофилы",
+  "Basophils": "Базофилы",
+  "Insulin": "Инсулин",
+  "Amylase pancreatic": "Панкреатическая амилаза",
+  "HOMA-IR": "HOMA-IR",
+  "Testosterone": "Тестостерон",
+  "SHBG": "ГСПГ",
+  "Free Androgen Index": "Индекс свободных андрогенов",
+  "Free Testosterone": "Свободный тестостерон",
+  "Cortisol": "Кортизол",
+  "Total PSA": "Общий ПСА",
+  "Prolactin": "Пролактин",
+  "DHEA-S": "ДГЭА-С",
+  "Estradiol": "Эстрадиол",
+  "Progesterone": "Прогестерон",
+  "LH": "ЛГ",
+  "FSH": "ФСГ"
+}
+
 // Comprehensive test definitions database
 const testDefinitions: Record<string, {
   definition: string
@@ -166,7 +251,7 @@ function RangeIndicator({ test }: { test: Test }) {
           <div className="text-xs text-muted-foreground">{test.unit}</div>
         </div>
         <div className="text-right">
-          <div className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Normal Range</div>
+          <div className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Референс</div>
           <div className="text-sm font-medium text-foreground/80">
             {test.normalRange.min} - {test.normalRange.max} {test.unit}
           </div>
@@ -193,9 +278,9 @@ function RangeIndicator({ test }: { test: Test }) {
 
         {/* Labels */}
         <div className="absolute inset-0 flex items-center px-2 text-[8px] font-medium">
-          <span className="text-warning/70" style={{ width: `${normalStartPercent}%` }}>LOW</span>
-          <span className="text-success/70 text-center" style={{ width: `${normalWidthPercent}%` }}>NORMAL</span>
-          <span className="text-danger/70 text-right flex-1">HIGH</span>
+          <span className="text-warning/70" style={{ width: `${normalStartPercent}%` }}>НИЗКО</span>
+          <span className="text-success/70 text-center" style={{ width: `${normalWidthPercent}%` }}>НОРМА</span>
+          <span className="text-danger/70 text-right flex-1">ВЫСОКО</span>
         </div>
 
         {/* Value marker */}
@@ -263,9 +348,9 @@ function HealthSummary({ allData }: { allData: any }) {
         >
           <Activity className="w-7 h-7 text-primary" />
         </motion.div>
-        <h3 className="text-lg font-serif font-medium text-foreground mb-1">Health Overview</h3>
+        <h3 className="text-lg font-serif font-medium text-foreground mb-1">Обзор здоровья</h3>
         <p className="text-xs text-muted-foreground">
-          Hover or click on any test to see detailed insights
+          Наведите или нажмите на любой анализ для детальной информации
         </p>
       </div>
 
@@ -279,7 +364,7 @@ function HealthSummary({ allData }: { allData: any }) {
         >
           <div className="flex items-center gap-2 mb-1">
             <CheckCircle className="w-4 h-4 text-success" />
-            <span className="text-xs text-success/80 font-medium">Normal</span>
+            <span className="text-xs text-success/80 font-medium">Норма</span>
           </div>
           <div className="text-2xl font-mono font-bold text-success">{analysis.normal}</div>
         </motion.div>
@@ -294,7 +379,7 @@ function HealthSummary({ allData }: { allData: any }) {
         >
           <div className="flex items-center gap-2 mb-1">
             <AlertCircle className={`w-4 h-4 ${analysis.abnormal > 0 ? "text-danger" : "text-muted-foreground"}`} />
-            <span className={`text-xs font-medium ${analysis.abnormal > 0 ? "text-danger/80" : "text-muted-foreground"}`}>Attention</span>
+            <span className={`text-xs font-medium ${analysis.abnormal > 0 ? "text-danger/80" : "text-muted-foreground"}`}>Внимание</span>
           </div>
           <div className={`text-2xl font-mono font-bold ${analysis.abnormal > 0 ? "text-danger" : "text-muted-foreground"}`}>
             {analysis.abnormal}
@@ -309,7 +394,7 @@ function HealthSummary({ allData }: { allData: any }) {
         transition={{ delay: 0.25 }}
         className="p-4 rounded-xl bg-card border border-border"
       >
-        <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">By Category</h4>
+        <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">По категориям</h4>
         <div className="space-y-2">
           {Object.entries(analysis.categories).map(([cat, data], idx) => {
             const Icon = getCategoryIcon(cat)
@@ -329,10 +414,10 @@ function HealthSummary({ allData }: { allData: any }) {
                 <div className="flex items-center gap-2">
                   {!isHealthy && (
                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-danger/20 text-danger font-medium">
-                      {data.abnormal} issue{data.abnormal > 1 ? 's' : ''}
+                      {data.abnormal} проблем{data.abnormal > 1 ? '' : 'а'}
                     </span>
                   )}
-                  <span className="text-xs text-muted-foreground">{data.total} tests</span>
+                  <span className="text-xs text-muted-foreground">{data.total} анализов</span>
                 </div>
               </motion.div>
             )
@@ -350,21 +435,21 @@ function HealthSummary({ allData }: { allData: any }) {
         >
           <h4 className="text-xs font-medium text-danger/80 uppercase tracking-wider mb-3 flex items-center gap-2">
             <AlertCircle className="w-3.5 h-3.5" />
-            Tests Requiring Attention
+            Анализы требующие внимания
           </h4>
           <div className="space-y-1.5">
             {analysis.abnormalTests.slice(0, 4).map((test: any, idx: number) => (
               <div key={idx} className="flex items-center justify-between text-sm">
-                <span className="text-foreground/80">{test.test_name}</span>
+                <span className="text-foreground/80">{testNameTranslations[test.test_name] || test.test_name}</span>
                 <span className={`text-xs px-2 py-0.5 rounded ${test.status === "High" ? "bg-danger/20 text-danger" : "bg-warning/20 text-warning"
                   }`}>
-                  {test.value} {test.unit} ({test.status})
+                  {test.value} {test.unit} ({test.status === "High" ? "Повышено" : test.status === "Low" ? "Понижено" : test.status})
                 </span>
               </div>
             ))}
             {analysis.abnormalTests.length > 4 && (
               <p className="text-xs text-muted-foreground pt-1">
-                +{analysis.abnormalTests.length - 4} more...
+                +{analysis.abnormalTests.length - 4} еще...
               </p>
             )}
           </div>
@@ -383,9 +468,9 @@ function HealthSummary({ allData }: { allData: any }) {
             <Lightbulb className="w-4 h-4 text-primary" />
           </div>
           <div>
-            <h4 className="text-sm font-medium text-foreground mb-1">Pro Tip</h4>
+            <h4 className="text-sm font-medium text-foreground mb-1">Совет</h4>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Hover over any test card on the left to see instant explanations. Click to lock the view and explore details.
+              Наведите на любую карточку анализа слева для мгновенных объяснений. Нажмите для фиксации просмотра и изучения деталей.
             </p>
           </div>
         </div>
@@ -416,8 +501,8 @@ function TestDetails({ test, onAskAI }: { test: Test; onAskAI?: (context: string
       <div className="pb-4 border-b border-border">
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex-1">
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{test.category}</div>
-            <h2 className="text-xl font-serif font-medium text-foreground">{test.name}</h2>
+            <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{categoryTranslations[test.category] || test.category}</div>
+            <h2 className="text-xl font-serif font-medium text-foreground">{testNameTranslations[test.name] || test.name}</h2>
           </div>
           <div className={`px-2.5 py-1 rounded-lg text-xs font-medium ${test.status === "normal"
             ? "bg-success/20 text-success"
@@ -425,7 +510,7 @@ function TestDetails({ test, onAskAI }: { test: Test; onAskAI?: (context: string
               ? "bg-warning/20 text-warning"
               : "bg-danger/20 text-danger"
             }`}>
-            {test.status === "normal" ? "Normal" : test.status === "borderline" ? "Borderline" : "Abnormal"}
+            {test.status === "normal" ? "Норма" : test.status === "borderline" ? "Погранично" : "Отклонение"}
           </div>
         </div>
 
@@ -469,18 +554,18 @@ function TestDetails({ test, onAskAI }: { test: Test; onAskAI?: (context: string
           ) : (
             <TrendingDown className="w-4 h-4 text-warning" />
           )}
-          <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">What this means</h4>
+          <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Что это означает</h4>
         </div>
         <p className="text-sm text-foreground/80 leading-relaxed">
           {getStatusImplication() || (
             test.status === "normal"
-              ? "Your result is within the healthy range."
-              : `Your result is ${test.value > test.normalRange.max ? "above" : "below"} the normal range. Consider discussing with your healthcare provider.`
+              ? "Ваш результат в пределах нормы."
+              : `Ваш результат ${test.value > test.normalRange.max ? "выше" : "ниже"} нормы. Рекомендуем обсудить с врачом.`
           )}
         </p>
         {test.status !== "normal" && (
           <p className="text-[10px] text-muted-foreground mt-2 italic">
-            Always consult your healthcare provider for proper interpretation.
+            Всегда проконсультируйтесь с врачом для правильной интерпретации.
           </p>
         )}
       </motion.div>
@@ -545,16 +630,16 @@ function TestDetails({ test, onAskAI }: { test: Test; onAskAI?: (context: string
             <MessageCircle className="w-5 h-5 text-primary-foreground" />
           </div>
           <div className="flex-1">
-            <h4 className="font-medium text-foreground mb-1">Want to know more?</h4>
-            <p className="text-xs text-muted-foreground mb-3">
-              Ask our AI assistant about this specific test result
-            </p>
+<h4 className="font-medium text-foreground mb-1">Хотите узнать больше?</h4>
+             <p className="text-xs text-muted-foreground mb-3">
+               Спросите нашего ИИ-ассистента об этом конкретном анализе
+             </p>
             <button
-              onClick={() => onAskAI?.(`Tell me more about my ${test.name} result of ${test.value} ${test.unit}`)}
+              onClick={() => onAskAI?.(`Расскажите подробнее о моем результате ${testNameTranslations[test.name] || test.name}: ${test.value} ${test.unit}`)}
               className="w-full px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-primary-foreground text-sm font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg"
             >
               <MessageCircle className="w-4 h-4" />
-              Ask About {test.name}
+              Спросить о {testNameTranslations[test.name] || test.name}
             </button>
           </div>
         </div>
@@ -578,8 +663,8 @@ export default function InsightsPanel({ selectedTest, hoveredTest, allData, onAs
           className="mb-4 px-3 py-2 rounded-lg bg-primary/10 border border-primary/20 flex items-center gap-2"
         >
           <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-          <span className="text-xs text-primary font-medium">Preview Mode</span>
-          <span className="text-xs text-muted-foreground ml-auto">Click to lock</span>
+          <span className="text-xs text-primary font-medium">Режим предпросмотра</span>
+          <span className="text-xs text-muted-foreground ml-auto">Нажмите для фиксации</span>
         </motion.div>
       )}
 
@@ -590,8 +675,8 @@ export default function InsightsPanel({ selectedTest, hoveredTest, allData, onAs
           className="mb-4 px-3 py-2 rounded-lg bg-success/10 border border-success/20 flex items-center gap-2"
         >
           <CheckCircle className="w-3.5 h-3.5 text-success" />
-          <span className="text-xs text-success font-medium">Viewing Details</span>
-          <span className="text-xs text-muted-foreground ml-auto">Click again to unlock</span>
+          <span className="text-xs text-success font-medium">Просмотр деталей</span>
+          <span className="text-xs text-muted-foreground ml-auto">Нажмите снова для разблокировки</span>
         </motion.div>
       )}
 

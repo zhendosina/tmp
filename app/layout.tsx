@@ -26,10 +26,10 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "BloodParser - Understand Your Blood Report",
+  title: "BloodParser - Понимание Вашего Анализа Крови",
   description:
-    "Upload your blood test report and instantly understand what each biomarker means. Get personalized health insights powered by AI.",
-  keywords: ["blood test", "lab results", "health analysis", "biomarkers", "medical report"],
+    "Загрузите результаты анализов крови и сразу узнайте, что означает каждый биомаркер. Получите персонализированные рекомендации здоровья с помощью ИИ.",
+  keywords: ["анализ крови", "результаты лаборатории", "анализ здоровья", "биомаркеры", "медицинский отчет"],
   authors: [{ name: "BloodParser" }],
   icons: {
     icon: "/favicon.svg",

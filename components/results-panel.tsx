@@ -26,6 +26,91 @@ interface ResultsPanelProps {
   hoveredTest: Test | null
 }
 
+// Category translations
+const categoryTranslations: Record<string, string> = {
+  "Complete Blood Count": "Общий анализ крови",
+  "Metabolic Panel": "Метаболическая панель",
+  "Lipid Profile": "Липидный профиль",
+  "Liver Function": "Функция печени",
+  "Kidney Function": "Функция почек",
+  "Thyroid Function": "Функция щитовидной железы",
+  "Vitamins & Minerals": "Витамины и минералы",
+  "Other": "Другое"
+}
+
+// Test name translations
+const testNameTranslations: Record<string, string> = {
+  "WBC": "Лейкоциты",
+  "RBC": "Эритроциты",
+  "Hemoglobin": "Гемоглобин",
+  "Hematocrit": "Гематокрит",
+  "Platelets": "Тромбоциты",
+  "MCV": "Средний объем эритроцита",
+  "MCH": "Среднее содержание Hb",
+  "MCHC": "Средняя концентрация Hb",
+  "RDW": "Ширина распределения эритроцитов",
+  "Glucose": "Глюкоза",
+  "Creatinine": "Креатинин",
+  "Urea": "Мочевина",
+  "Uric Acid": "Мочевая кислота",
+  "Total Protein": "Общий белок",
+  "Albumin": "Альбумин",
+  "Globulin": "Глобулин",
+  "Bilirubin": "Билирубин",
+  "ALT": "АЛТ",
+  "AST": "АСТ",
+  "ALP": "ЩФ",
+  "GGT": "ГГТ",
+  "Cholesterol": "Холестерин",
+  "Triglycerides": "Триглицериды",
+  "HDL": "ЛПВП",
+  "LDL": "ЛПНП",
+  "VLDL": "ЛПОНП",
+  "Sodium": "Натрий",
+  "Potassium": "Калий",
+  "Calcium": "Кальций",
+  "Phosphorus": "Фосфор",
+  "Magnesium": "Магний",
+  "Iron": "Железо",
+  "Ferritin": "Ферритин",
+  "Vitamin D": "Витамин D",
+  "Vitamin B12": "Витамин B12",
+  "Folate": "Фолат",
+  "TSH": "ТТГ",
+  "T3": "Т3",
+  "T4": "Т4",
+  "C-Reactive Protein": "С-реактивный белок",
+  "ESR": "СОЭ",
+  "Neutrophils": "Нейтрофилы",
+  "Lymphocytes": "Лимфоциты",
+  "Monocytes": "Моноциты",
+  "Eosinophils": "Эозинофилы",
+  "Basophils": "Базофилы",
+  "Insulin": "Инсулин",
+  "Amylase pancreatic": "Панкреатическая амилаза",
+  "HOMA-IR": "HOMA-IR",
+  "Testosterone": "Тестостерон",
+  "SHBG": "ГСПГ",
+  "Free Androgen Index": "Индекс свободных андрогенов",
+  "Free Testosterone": "Свободный тестостерон",
+  "Cortisol": "Кортизол",
+  "Total PSA": "Общий ПСА",
+  "Prolactin": "Пролактин",
+  "DHEA-S": "ДГЭА-С",
+  "Estradiol": "Эстрадиол",
+  "Progesterone": "Прогестерон",
+  "LH": "ЛГ",
+  "FSH": "ФСГ"
+}
+
+// Status translations
+const statusTranslations: Record<string, string> = {
+  "Normal": "Норма",
+  "High": "Повышено",
+  "Low": "Понижено",
+  "Borderline": "Погранично"
+}
+
 const categoryConfig: Record<string, { icon: any; color: string; bgColor: string }> = {
   "Complete Blood Count": {
     icon: Droplets,
@@ -89,7 +174,7 @@ const statusConfig = {
     color: "text-danger",
     bgColor: "bg-danger/10",
     borderColor: "border-danger/30",
-    label: "Abnormal",
+    label: "Отклонения",
   },
 }
 
@@ -307,9 +392,9 @@ export default function ResultsPanel({
           {/* Stats */}
           <div className="flex-1 w-full">
             <div className="mb-4">
-              <h2 className="text-xl font-serif font-medium text-foreground mb-1">Your Results</h2>
+              <h2 className="text-xl font-serif font-medium text-foreground mb-1">Ваши результаты</h2>
               <p className="text-sm text-muted-foreground">
-                {stats.totalTests} biomarkers analyzed from your report
+                {stats.totalTests} биомаркеров проанализировано из вашего отчета
               </p>
             </div>
 
@@ -322,7 +407,7 @@ export default function ResultsPanel({
                 className="p-3 rounded-xl bg-success/10 border border-success/20"
               >
                 <div className="text-2xl font-mono font-bold text-success">{stats.normalTests}</div>
-                <div className="text-[10px] text-success/80 uppercase tracking-wide font-medium">Normal</div>
+                <div className="text-[10px] text-success/80 uppercase tracking-wide font-medium">Норма</div>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -331,7 +416,7 @@ export default function ResultsPanel({
                 className="p-3 rounded-xl bg-warning/10 border border-warning/20"
               >
                 <div className="text-2xl font-mono font-bold text-warning">{stats.borderlineTests}</div>
-                <div className="text-[10px] text-warning/80 uppercase tracking-wide font-medium">Borderline</div>
+                <div className="text-[10px] text-warning/80 uppercase tracking-wide font-medium">Погранично</div>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -343,7 +428,7 @@ export default function ResultsPanel({
                   }`}
               >
                 <div className="text-2xl font-mono font-bold text-danger">{stats.abnormalTests}</div>
-                <div className="text-[10px] text-danger/80 uppercase tracking-wide font-medium">Abnormal</div>
+                <div className="text-[10px] text-danger/80 uppercase tracking-wide font-medium">Отклонение</div>
               </motion.div>
             </div>
           </div>
@@ -364,15 +449,15 @@ export default function ResultsPanel({
                 <AlertCircle className="w-5 h-5 text-danger" />
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="font-serif font-medium text-danger text-base mb-1">Attention Required</h4>
+                <h4 className="font-serif font-medium text-danger text-base mb-1">Требуется внимание</h4>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  {stats.abnormalTests} test{stats.abnormalTests > 1 ? 's' : ''} outside normal range.
-                  Click on any test card to see detailed insights.
+                  {stats.abnormalTests} анализ{stats.abnormalTests > 1 ? 'ов' : ''} вне нормы.
+                  Нажмите на любую карточку для детальной информации.
                 </p>
               </div>
               <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-danger/10 hover:bg-danger/20 text-danger text-sm font-medium transition-all flex-shrink-0 border border-danger/20">
                 <MessageCircle className="w-4 h-4" />
-                Ask AI
+                Спросить ИИ
               </button>
             </div>
           </motion.div>
@@ -409,19 +494,19 @@ export default function ResultsPanel({
                     <Icon className={`w-5 h-5 ${config.color}`} />
                   </div>
                   <div className="text-left">
-                    <h3 className="font-serif font-medium text-foreground">{category}</h3>
+                    <h3 className="font-serif font-medium text-foreground">{categoryTranslations[category] || category}</h3>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                      <span>{categoryTests.length} tests</span>
+                      <span>{categoryTests.length} анализов</span>
                       {categoryAbnormals > 0 && (
                         <span className="flex items-center gap-1 text-danger font-medium">
                           <span className="w-1.5 h-1.5 rounded-full bg-danger" />
-                          {categoryAbnormals} abnormal
+                          {categoryAbnormals} отклонений
                         </span>
                       )}
                       {categoryBorderlines > 0 && categoryAbnormals === 0 && (
                         <span className="flex items-center gap-1 text-warning font-medium">
                           <span className="w-1.5 h-1.5 rounded-full bg-warning" />
-                          {categoryBorderlines} borderline
+                          {categoryBorderlines} пограничных
                         </span>
                       )}
                     </div>
@@ -486,7 +571,7 @@ export default function ResultsPanel({
                             {/* Content */}
                             <div className="flex items-start justify-between gap-3 mb-1">
                               <div className="flex-1 min-w-0">
-                                <h4 className="font-medium text-sm text-foreground truncate">{test.name}</h4>
+                                <h4 className="font-medium text-sm text-foreground truncate">{testNameTranslations[test.name] || test.name}</h4>
                                 <div className="flex items-baseline gap-2 mt-1">
                                   <span className="text-2xl font-mono font-semibold text-foreground">{test.value}</span>
                                   <span className="text-xs text-muted-foreground">{test.unit}</span>
@@ -507,10 +592,10 @@ export default function ResultsPanel({
                               className="mt-3 flex items-center justify-between text-[10px]"
                             >
                               <span className={`${testConfig.color} font-medium`}>
-                                {testConfig.label}
+                                {statusTranslations[testConfig.label] || testConfig.label}
                               </span>
                               <span className="flex items-center gap-1 text-primary font-medium">
-                                View details <ArrowRight className="w-3 h-3" />
+                                Подробнее <ArrowRight className="w-3 h-3" />
                               </span>
                             </motion.div>
                           </motion.div>
