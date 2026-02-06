@@ -26,12 +26,18 @@ export const runtime = "nodejs"
 export const maxDuration = 60
 
 const extractionPromptBase = `
-You are a specialized medical data extraction AI analyzing a blood report. Extract ALL blood test parameters.
+You are a specialized medical data extraction AI analyzing a blood report. Extract ALL blood test parameters AND patient information.
 
 IMPORTANT: Return all test names and categories in RUSSIAN language.
 
 Extract in this exact JSON format:
 {
+  "patient_info": {
+    "name": "Patient Name or null if not found",
+    "age": "Age in years or null if not found",
+    "gender": "Male/Female or null if not found",
+    "date": "Test date in format DD.MM.YYYY or null if not found"
+  },
   "tests": [
     {
       "test_name": "Гемоглобин",
@@ -51,9 +57,10 @@ RULES:
 4. "normal_range" should be in format "min-max" (e.g., "12.0-15.0")
 5. "test_name" must be in RUSSIAN language (e.g., "Глюкоза", "Креатинин", "Тестостерон")
 6. "unit" should be in standard format (keep units as they appear: г/дл, ммоль/л, Ед/л, etc.)
+7. Extract patient_info from the report header: look for name, age/возраст, gender/пол, date/дата исследования
+8. If any patient_info field is not found in the report, use null for that field
 
-DO NOT INCLUDE administrative data (patient info, dates, addresses).
-EXTRACT every medical test parameter present.
+EXTRACT every medical test parameter present AND all available patient information.
 Return ONLY valid JSON, no markdown or explanation.
 TRANSLATE all test names to Russian before returning.
 `
@@ -69,7 +76,7 @@ ${ocrMarkdown}
 `
 }
 
-function extractTestsFromResponse(raw: string) {
+function extractDataFromResponse(raw: string): { tests: any[], patient_info?: any } {
   let jsonMatch = raw.match(/\{[\s\S]*\}/)
 
   // Try to extract JSON from markdown code block if direct match fails
@@ -89,8 +96,12 @@ function extractTestsFromResponse(raw: string) {
 
   const data = JSON.parse(jsonMatch[0])
   const tests = data.tests || []
+  const patient_info = data.patient_info || null
 
   console.log("[analyze] Successfully parsed", tests.length, "test results")
+  if (patient_info) {
+    console.log("[analyze] Patient info extracted:", patient_info)
+  }
 
   if (tests.length === 0) {
     throw new Error(
@@ -98,7 +109,7 @@ function extractTestsFromResponse(raw: string) {
     )
   }
 
-  return tests
+  return { tests, patient_info }
 }
 
 export async function POST(request: NextRequest) {
@@ -138,6 +149,7 @@ export async function POST(request: NextRequest) {
     console.log("[analyze] File converted to base64")
 
     let tests: any[] = []
+    let patient_info: any = null
 
     if (ocrEnabled && passphrase) {
       console.log("[analyze] OCR mode requested")
@@ -174,7 +186,9 @@ export async function POST(request: NextRequest) {
       const responseText = completion.choices[0]?.message?.content || ""
       console.log("[analyze] Text model response received:", responseText.substring(0, 200))
 
-      tests = extractTestsFromResponse(responseText)
+      const extracted = extractDataFromResponse(responseText)
+      tests = extracted.tests
+      patient_info = extracted.patient_info
     } else {
       console.log("[analyze] Using default vision pipeline")
 
@@ -203,7 +217,9 @@ export async function POST(request: NextRequest) {
       const responseText = completion.choices[0]?.message?.content || ""
       console.log("[analyze] Vision model response received:", responseText.substring(0, 200))
 
-      tests = extractTestsFromResponse(responseText)
+      const extracted = extractDataFromResponse(responseText)
+      tests = extracted.tests
+      patient_info = extracted.patient_info
     }
 
     // Calculate summary
@@ -213,7 +229,7 @@ export async function POST(request: NextRequest) {
       abnormal: tests.filter((r: any) => r.status !== "Normal").length,
     }
 
-    return NextResponse.json({ tests, summary })
+    return NextResponse.json({ tests, summary, patient_info })
   } catch (error) {
     console.error("[analyze] Error analyzing file:", error)
 
