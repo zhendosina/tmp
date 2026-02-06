@@ -61,7 +61,11 @@ export function downloadJSON(data: ReportData, filename = "blood-report") {
   const url = URL.createObjectURL(blob)
   const link = document.createElement("a")
   link.href = url
-  link.download = `${filename}-${new Date().toISOString().split("T")[0]}.json`
+  // Use analysis date from patient_info if available, otherwise use current date
+  const analysisDate = data.patient_info?.date 
+    ? data.patient_info.date.replace(/\./g, "-") // Convert DD.MM.YYYY to DD-MM-YYYY
+    : new Date().toISOString().split("T")[0]
+  link.download = `${filename}-${analysisDate}.json`
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
