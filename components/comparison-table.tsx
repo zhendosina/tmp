@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { TrendingUp, TrendingDown, Minus, X, FileText, Download, Loader2, Info, FileJson, FileDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import html2canvas from "html2canvas"
+import { jsPDF } from "jspdf"
 
 interface TestResult {
   test_name: string
@@ -320,19 +321,17 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
 
   // Export to PDF using html2canvas for proper Unicode support
   const exportToPDF = async () => {
-    // Create a printable version of the table
     const printDiv = document.createElement('div')
     printDiv.style.cssText = `
       position: fixed;
       top: -9999px;
       left: -9999px;
-      width: 1200px;
+      width: 1000px;
       background: white;
-      padding: 40px;
+      padding: 30px;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     `
     
-    // Generate HTML content
     let tableHTML = `
       <div style="margin-bottom: 20px;">
         <h1 style="font-size: 24px; color: #8B3A4A; margin: 0 0 10px 0;">Сравнение анализов крови</h1>
@@ -341,13 +340,13 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
           Всего показателей: ${filteredTests.length} | Дат анализов: ${dates.length}
         </p>
       </div>
-      <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
         <thead>
           <tr style="background: #f5f5f5;">
-            <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd; width: 200px;">Показатель</th>
-            <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd; width: 80px;">Референс</th>
-            <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd; width: 60px;">Ед.</th>
-            ${dates.map(d => `<th style="padding: 10px; text-align: center; border-bottom: 2px solid #ddd; min-width: 100px;">${d.date}</th>`).join('')}
+            <th style="padding: 8px; text-align: left; border-bottom: 2px solid #ddd;">Показатель</th>
+            <th style="padding: 8px; text-align: left; border-bottom: 2px solid #ddd;">Референс</th>
+            <th style="padding: 8px; text-align: left; border-bottom: 2px solid #ddd;">Ед.</th>
+            ${dates.map(d => `<th style="padding: 8px; text-align: center; border-bottom: 2px solid #ddd;">${d.date}</th>`).join('')}
           </tr>
         </thead>
         <tbody>
@@ -357,19 +356,18 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
       const bgColor = idx % 2 === 0 ? '#fafafa' : 'white'
       tableHTML += `
         <tr style="background: ${bgColor};">
-          <td style="padding: 8px 10px; border-bottom: 1px solid #eee; font-weight: 500;">
+          <td style="padding: 6px 8px; border-bottom: 1px solid #eee; font-weight: 500;">
             ${test.name}
-            ${test.originalNames.length > 1 ? `<br><span style="font-size: 10px; color: #999;">(${test.originalNames.filter(n => n !== test.name).join(', ')})</span>` : ''}
           </td>
-          <td style="padding: 8px 10px; border-bottom: 1px solid #eee; color: #666;">${test.normalRange || '-'}</td>
-          <td style="padding: 8px 10px; border-bottom: 1px solid #eee; color: #666;">${test.unit}</td>
+          <td style="padding: 6px 8px; border-bottom: 1px solid #eee; color: #666;">${test.normalRange || '-'}</td>
+          <td style="padding: 6px 8px; border-bottom: 1px solid #eee; color: #666;">${test.unit}</td>
           ${dates.map(d => {
             const t = getTestValue(test.name, d.indices)
             if (t) {
               const color = t.status === 'Normal' ? '#228B22' : t.status === 'High' ? '#B22222' : '#B8860B'
-              return `<td style="padding: 8px 10px; border-bottom: 1px solid #eee; text-align: center; color: ${color}; font-weight: bold;">${t.value}</td>`
+              return `<td style="padding: 6px 8px; border-bottom: 1px solid #eee; text-align: center; color: ${color}; font-weight: bold;">${t.value}</td>`
             } else {
-              return `<td style="padding: 8px 10px; border-bottom: 1px solid #eee; text-align: center; color: #ccc;">-</td>`
+              return `<td style="padding: 6px 8px; border-bottom: 1px solid #eee; text-align: center; color: #ccc;">-</td>`
             }
           }).join('')}
         </tr>
@@ -379,58 +377,55 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
     tableHTML += `
         </tbody>
       </table>
-      <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #999; font-size: 11px;">
-        Сгенерировано BloodParser - сравнение анализов крови
-      </div>
     `
     
     printDiv.innerHTML = tableHTML
     document.body.appendChild(printDiv)
     
     try {
-      // Use html2canvas to render the table
       const canvas = await html2canvas(printDiv, {
-        scale: 2,
+        scale: 1.5,
         useCORS: true,
         logging: false,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        allowTaint: true
       })
       
-      // Calculate dimensions to fit on page
-      const imgWidth = dates.length > 3 ? 297 : 210 // A4 width in mm (landscape/portrait)
-      const pageHeight = dates.length > 3 ? 210 : 297 // A4 height in mm
+      const imgWidth = dates.length > 3 ? 297 : 210
+      const pageHeight = dates.length > 3 ? 210 : 297
       const imgHeight = (canvas.height * imgWidth) / canvas.width
       
-      let heightLeft = imgHeight
-      let position = 0
-      
-      // Create PDF
-      const { jsPDF } = await import('jspdf')
       const doc = new jsPDF({
         orientation: dates.length > 3 ? 'landscape' : 'portrait',
         unit: 'mm',
         format: 'a4'
       })
       
-      let firstPage = true
-      
-      // Add image to PDF (split across multiple pages if needed)
-      while (heightLeft > 0) {
-        if (!firstPage) {
-          doc.addPage()
-        }
-        
+      if (imgHeight <= pageHeight) {
         const imgData = canvas.toDataURL('image/png')
-        doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
+        doc.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight)
+      } else {
+        let heightLeft = imgHeight
+        let position = 0
+        let firstPage = true
+        const imgData = canvas.toDataURL('image/png')
         
-        heightLeft -= pageHeight
-        position -= pageHeight
-        firstPage = false
+        while (heightLeft > 0) {
+          if (!firstPage) {
+            doc.addPage()
+          }
+          doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
+          heightLeft -= pageHeight
+          position -= pageHeight
+          firstPage = false
+        }
       }
       
       doc.save(`сравнение-анализов-${new Date().toISOString().split('T')[0]}.pdf`)
+    } catch (error) {
+      console.error('PDF export error:', error)
+      alert('Ошибка при создании PDF: ' + (error instanceof Error ? error.message : 'Unknown error'))
     } finally {
-      // Clean up
       document.body.removeChild(printDiv)
     }
   }
