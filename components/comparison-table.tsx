@@ -321,7 +321,6 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
 
   // Export to PDF using html2canvas for proper Unicode support
   const exportToPDF = async () => {
-    // Create an iframe for style isolation
     const iframe = document.createElement('iframe')
     iframe.style.cssText = `
       position: fixed;
@@ -340,7 +339,8 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
       return
     }
     
-    // Build HTML content with inline styles only
+    const uniqueLabs = new Set(analyses.map(a => a.fileName?.split('_')[0] || 'Unknown')).size
+    
     let tableHTML = `
 <!DOCTYPE html>
 <html>
@@ -349,47 +349,149 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { 
-      font-family: Arial, sans-serif; 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; 
       background: white; 
-      padding: 30px;
-      color: black;
+      color: #333;
     }
-    h1 { font-size: 24px; color: #8B3A4A; margin-bottom: 10px; }
-    .subtitle { color: #666; margin-bottom: 5px; }
-    .info { color: #333; font-size: 14px; margin-bottom: 20px; }
-    table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .header {
+      background: linear-gradient(135deg, #8B3A4A 0%, #C9756C 100%);
+      padding: 25px 30px;
+      margin: -30px -30px 25px -30px;
+      color: white;
+    }
+    .logo {
+      font-size: 14px;
+      font-weight: 600;
+      opacity: 0.9;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+    .header h1 { 
+      font-size: 26px; 
+      font-weight: 600;
+      margin: 0;
+      color: white;
+    }
+    .header .date {
+      font-size: 12px;
+      opacity: 0.85;
+      margin-top: 5px;
+    }
+    .summary {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 25px;
+      padding: 0 5px;
+    }
+    .summary-box {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 12px 20px;
+      min-width: 140px;
+    }
+    .summary-box .label {
+      font-size: 11px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .summary-box .value {
+      font-size: 20px;
+      font-weight: 600;
+      color: #333;
+    }
+    table { 
+      width: 100%; 
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 12px;
+    }
     th { 
-      background-color: #f5f5f5; 
-      padding: 8px; 
+      background-color: #f0f0f0; 
+      padding: 10px 8px; 
       text-align: left; 
+      font-weight: 600;
+      color: #555;
       border-bottom: 2px solid #ddd;
-      font-weight: bold;
+      font-size: 11px;
     }
-    th:last-child { text-align: center; }
+    th:first-child { border-radius: 6px 0 0 0; }
+    th:last-child { border-radius: 0 6px 0 0; }
     td { 
-      padding: 6px 8px; 
-      border-bottom: 1px solid #eee;
+      padding: 8px; 
+      border-bottom: 1px solid #e8e8e8;
+      vertical-align: middle;
     }
     tr:nth-child(even) { background-color: #fafafa; }
     tr:nth-child(odd) { background-color: white; }
-    .status-normal { color: #228B22; font-weight: bold; text-align: center; }
-    .status-high { color: #B22222; font-weight: bold; text-align: center; }
-    .status-low { color: #B8860B; font-weight: bold; text-align: center; }
-    .status-missing { color: #ccc; text-align: center; }
-    .muted { color: #666; }
+    tr:hover { background-color: #f5f5f5; }
+    .test-name { font-weight: 500; color: #333; }
+    .ref-value { color: #666; font-size: 11px; }
+    .unit { color: #888; font-size: 11px; }
+    .status-normal { 
+      color: #22c55e; 
+      font-weight: 600; 
+      text-align: center;
+      background: #f0fdf4;
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    .status-high { 
+      color: #dc2626; 
+      font-weight: 600; 
+      text-align: center;
+      background: #fef2f2;
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    .status-low { 
+      color: #d97706; 
+      font-weight: 600; 
+      text-align: center;
+      background: #fffbeb;
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    .status-missing { 
+      color: #ccc; 
+      text-align: center;
+    }
+    .date-col { text-align: center; }
   </style>
 </head>
 <body>
-  <h1>Сравнение анализов крови</h1>
-  <p class="subtitle">Сгенерировано ${new Date().toLocaleDateString('ru-RU')}</p>
-  <p class="info">Всего показателей: ${filteredTests.length} | Дат анализов: ${dates.length}</p>
+  <div class="header">
+    <div class="logo">BloodReports</div>
+    <h1>Сравнение анализов крови</h1>
+    <div class="date">Сгенерировано BloodParser — ${new Date().toLocaleDateString('ru-RU')}</div>
+  </div>
+  
+  <div class="summary">
+    <div class="summary-box">
+      <div class="label">Всего показателей</div>
+      <div class="value">${filteredTests.length}</div>
+    </div>
+    <div class="summary-box">
+      <div class="label">Дат анализов</div>
+      <div class="value">${dates.length}</div>
+    </div>
+    <div class="summary-box">
+      <div class="label">Лабораторий</div>
+      <div class="value">${uniqueLabs}</div>
+    </div>
+  </div>
+  
   <table>
     <thead>
       <tr>
         <th>Показатель</th>
         <th>Референс</th>
-        <th>Ед.</th>
-        ${dates.map(d => `<th style="text-align: center;">${d.date}</th>`).join('')}
+        <th>Ед. изм.</th>
+        ${dates.map(d => `<th class="date-col">${d.date}</th>`).join('')}
       </tr>
     </thead>
     <tbody>
@@ -398,16 +500,17 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
     filteredTests.forEach((test) => {
       tableHTML += `
       <tr>
-        <td style="font-weight: 500;">${test.name}</td>
-        <td class="muted">${test.normalRange || '-'}</td>
-        <td class="muted">${test.unit}</td>
+        <td class="test-name">${test.name}</td>
+        <td class="ref-value">${test.normalRange || '-'}</td>
+        <td class="unit">${test.unit}</td>
         ${dates.map(d => {
           const t = getTestValue(test.name, d.indices)
           if (!t) {
-            return '<td class="status-missing">-</td>'
+            return '<td class="status-missing date-col">—</td>'
           }
           const statusClass = t.status === 'Normal' ? 'status-normal' : t.status === 'High' ? 'status-high' : 'status-low'
-          return `<td class="${statusClass}">${t.value}</td>`
+          const displayValue = t.status === 'Normal' ? t.value : `${t.value} ${t.status === 'High' ? '↑' : '↓'}`
+          return `<td class="date-col"><span class="${statusClass}">${displayValue}</span></td>`
         }).join('')}
       </tr>
 `
@@ -424,12 +527,11 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
     iframeDoc.write(tableHTML)
     iframeDoc.close()
     
-    // Wait for styles to apply
-    await new Promise(resolve => setTimeout(resolve, 100))
+    await new Promise(resolve => setTimeout(resolve, 150))
     
     try {
       const canvas = await html2canvas(iframeDoc.body, {
-        scale: 1.5,
+        scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
