@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { motion } from "framer-motion"
-import { TrendingUp, TrendingDown, Minus, X, FileText, Download } from "lucide-react"
+import { TrendingUp, TrendingDown, Minus, X, FileText, Download, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface TestResult {
@@ -36,77 +36,6 @@ interface ComparisonTableProps {
   onClose: () => void
 }
 
-// Normalize test name to handle duplicates (e.g., "Глюкоза" vs "Глюкоза в крови")
-function normalizeTestName(name: string): string {
-  const normalized = name
-    .toLowerCase()
-    .replace(/[^\u0400-\u04FFa-z0-9\s]/gi, '') // Keep Cyrillic, latin, numbers, spaces
-    .replace(/\s+/g, ' ')
-    .trim()
-  
-  // Remove common suffixes/prefixes that cause duplicates
-  return normalized
-    .replace(/в крови$/i, '')
-    .replace(/в сыворотке$/i, '')
-    .replace(/в плазме$/i, '')
-    .replace(/общий$/i, '')
-    .replace(/общая$/i, '')
-    .trim()
-}
-
-// Test name aliases/mappings for common variations
-const testAliases: Record<string, string> = {
-  'глюкоза': 'Глюкоза',
-  'glucose': 'Глюкоза',
-  'холестерин': 'Холестерин общий',
-  'холестерин общий': 'Холестерин общий',
-  'cholesterol': 'Холестерин общий',
-  'лдл': 'ЛПНП (LDL)',
-  'ldl': 'ЛПНП (LDL)',
-  'лпнп': 'ЛПНП (LDL)',
-  'холестерин лпнп': 'ЛПНП (LDL)',
-  'hdl': 'ЛПВП (HDL)',
-  'лпвп': 'ЛПВП (HDL)',
-  'холестерин лпвп': 'ЛПВП (HDL)',
-  'триглицериды': 'Триглицериды',
-  'tg': 'Триглицериды',
-  'креатинин': 'Креатинин',
-  'creatinine': 'Креатинин',
-  'мочевина': 'Мочевина',
-  'urea': 'Мочевина',
-  'алт': 'АЛТ',
-  'alanine aminotransferase': 'АЛТ',
-  'аст': 'АСТ',
-  'aspartate aminotransferase': 'АСТ',
-  'билирубин': 'Билирубин общий',
-  'билирубин общий': 'Билирубин общий',
-  'bilirubin': 'Билирубин общий',
-  'гемоглобин': 'Гемоглобин',
-  'hemoglobin': 'Гемоглобин',
-  'лейкоциты': 'Лейкоциты (WBC)',
-  'wbc': 'Лейкоциты (WBC)',
-  'эритроциты': 'Эритроциты (RBC)',
-  'rbc': 'Эритроциты (RBC)',
-  'тромбоциты': 'Тромбоциты (PLT)',
-  'plt': 'Тромбоциты (PLT)',
-  'срб': 'С-реактивный белок',
-  'crp': 'С-реактивный белок',
-  'с-реактивный белок': 'С-реактивный белок',
-  'тSH': 'ТТГ',
-  'ттг': 'ТТГ',
-  'tsh': 'ТТГ',
-  'т3': 'Т3 свободный',
-  't3': 'Т3 свободный',
-  'т4': 'Т4 свободный',
-  't4': 'Т4 свободный',
-}
-
-// Get canonical test name
-function getCanonicalName(name: string): string {
-  const normalized = normalizeTestName(name)
-  return testAliases[normalized] || name
-}
-
 // Parse date in format DD.MM.YYYY or YYYY-MM-DD
 function parseDate(dateStr: string | undefined): Date {
   if (!dateStr) return new Date(0)
@@ -128,6 +57,59 @@ function parseDate(dateStr: string | undefined): Date {
 
 export default function ComparisonTable({ analyses, onClose }: ComparisonTableProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [normalizedMappings, setNormalizedMappings] = useState<Record<string, string> | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Collect all unique test names
+  const allTestNames = useMemo(() => {
+    const names = new Set<string>()
+    analyses.forEach(analysis => {
+      analysis.tests.forEach(test => {
+        names.add(test.test_name)
+      })
+    })
+    return Array.from(names)
+  }, [analyses])
+
+  // Fetch normalization from API
+  useEffect(() => {
+    const normalizeTestNames = async () => {
+      try {
+        const response = await fetch("/api/normalize-tests", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ testNames: allTestNames })
+        })
+
+        if (!response.ok) {
+          throw new Error("Failed to normalize test names")
+        }
+
+        const data = await response.json()
+        setNormalizedMappings(data.mappings)
+      } catch (error) {
+        console.error("Error normalizing test names:", error)
+        // Fallback to identity mappings if API fails
+        const fallback: Record<string, string> = {}
+        allTestNames.forEach(name => {
+          fallback[name] = name
+        })
+        setNormalizedMappings(fallback)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    normalizeTestNames()
+  }, [allTestNames])
+
+  // Get canonical name from AI mappings
+  const getCanonicalName = (name: string): string => {
+    if (!normalizedMappings) return name
+    return normalizedMappings[name] || name
+  }
 
   // Sort analyses by date
   const sortedAnalyses = useMemo(() => {
@@ -138,9 +120,15 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
     })
   }, [analyses])
 
-  // Get all unique test names across all analyses (with normalization)
+  // Get all unique test names across all analyses (with AI normalization)
   const allTests = useMemo(() => {
-    const testMap = new Map<string, { category: string; unit: string; displayName: string }>()
+    if (!normalizedMappings) return []
+    
+    const testMap = new Map<string, { 
+      category: string; 
+      unit: string; 
+      originalNames: Set<string> 
+    }>()
     
     sortedAnalyses.forEach(analysis => {
       analysis.tests.forEach(test => {
@@ -150,17 +138,21 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
           testMap.set(canonicalName, { 
             category: test.category, 
             unit: test.unit,
-            displayName: canonicalName
+            originalNames: new Set()
           })
         }
+        
+        testMap.get(canonicalName)?.originalNames.add(test.test_name)
       })
     })
     
     return Array.from(testMap.entries()).map(([name, info]) => ({
       name,
-      ...info
+      category: info.category,
+      unit: info.unit,
+      originalNames: Array.from(info.originalNames)
     }))
-  }, [sortedAnalyses])
+  }, [sortedAnalyses, normalizedMappings])
 
   // Get all categories
   const categories = useMemo(() => {
@@ -184,29 +176,26 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
     return allTests.filter(t => t.category === selectedCategory)
   }, [allTests, selectedCategory])
 
-  // Get value for a specific test and analysis (using canonical name matching)
-  const getTestValue = (testName: string, analysisIndex: number) => {
+  // Get value for a specific test and analysis (using AI canonical name matching)
+  const getTestValue = (canonicalName: string, analysisIndex: number) => {
     const analysis = sortedAnalyses[analysisIndex]
     if (!analysis) return null
     
-    // Try exact match first
-    let test = analysis.tests.find(t => t.test_name === testName)
-    
-    // If no exact match, try canonical name matching
-    if (!test) {
-      const canonicalTarget = getCanonicalName(testName)
-      test = analysis.tests.find(t => getCanonicalName(t.test_name) === canonicalTarget)
-    }
+    // Find any test that maps to this canonical name
+    const test = analysis.tests.find(t => {
+      const testCanonical = getCanonicalName(t.test_name)
+      return testCanonical === canonicalName
+    })
     
     return test || null
   }
 
   // Determine trend (increasing, decreasing, stable)
-  const getTrend = (testName: string, currentIndex: number) => {
+  const getTrend = (canonicalName: string, currentIndex: number) => {
     if (currentIndex === 0) return null
     
-    const current = getTestValue(testName, currentIndex)
-    const previous = getTestValue(testName, currentIndex - 1)
+    const current = getTestValue(canonicalName, currentIndex)
+    const previous = getTestValue(canonicalName, currentIndex - 1)
     
     if (!current || !previous) return null
     
@@ -245,6 +234,23 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
     URL.revokeObjectURL(url)
   }
 
+  if (isLoading) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-background/95 backdrop-blur-sm z-50 flex items-center justify-center"
+      >
+        <div className="text-center space-y-4">
+          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
+          <p className="text-lg text-foreground">Нормализация названий анализов...</p>
+          <p className="text-sm text-muted-foreground">ИИ анализирует {allTestNames.length} уникальных названий</p>
+        </div>
+      </motion.div>
+    )
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -260,7 +266,7 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
               Сравнение анализов
             </h2>
             <p className="text-sm text-muted-foreground">
-              {analyses.length} анализа • {allTests.length} показателей
+              {analyses.length} анализа • {allTests.length} показателей (сгруппировано ИИ)
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -363,13 +369,13 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
                       }`}
                     >
                       <td className="px-4 py-3 text-sm font-medium sticky left-0 bg-card z-10">
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-col gap-1">
                           <span className={hasAbnormal ? "text-warning" : ""}>
                             {test.name}
                           </span>
-                          {testIdx === 0 && (
+                          {test.originalNames.length > 1 && (
                             <span className="text-xs text-muted-foreground">
-                              {test.category}
+                              также: {test.originalNames.filter(n => n !== test.name).join(", ")}
                             </span>
                           )}
                         </div>
