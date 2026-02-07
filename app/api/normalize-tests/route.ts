@@ -14,11 +14,14 @@ const openai = new OpenAI({
 })
 
 // Use Sonnet 4.5 for test name normalization
-const MODEL = "anthropic/claude-sonnet-4-5-20251001"
+const MODEL = "anthropic/claude-sonnet-4.5"
 
 export async function POST(request: NextRequest) {
   try {
+    console.log("[normalize-tests] Received request")
+    
     if (!apiKey) {
+      console.error("[normalize-tests] API key not configured")
       return NextResponse.json(
         { error: "API key not configured" },
         { status: 500 }
@@ -26,6 +29,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { testNames } = await request.json()
+    console.log("[normalize-tests] Received test names:", testNames)
     
     if (!Array.isArray(testNames) || testNames.length === 0) {
       return NextResponse.json(
@@ -59,6 +63,7 @@ Rules:
 3. Return a JSON object with mappings from original names to canonical names
 4. Use Russian language for canonical names, optionally adding English abbreviations in parentheses
 5. Keep the same level of specificity (don't merge unrelated tests like "общий белок" and "альбумин")
+6. CRITICAL: ALL similar tests must have the EXACT SAME canonical name
 
 Return ONLY this JSON format:
 {
@@ -69,6 +74,8 @@ Return ONLY this JSON format:
   }
 }`
 
+    console.log("[normalize-tests] Calling OpenRouter with model:", MODEL)
+    
     const completion = await openai.chat.completions.create({
       model: MODEL,
       messages: [
@@ -81,6 +88,7 @@ Return ONLY this JSON format:
     })
 
     const responseText = completion.choices[0]?.message?.content || ""
+    console.log("[normalize-tests] Raw response:", responseText.substring(0, 500))
     
     // Extract JSON from response
     const jsonMatch = responseText.match(/\{[\s\S]*\}/)
@@ -93,6 +101,7 @@ Return ONLY this JSON format:
     }
 
     const data = JSON.parse(jsonMatch[0])
+    console.log("[normalize-tests] Parsed mappings:", data.mappings)
     
     return NextResponse.json({ mappings: data.mappings })
   } catch (error) {

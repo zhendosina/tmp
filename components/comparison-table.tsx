@@ -74,6 +74,9 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
   // Fetch normalization from API
   useEffect(() => {
     const normalizeTestNames = async () => {
+      console.log("[Comparison] Starting normalization for", allTestNames.length, "tests")
+      console.log("[Comparison] Test names:", allTestNames)
+      
       try {
         const response = await fetch("/api/normalize-tests", {
           method: "POST",
@@ -88,6 +91,7 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
         }
 
         const data = await response.json()
+        console.log("[Comparison] Received mappings:", data.mappings)
         setNormalizedMappings(data.mappings)
       } catch (error) {
         console.error("Error normalizing test names:", error)
@@ -102,7 +106,9 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
       }
     }
 
-    normalizeTestNames()
+    if (allTestNames.length > 0) {
+      normalizeTestNames()
+    }
   }, [allTestNames])
 
   // Get canonical name from AI mappings
@@ -124,6 +130,8 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
   const allTests = useMemo(() => {
     if (!normalizedMappings) return []
     
+    console.log("[Comparison] Building allTests with mappings:", normalizedMappings)
+    
     const testMap = new Map<string, { 
       category: string; 
       unit: string; 
@@ -133,6 +141,7 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
     sortedAnalyses.forEach(analysis => {
       analysis.tests.forEach(test => {
         const canonicalName = getCanonicalName(test.test_name)
+        console.log(`[Comparison] Mapping "${test.test_name}" -> "${canonicalName}"`)
         
         if (!testMap.has(canonicalName)) {
           testMap.set(canonicalName, { 
@@ -146,12 +155,15 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
       })
     })
     
-    return Array.from(testMap.entries()).map(([name, info]) => ({
+    const result = Array.from(testMap.entries()).map(([name, info]) => ({
       name,
       category: info.category,
       unit: info.unit,
       originalNames: Array.from(info.originalNames)
     }))
+    
+    console.log("[Comparison] Final allTests:", result)
+    return result
   }, [sortedAnalyses, normalizedMappings])
 
   // Get all categories
