@@ -43,9 +43,10 @@ export async function POST(request: NextRequest) {
 Input test names (in Russian and possibly English):
 ${testNames.map((name, idx) => `${idx + 1}. ${name}`).join('\n')}
 
-Rules:
-1. Different variations of the same test should get the SAME canonical name
-2. Examples of variations to group together:
+CRITICAL RULES:
+1. Different variations of the same test MUST get the EXACT SAME canonical name
+2. Text in parentheses () is usually an abbreviation or clarification, NOT a different test
+3. Examples of variations to group together:
    - "Глюкоза", "Глюкоза в крови", "Glucose", "Глюкоза (венозная кровь)" → "Глюкоза"
    - "Холестерин", "Холестерин общий", "Общий холестерин", "Cholesterol" → "Холестерин общий"
    - "ЛДЛ", "ЛПНП", "Холестерин ЛПНП", "LDL-cholesterol" → "ЛПНП (LDL)"
@@ -56,14 +57,20 @@ Rules:
    - "АСТ", "AST", "Аспартатаминотрансфераза" → "АСТ"
    - "Лейкоциты", "WBC", "White Blood Cells", "Лейкоцитарная формула" → "Лейкоциты (WBC)"
    - "Эритроциты", "RBC", "Red Blood Cells" → "Эритроциты (RBC)"
-   - "Гемоглобин", "Hemoglobin", "HGB" → "Гемоглобин"
+   - "Гемоглобин", "Hemoglobin", "HGB", "Гемоглобин (Hb)", "Гемоглобин (HGB)" → "Гемоглобин"
    - "Тромбоциты", "PLT", "Platelets" → "Тромбоциты (PLT)"
    - "СРБ", "CRP", "C-реактивный белок" → "С-реактивный белок"
+   - "Т3", "Т3 свободный", "T3 Free", "Triiodthyronine" → "Т3 свободный"
+   - "Т4", "Т4 свободный", "T4 Free", "Thyroxine" → "Т4 свободный"
 
-3. Return a JSON object with mappings from original names to canonical names
-4. Use Russian language for canonical names, optionally adding English abbreviations in parentheses
-5. Keep the same level of specificity (don't merge unrelated tests like "общий белок" and "альбумин")
-6. CRITICAL: ALL similar tests must have the EXACT SAME canonical name
+4. When tests have the same base name but different abbreviations in parentheses, they are the SAME test:
+   - "Гемоглобин (Hb)" and "Гемоглобин (HGB)" are the SAME test → canonical name: "Гемоглобин"
+   - "Глюкоза (GLU)" and "Глюкоза" are the SAME test → canonical name: "Глюкоза"
+
+5. Return a JSON object with mappings from original names to canonical names
+6. Use Russian language for canonical names, optionally adding English abbreviations in parentheses
+7. Keep the same level of specificity (don't merge unrelated tests like "общий белок" and "альбумин")
+8. CRITICAL: ALL similar tests must have the EXACT SAME canonical name - double-check your work!
 
 Return ONLY this JSON format:
 {
