@@ -38,45 +38,25 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const prompt = `You are a medical data normalization expert. Your task is to analyze a list of blood test parameter names and group similar tests together by assigning them canonical (standard) names.
+    const prompt = `Посмотри на список параметров крови ниже.
 
-Input test names (in Russian and possibly English):
+Задача: найди разные наименования для одних и тех же параметров (например, "Гемоглобин", "Гемоглобин (Hb)", "Гемоглобин (HGB)" - это один и тот же параметр, просто разные лаборатории по-разному его называют).
+
+Собери одинаковые параметры вместе и присвой им одно общее название (canonical name).
+
+Список параметров:
 ${testNames.map((name, idx) => `${idx + 1}. ${name}`).join('\n')}
 
-CRITICAL RULES:
-1. Different variations of the same test MUST get the EXACT SAME canonical name
-2. Text in parentheses () is usually an abbreviation or clarification, NOT a different test
-3. Examples of variations to group together:
-   - "Глюкоза", "Глюкоза в крови", "Glucose", "Глюкоза (венозная кровь)" → "Глюкоза"
-   - "Холестерин", "Холестерин общий", "Общий холестерин", "Cholesterol" → "Холестерин общий"
-   - "ЛДЛ", "ЛПНП", "Холестерин ЛПНП", "LDL-cholesterol" → "ЛПНП (LDL)"
-   - "ЛПВП", "HDL", "Холестерин ЛПВП" → "ЛПВП (HDL)"
-   - "ТТГ", "TSH", "Тиреотропный гормон" → "ТТГ"
-   - "Креатинин", "Creatinine", "Креатинин в сыворотке" → "Креатинин"
-   - "АЛТ", "ALT", "Аланинаминотрансфераза" → "АЛТ"
-   - "АСТ", "AST", "Аспартатаминотрансфераза" → "АСТ"
-   - "Лейкоциты", "WBC", "White Blood Cells", "Лейкоцитарная формула" → "Лейкоциты (WBC)"
-   - "Эритроциты", "RBC", "Red Blood Cells" → "Эритроциты (RBC)"
-   - "Гемоглобин", "Hemoglobin", "HGB", "Гемоглобин (Hb)", "Гемоглобин (HGB)" → "Гемоглобин"
-   - "Тромбоциты", "PLT", "Platelets" → "Тромбоциты (PLT)"
-   - "СРБ", "CRP", "C-реактивный белок" → "С-реактивный белок"
-   - "Т3", "Т3 свободный", "T3 Free", "Triiodthyronine" → "Т3 свободный"
-   - "Т4", "Т4 свободный", "T4 Free", "Thyroxine" → "Т4 свободный"
+Важно:
+- Параметры с разными аббревиатурами в скобках - это ОДИН И ТОТ ЖЕ параметр (например, "Гемоглобин (Hb)" и "Гемоглобин (HGB)" = "Гемоглобин")
+- Используй русские названия для canonical name
+- Все варианты одного параметра должны иметь ОДИНАКОВОЕ canonical name
 
-4. When tests have the same base name but different abbreviations in parentheses, they are the SAME test:
-   - "Гемоглобин (Hb)" and "Гемоглобин (HGB)" are the SAME test → canonical name: "Гемоглобин"
-   - "Глюкоза (GLU)" and "Глюкоза" are the SAME test → canonical name: "Глюкоза"
-
-5. Return a JSON object with mappings from original names to canonical names
-6. Use Russian language for canonical names, optionally adding English abbreviations in parentheses
-7. Keep the same level of specificity (don't merge unrelated tests like "общий белок" and "альбумин")
-8. CRITICAL: ALL similar tests must have the EXACT SAME canonical name - double-check your work!
-
-Return ONLY this JSON format:
+Верни результат в формате JSON:
 {
   "mappings": {
-    "original_name_1": "Canonical Name",
-    "original_name_2": "Canonical Name",
+    "оригинальное_название_1": "Общее название",
+    "оригинальное_название_2": "Общее название",
     ...
   }
 }`
