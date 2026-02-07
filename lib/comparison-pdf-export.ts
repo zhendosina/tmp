@@ -12,7 +12,7 @@ export const exportComparisonToPDF = async (
     position: fixed;
     top: -9999px;
     left: -9999px;
-    width: 1600px;
+    width: 1800px;
     height: 1200px;
     border: none;
   `;
@@ -40,25 +40,6 @@ export const exportComparisonToPDF = async (
     ? `${dateList[0]} - ${dateList[dateList.length - 1]}`
     : dateList[0] || '';
 
-  // Helper function to get trend
-  const getTrend = (testName: string, currentDateIndex: number): string | null => {
-    if (currentDateIndex === 0) return null;
-    
-    const current = getTestValue(testName, dates[currentDateIndex].indices);
-    const previous = getTestValue(testName, dates[currentDateIndex - 1].indices);
-    
-    if (!current || !previous) return null;
-    
-    const currVal = parseFloat(String(current.value));
-    const prevVal = parseFloat(String(previous.value));
-    
-    if (isNaN(currVal) || isNaN(prevVal)) return null;
-    
-    if (currVal > prevVal) return '↑';
-    if (currVal < prevVal) return '↓';
-    return null;
-  };
-
   const tableHTML = `
 <!DOCTYPE html>
 <html>
@@ -70,29 +51,27 @@ export const exportComparisonToPDF = async (
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       background: white;
       color: #000000;
-      line-height: 1.4;
+      line-height: 1.5;
       padding: 40px;
     }
     .header {
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
     .header h1 {
-      font-size: 32px;
-      font-weight: 700;
-      color: #000000;
-      margin-bottom: 15px;
+      font-size: 28px;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 12px;
     }
     .header .patient-info {
-      font-size: 16px;
-      color: #333;
-      margin-bottom: 5px;
-      font-weight: 500;
+      font-size: 14px;
+      color: #4a5568;
+      margin-bottom: 4px;
     }
     .header .period {
-      font-size: 16px;
-      color: #555;
-      font-weight: 500;
+      font-size: 14px;
+      color: #4a5568;
     }
     table {
       width: 100%;
@@ -100,68 +79,61 @@ export const exportComparisonToPDF = async (
       font-size: 11px;
     }
     th {
-      background-color: #2E5C6E;
+      background: linear-gradient(to right, #5dade2, #3498db);
       color: white;
-      padding: 10px 6px;
+      padding: 10px 8px;
       text-align: center;
-      font-weight: 700;
+      font-weight: 600;
       font-size: 10px;
-      border: 1px solid #ddd;
+      border: 1px solid #bbb;
+      height: 32px;
+      vertical-align: middle;
     }
     th:first-child {
-      text-align: left;
-      width: 18%;
-    }
-    th:nth-child(2) {
-      width: 12%;
+      background-color: #3d4f5c;
+      text-align: center;
     }
     .category-row {
-      background-color: #6B7B8C !important;
+      background-color: #6b7b8c !important;
       color: white;
-      font-weight: 700;
+      font-weight: 600;
       font-size: 10px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
     .category-row td {
-      padding: 8px;
-      border: 1px solid #ddd;
-      background-color: #6B7B8C !important;
+      padding: 7px 8px;
+      border: 1px solid #bbb;
+      background-color: #6b7b8c !important;
+      text-align: left;
+      height: 28px;
+      vertical-align: middle;
     }
     td {
-      padding: 5px 6px;
-      border: 1px solid #ddd;
+      padding: 6px 8px;
+      border: 1px solid #d0d0d0;
       vertical-align: middle;
       text-align: center;
-      font-weight: 700;
-      color: #000000;
+      height: 30px;
     }
-    tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-    tr:nth-child(odd) {
-      background-color: white;
+    .test-name-cell {
+      text-align: left;
+      padding: 6px 10px;
     }
     .test-name {
-      font-weight: 700;
+      font-weight: 400;
       color: #000000;
-      text-align: left;
+      display: block;
+      margin-bottom: 2px;
     }
-    .ref-col {
-      text-align: center;
-      font-weight: 700;
-      color: #000000;
+    .first-value {
       font-size: 10px;
-    }
-    .date-col {
-      text-align: center;
-      min-width: 85px;
-      font-weight: 700;
+      color: #000000;
     }
     .status-normal {
       background-color: #C8E6C9;
       color: #000000;
-      font-weight: 700;
+      font-weight: 400;
     }
     .status-high {
       background-color: #FFCDD2;
@@ -174,26 +146,9 @@ export const exportComparisonToPDF = async (
       font-weight: 700;
     }
     .status-missing {
+      background-color: #ffffff;
       color: #999;
-      text-align: center;
-      font-weight: 700;
-    }
-    .trend-arrow {
-      font-size: 12px;
-      margin-left: 2px;
-    }
-    .trend-up {
-      color: #dc2626;
-    }
-    .trend-down {
-      color: #16a34a;
-    }
-    .value-with-unit {
-      font-weight: 700;
-    }
-    .unit-text {
-      font-size: 9px;
-      font-weight: 600;
+      font-weight: 400;
     }
   </style>
 </head>
@@ -208,8 +163,7 @@ export const exportComparisonToPDF = async (
     <thead>
       <tr>
         <th>Анализ</th>
-        <th>Референс</th>
-        ${dates.map(d => `<th class="date-col">${d.date}</th>`).join('')}
+        ${dates.map(d => `<th>${d.date}</th>`).join('')}
       </tr>
     </thead>
     <tbody>
@@ -219,27 +173,41 @@ export const exportComparisonToPDF = async (
         
         let html = `
         <tr class="category-row">
-          <td colspan="${dates.length + 2}">${category.toUpperCase()}</td>
+          <td colspan="${dates.length + 1}">${category.toUpperCase()}</td>
         </tr>
         `;
         
-        html += categoryTests.map((test) => `
-        <tr>
-          <td class="test-name">${test.name}</td>
-          <td class="ref-col">${test.normalRange || '—'}</td>
-          ${dates.map((d, dateIdx) => {
-            const t = getTestValue(test.name, d.indices);
-            if (!t) {
-              return '<td class="status-missing date-col">—</td>';
-            }
-            const statusClass = t.status === 'Normal' ? 'status-normal' : t.status === 'High' ? 'status-high' : 'status-low';
-            const trend = getTrend(test.name, dateIdx);
-            const trendArrow = trend ? `<span class="trend-arrow ${trend === '↑' ? 'trend-up' : 'trend-down'}">${trend}</span>` : '';
-            const unit = t.unit ? `<span class="unit-text"> ${t.unit}</span>` : '';
-            return `<td class="${statusClass} date-col"><span class="value-with-unit">${t.value}${trendArrow}${unit}</span></td>`;
-          }).join('')}
-        </tr>
-        `).join('');
+        html += categoryTests.map((test) => {
+          // Get first date value for first column
+          const firstDateValue = getTestValue(test.name, dates[0].indices);
+          const firstValueText = firstDateValue 
+            ? `${firstDateValue.value} ${firstDateValue.unit}` 
+            : '—';
+          const firstStatusClass = firstDateValue?.status === 'Normal' 
+            ? 'status-normal' 
+            : firstDateValue?.status === 'High' 
+            ? 'status-high' 
+            : firstDateValue?.status === 'Low'
+            ? 'status-low'
+            : 'status-missing';
+          
+          return `
+          <tr>
+            <td class="test-name-cell ${firstStatusClass}">
+              <span class="test-name">${test.name}</span>
+              <span class="first-value">${firstValueText}</span>
+            </td>
+            ${dates.slice(1).map(d => {
+              const t = getTestValue(test.name, d.indices);
+              if (!t) {
+                return '<td class="status-missing">—</td>';
+              }
+              const statusClass = t.status === 'Normal' ? 'status-normal' : t.status === 'High' ? 'status-high' : 'status-low';
+              return `<td class="${statusClass}">${t.value} ${t.unit}</td>`;
+            }).join('')}
+          </tr>
+          `;
+        }).join('');
         
         return html;
       }).join('')}
@@ -257,13 +225,13 @@ export const exportComparisonToPDF = async (
 
   try {
     const canvas = await html2canvas(iframeDoc.body, {
-      scale: 2,
+      scale: 2.5,
       useCORS: true,
       logging: false,
       backgroundColor: '#ffffff',
       allowTaint: true,
       foreignObjectRendering: false,
-      windowWidth: 1600,
+      windowWidth: 1800,
       windowHeight: 1200
     });
 
@@ -277,22 +245,23 @@ export const exportComparisonToPDF = async (
       format: 'a4'
     });
 
-    if (imgHeight <= pageHeight) {
+    if (imgHeight <= pageHeight - 10) {
       const imgData = canvas.toDataURL('image/png');
-      doc.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      doc.addImage(imgData, 'PNG', 5, 5, imgWidth - 10, imgHeight);
     } else {
       let heightLeft = imgHeight;
-      let position = 0;
+      let position = 5;
       let firstPage = true;
       const imgData = canvas.toDataURL('image/png');
 
       while (heightLeft > 0) {
         if (!firstPage) {
           doc.addPage();
+          position = 5;
         }
-        doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-        position -= pageHeight;
+        doc.addImage(imgData, 'PNG', 5, position, imgWidth - 10, imgHeight);
+        heightLeft -= (pageHeight - 10);
+        position -= (pageHeight - 10);
         firstPage = false;
       }
     }
