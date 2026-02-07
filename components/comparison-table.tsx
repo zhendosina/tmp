@@ -2,8 +2,9 @@
 
 import { useState, useMemo, useEffect } from "react"
 import { motion } from "framer-motion"
-import { TrendingUp, TrendingDown, Minus, X, FileText, Download, Loader2, Info, FileJson } from "lucide-react"
+import { TrendingUp, TrendingDown, Minus, X, FileText, Download, Loader2, Info, FileJson, FileDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { jsPDF } from "jspdf"
 
 interface TestResult {
   test_name: string
@@ -317,6 +318,155 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
     URL.revokeObjectURL(url)
   }
 
+  // Export to PDF
+  const exportToPDF = () => {
+    const doc = new jsPDF({
+      orientation: dates.length > 3 ? "landscape" : "portrait",
+      unit: "mm",
+      format: "a4",
+      putOnlyUsedFonts: true,
+      compress: true
+    })
+    
+    doc.setLanguage("ru")
+    
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const pageHeight = doc.internal.pageSize.getHeight()
+    const margin = 15
+    let y = margin
+    
+    // Header
+    doc.setFillColor(139, 58, 74)
+    doc.rect(0, 0, pageWidth, 25, "F")
+    
+    doc.setTextColor(255, 255, 255)
+    doc.setFontSize(18)
+    doc.setFont("helvetica", "bold")
+    doc.text("Сравнение анализов крови", margin, 15)
+    
+    doc.setFontSize(9)
+    doc.setFont("helvetica", "normal")
+    doc.text(`Сгенерировано ${new Date().toLocaleDateString('ru-RU')}`, margin, 22)
+    
+    y = 35
+    
+    // Summary
+    doc.setTextColor(51, 51, 51)
+    doc.setFontSize(11)
+    doc.setFont("helvetica", "bold")
+    doc.text(`Всего показателей: ${filteredTests.length} | Дат анализов: ${dates.length}`, margin, y)
+    y += 10
+    
+    // Table
+    const colWidth = dates.length > 0 ? (pageWidth - margin * 2 - 70) / dates.length : 30
+    
+    // Table header background
+    doc.setFillColor(245, 245, 245)
+    doc.rect(margin, y, pageWidth - margin * 2, 8, "F")
+    
+    doc.setTextColor(100, 100, 100)
+    doc.setFontSize(8)
+    doc.setFont("helvetica", "bold")
+    
+    let x = margin + 2
+    doc.text("Показатель", x, y + 5.5)
+    x += 50
+    doc.text("Реф.", x, y + 5.5)
+    x += 20
+    
+    dates.forEach((d, idx) => {
+      doc.text(d.date, x + idx * colWidth, y + 5.5)
+    })
+    
+    y += 10
+    
+    // Table rows
+    doc.setFont("helvetica", "normal")
+    doc.setFontSize(8)
+    
+    filteredTests.forEach((test, testIdx) => {
+      // Check if new page needed
+      if (y > pageHeight - 20) {
+        doc.addPage()
+        y = margin
+        
+        // Repeat header on new page
+        doc.setFillColor(245, 245, 245)
+        doc.rect(margin, y, pageWidth - margin * 2, 8, "F")
+        doc.setTextColor(100, 100, 100)
+        doc.setFontSize(8)
+        doc.setFont("helvetica", "bold")
+        
+        let headerX = margin + 2
+        doc.text("Показатель", headerX, y + 5.5)
+        headerX += 50
+        doc.text("Реф.", headerX, y + 5.5)
+        headerX += 20
+        
+        dates.forEach((d, idx) => {
+          doc.text(d.date, headerX + idx * colWidth, y + 5.5)
+        })
+        
+        y += 10
+        doc.setFont("helvetica", "normal")
+        doc.setFontSize(8)
+      }
+      
+      // Alternate row background
+      if (testIdx % 2 === 0) {
+        doc.setFillColor(252, 252, 252)
+        doc.rect(margin, y - 2, pageWidth - margin * 2, 7, "F")
+      }
+      
+      x = margin + 2
+      doc.setTextColor(51, 51, 51)
+      
+      // Test name
+      const testName = test.name.length > 28 ? test.name.substring(0, 28) + "..." : test.name
+      doc.text(testName, x, y + 3)
+      x += 50
+      
+      // Normal range
+      doc.setTextColor(128, 128, 128)
+      const normalRange = test.normalRange.length > 10 ? test.normalRange.substring(0, 10) + "..." : test.normalRange
+      doc.text(normalRange || "-", x, y + 3)
+      x += 20
+      
+      // Values for each date
+      dates.forEach((d, idx) => {
+        const t = getTestValue(test.name, d.indices)
+        if (t) {
+          const statusColor = t.status === "Normal" ? [34, 139, 34] :
+                             t.status === "High" ? [178, 34, 34] : [184, 134, 11]
+          doc.setTextColor(statusColor[0], statusColor[1], statusColor[2])
+          doc.setFont("helvetica", "bold")
+          const valueStr = String(t.value)
+          doc.text(valueStr.length > 10 ? valueStr.substring(0, 10) : valueStr, x + idx * colWidth, y + 3)
+          doc.setFont("helvetica", "normal")
+        } else {
+          doc.setTextColor(200, 200, 200)
+          doc.text("-", x + idx * colWidth, y + 3)
+        }
+      })
+      
+      doc.setTextColor(51, 51, 51)
+      y += 7
+    })
+    
+    // Footer
+    const footerY = pageHeight - 10
+    doc.setTextColor(128, 128, 128)
+    doc.setFontSize(7)
+    doc.text(
+      "Сгенерировано BloodParser - сравнение анализов крови",
+      pageWidth / 2,
+      footerY,
+      { align: "center" }
+    )
+    
+    doc.save(`сравнение-анализов-${new Date().toISOString().split("T")[0]}.pdf`)
+  }
+
   if (isLoading) {
     return (
       <motion.div
@@ -353,6 +503,15 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
             </p>
           </div>
           <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={exportToPDF}
+              className="flex items-center gap-2"
+            >
+              <FileDown className="w-4 h-4" />
+              PDF
+            </Button>
             <Button
               variant="outline"
               size="sm"
