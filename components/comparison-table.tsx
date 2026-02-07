@@ -411,7 +411,7 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
                         hasAbnormal ? "bg-warning/5" : ""
                       }`}
                     >
-                      <td className="px-4 py-3 text-sm font-medium sticky left-0 bg-card z-10">
+                      <td className="px-4 py-3 text-sm font-medium bg-card">
                         <div className="flex items-center gap-2">
                           <span className={hasAbnormal ? "text-warning" : ""}>
                             {test.name}
@@ -419,10 +419,10 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
                           {test.originalNames.length > 1 && (
                             <div className="group relative">
                               <Info className="w-4 h-4 text-muted-foreground cursor-help" />
-                              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-popover text-popover-foreground text-xs rounded-lg shadow-lg border border-border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap z-50">
+                              <div className="absolute left-full top-0 ml-2 px-3 py-2 bg-popover text-popover-foreground text-xs rounded-lg shadow-lg border border-border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all w-64 z-50">
                                 <div className="font-medium mb-1">Варианты названий:</div>
-                                <div>{test.originalNames.filter(n => n !== test.name).join(", ")}</div>
-                                <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-popover" />
+                                <div className="break-words">{test.originalNames.filter(n => n !== test.name).join(", ")}</div>
+                                <div className="absolute top-2 -left-1 w-2 h-2 bg-popover border-l border-b border-border transform rotate-45" />
                               </div>
                             </div>
                           )}
