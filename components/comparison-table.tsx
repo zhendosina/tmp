@@ -327,47 +327,47 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
       top: -9999px;
       left: -9999px;
       width: 1000px;
-      background: white;
+      background: rgb(255, 255, 255);
       padding: 30px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: Arial, sans-serif;
     `
     
     let tableHTML = `
       <div style="margin-bottom: 20px;">
-        <h1 style="font-size: 24px; color: #8B3A4A; margin: 0 0 10px 0;">Сравнение анализов крови</h1>
-        <p style="color: #666; margin: 0;">Сгенерировано ${new Date().toLocaleDateString('ru-RU')}</p>
-        <p style="color: #333; margin: 10px 0 0 0; font-size: 14px;">
+        <h1 style="font-size: 24px; color: rgb(139, 58, 74); margin: 0 0 10px 0;">Сравнение анализов крови</h1>
+        <p style="color: rgb(102, 102, 102); margin: 0;">Сгенерировано ${new Date().toLocaleDateString('ru-RU')}</p>
+        <p style="color: rgb(51, 51, 51); margin: 10px 0 0 0; font-size: 14px;">
           Всего показателей: ${filteredTests.length} | Дат анализов: ${dates.length}
         </p>
       </div>
       <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
         <thead>
-          <tr style="background: #f5f5f5;">
-            <th style="padding: 8px; text-align: left; border-bottom: 2px solid #ddd;">Показатель</th>
-            <th style="padding: 8px; text-align: left; border-bottom: 2px solid #ddd;">Референс</th>
-            <th style="padding: 8px; text-align: left; border-bottom: 2px solid #ddd;">Ед.</th>
-            ${dates.map(d => `<th style="padding: 8px; text-align: center; border-bottom: 2px solid #ddd;">${d.date}</th>`).join('')}
+          <tr style="background-color: rgb(245, 245, 245);">
+            <th style="padding: 8px; text-align: left; border-bottom: 2px solid rgb(221, 221, 221);">Показатель</th>
+            <th style="padding: 8px; text-align: left; border-bottom: 2px solid rgb(221, 221, 221);">Референс</th>
+            <th style="padding: 8px; text-align: left; border-bottom: 2px solid rgb(221, 221, 221);">Ед.</th>
+            ${dates.map(d => `<th style="padding: 8px; text-align: center; border-bottom: 2px solid rgb(221, 221, 221);">${d.date}</th>`).join('')}
           </tr>
         </thead>
         <tbody>
     `
     
     filteredTests.forEach((test, idx) => {
-      const bgColor = idx % 2 === 0 ? '#fafafa' : 'white'
+      const bgColor = idx % 2 === 0 ? 'rgb(250, 250, 250)' : 'rgb(255, 255, 255)'
       tableHTML += `
-        <tr style="background: ${bgColor};">
-          <td style="padding: 6px 8px; border-bottom: 1px solid #eee; font-weight: 500;">
+        <tr style="background-color: ${bgColor};">
+          <td style="padding: 6px 8px; border-bottom: 1px solid rgb(238, 238, 238); font-weight: 500;">
             ${test.name}
           </td>
-          <td style="padding: 6px 8px; border-bottom: 1px solid #eee; color: #666;">${test.normalRange || '-'}</td>
-          <td style="padding: 6px 8px; border-bottom: 1px solid #eee; color: #666;">${test.unit}</td>
+          <td style="padding: 6px 8px; border-bottom: 1px solid rgb(238, 238, 238); color: rgb(102, 102, 102);">${test.normalRange || '-'}</td>
+          <td style="padding: 6px 8px; border-bottom: 1px solid rgb(238, 238, 238); color: rgb(102, 102, 102);">${test.unit}</td>
           ${dates.map(d => {
             const t = getTestValue(test.name, d.indices)
             if (t) {
-              const color = t.status === 'Normal' ? '#228B22' : t.status === 'High' ? '#B22222' : '#B8860B'
-              return `<td style="padding: 6px 8px; border-bottom: 1px solid #eee; text-align: center; color: ${color}; font-weight: bold;">${t.value}</td>`
+              const color = t.status === 'Normal' ? 'rgb(34, 139, 34)' : t.status === 'High' ? 'rgb(178, 34, 34)' : 'rgb(184, 134, 11)'
+              return `<td style="padding: 6px 8px; border-bottom: 1px solid rgb(238, 238, 238); text-align: center; color: ${color}; font-weight: bold;">${t.value}</td>`
             } else {
-              return `<td style="padding: 6px 8px; border-bottom: 1px solid #eee; text-align: center; color: #ccc;">-</td>`
+              return `<td style="padding: 6px 8px; border-bottom: 1px solid rgb(238, 238, 238); text-align: center; color: rgb(204, 204, 204);">-</td>`
             }
           }).join('')}
         </tr>
