@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import { TrendingUp, TrendingDown, Minus, X, FileText, Download, Loader2, Info, FileJson, FileDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { jsPDF } from "jspdf"
+import html2canvas from "html2canvas"
 
 interface TestResult {
   test_name: string
@@ -318,153 +318,121 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
     URL.revokeObjectURL(url)
   }
 
-  // Export to PDF
-  const exportToPDF = () => {
-    const doc = new jsPDF({
-      orientation: dates.length > 3 ? "landscape" : "portrait",
-      unit: "mm",
-      format: "a4",
-      putOnlyUsedFonts: true,
-      compress: true
+  // Export to PDF using html2canvas for proper Unicode support
+  const exportToPDF = async () => {
+    // Create a printable version of the table
+    const printDiv = document.createElement('div')
+    printDiv.style.cssText = `
+      position: fixed;
+      top: -9999px;
+      left: -9999px;
+      width: 1200px;
+      background: white;
+      padding: 40px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    `
+    
+    // Generate HTML content
+    let tableHTML = `
+      <div style="margin-bottom: 20px;">
+        <h1 style="font-size: 24px; color: #8B3A4A; margin: 0 0 10px 0;">Сравнение анализов крови</h1>
+        <p style="color: #666; margin: 0;">Сгенерировано ${new Date().toLocaleDateString('ru-RU')}</p>
+        <p style="color: #333; margin: 10px 0 0 0; font-size: 14px;">
+          Всего показателей: ${filteredTests.length} | Дат анализов: ${dates.length}
+        </p>
+      </div>
+      <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+        <thead>
+          <tr style="background: #f5f5f5;">
+            <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd; width: 200px;">Показатель</th>
+            <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd; width: 80px;">Референс</th>
+            <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd; width: 60px;">Ед.</th>
+            ${dates.map(d => `<th style="padding: 10px; text-align: center; border-bottom: 2px solid #ddd; min-width: 100px;">${d.date}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+    `
+    
+    filteredTests.forEach((test, idx) => {
+      const bgColor = idx % 2 === 0 ? '#fafafa' : 'white'
+      tableHTML += `
+        <tr style="background: ${bgColor};">
+          <td style="padding: 8px 10px; border-bottom: 1px solid #eee; font-weight: 500;">
+            ${test.name}
+            ${test.originalNames.length > 1 ? `<br><span style="font-size: 10px; color: #999;">(${test.originalNames.filter(n => n !== test.name).join(', ')})</span>` : ''}
+          </td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #eee; color: #666;">${test.normalRange || '-'}</td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #eee; color: #666;">${test.unit}</td>
+          ${dates.map(d => {
+            const t = getTestValue(test.name, d.indices)
+            if (t) {
+              const color = t.status === 'Normal' ? '#228B22' : t.status === 'High' ? '#B22222' : '#B8860B'
+              return `<td style="padding: 8px 10px; border-bottom: 1px solid #eee; text-align: center; color: ${color}; font-weight: bold;">${t.value}</td>`
+            } else {
+              return `<td style="padding: 8px 10px; border-bottom: 1px solid #eee; text-align: center; color: #ccc;">-</td>`
+            }
+          }).join('')}
+        </tr>
+      `
     })
     
-    doc.setLanguage("ru")
+    tableHTML += `
+        </tbody>
+      </table>
+      <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #999; font-size: 11px;">
+        Сгенерировано BloodParser - сравнение анализов крови
+      </div>
+    `
     
-    const pageWidth = doc.internal.pageSize.getWidth()
-    const pageHeight = doc.internal.pageSize.getHeight()
-    const margin = 15
-    let y = margin
+    printDiv.innerHTML = tableHTML
+    document.body.appendChild(printDiv)
     
-    // Header
-    doc.setFillColor(139, 58, 74)
-    doc.rect(0, 0, pageWidth, 25, "F")
-    
-    doc.setTextColor(255, 255, 255)
-    doc.setFontSize(18)
-    doc.setFont("helvetica", "bold")
-    doc.text("Сравнение анализов крови", margin, 15)
-    
-    doc.setFontSize(9)
-    doc.setFont("helvetica", "normal")
-    doc.text(`Сгенерировано ${new Date().toLocaleDateString('ru-RU')}`, margin, 22)
-    
-    y = 35
-    
-    // Summary
-    doc.setTextColor(51, 51, 51)
-    doc.setFontSize(11)
-    doc.setFont("helvetica", "bold")
-    doc.text(`Всего показателей: ${filteredTests.length} | Дат анализов: ${dates.length}`, margin, y)
-    y += 10
-    
-    // Table
-    const colWidth = dates.length > 0 ? (pageWidth - margin * 2 - 70) / dates.length : 30
-    
-    // Table header background
-    doc.setFillColor(245, 245, 245)
-    doc.rect(margin, y, pageWidth - margin * 2, 8, "F")
-    
-    doc.setTextColor(100, 100, 100)
-    doc.setFontSize(8)
-    doc.setFont("helvetica", "bold")
-    
-    let x = margin + 2
-    doc.text("Показатель", x, y + 5.5)
-    x += 50
-    doc.text("Реф.", x, y + 5.5)
-    x += 20
-    
-    dates.forEach((d, idx) => {
-      doc.text(d.date, x + idx * colWidth, y + 5.5)
-    })
-    
-    y += 10
-    
-    // Table rows
-    doc.setFont("helvetica", "normal")
-    doc.setFontSize(8)
-    
-    filteredTests.forEach((test, testIdx) => {
-      // Check if new page needed
-      if (y > pageHeight - 20) {
-        doc.addPage()
-        y = margin
-        
-        // Repeat header on new page
-        doc.setFillColor(245, 245, 245)
-        doc.rect(margin, y, pageWidth - margin * 2, 8, "F")
-        doc.setTextColor(100, 100, 100)
-        doc.setFontSize(8)
-        doc.setFont("helvetica", "bold")
-        
-        let headerX = margin + 2
-        doc.text("Показатель", headerX, y + 5.5)
-        headerX += 50
-        doc.text("Реф.", headerX, y + 5.5)
-        headerX += 20
-        
-        dates.forEach((d, idx) => {
-          doc.text(d.date, headerX + idx * colWidth, y + 5.5)
-        })
-        
-        y += 10
-        doc.setFont("helvetica", "normal")
-        doc.setFontSize(8)
-      }
-      
-      // Alternate row background
-      if (testIdx % 2 === 0) {
-        doc.setFillColor(252, 252, 252)
-        doc.rect(margin, y - 2, pageWidth - margin * 2, 7, "F")
-      }
-      
-      x = margin + 2
-      doc.setTextColor(51, 51, 51)
-      
-      // Test name
-      const testName = test.name.length > 28 ? test.name.substring(0, 28) + "..." : test.name
-      doc.text(testName, x, y + 3)
-      x += 50
-      
-      // Normal range
-      doc.setTextColor(128, 128, 128)
-      const normalRange = test.normalRange.length > 10 ? test.normalRange.substring(0, 10) + "..." : test.normalRange
-      doc.text(normalRange || "-", x, y + 3)
-      x += 20
-      
-      // Values for each date
-      dates.forEach((d, idx) => {
-        const t = getTestValue(test.name, d.indices)
-        if (t) {
-          const statusColor = t.status === "Normal" ? [34, 139, 34] :
-                             t.status === "High" ? [178, 34, 34] : [184, 134, 11]
-          doc.setTextColor(statusColor[0], statusColor[1], statusColor[2])
-          doc.setFont("helvetica", "bold")
-          const valueStr = String(t.value)
-          doc.text(valueStr.length > 10 ? valueStr.substring(0, 10) : valueStr, x + idx * colWidth, y + 3)
-          doc.setFont("helvetica", "normal")
-        } else {
-          doc.setTextColor(200, 200, 200)
-          doc.text("-", x + idx * colWidth, y + 3)
-        }
+    try {
+      // Use html2canvas to render the table
+      const canvas = await html2canvas(printDiv, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
       })
       
-      doc.setTextColor(51, 51, 51)
-      y += 7
-    })
-    
-    // Footer
-    const footerY = pageHeight - 10
-    doc.setTextColor(128, 128, 128)
-    doc.setFontSize(7)
-    doc.text(
-      "Сгенерировано BloodParser - сравнение анализов крови",
-      pageWidth / 2,
-      footerY,
-      { align: "center" }
-    )
-    
-    doc.save(`сравнение-анализов-${new Date().toISOString().split("T")[0]}.pdf`)
+      // Calculate dimensions to fit on page
+      const imgWidth = dates.length > 3 ? 297 : 210 // A4 width in mm (landscape/portrait)
+      const pageHeight = dates.length > 3 ? 210 : 297 // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
+      
+      let heightLeft = imgHeight
+      let position = 0
+      
+      // Create PDF
+      const { jsPDF } = await import('jspdf')
+      const doc = new jsPDF({
+        orientation: dates.length > 3 ? 'landscape' : 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      })
+      
+      let firstPage = true
+      
+      // Add image to PDF (split across multiple pages if needed)
+      while (heightLeft > 0) {
+        if (!firstPage) {
+          doc.addPage()
+        }
+        
+        const imgData = canvas.toDataURL('image/png')
+        doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
+        
+        heightLeft -= pageHeight
+        position -= pageHeight
+        firstPage = false
+      }
+      
+      doc.save(`сравнение-анализов-${new Date().toISOString().split('T')[0]}.pdf`)
+    } finally {
+      // Clean up
+      document.body.removeChild(printDiv)
+    }
   }
 
   if (isLoading) {
