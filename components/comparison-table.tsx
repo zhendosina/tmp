@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react"
 import { motion } from "framer-motion"
-import { TrendingUp, TrendingDown, Minus, X, FileText, Download, Loader2, Info } from "lucide-react"
+import { TrendingUp, TrendingDown, Minus, X, FileText, Download, Loader2, Info, FileJson } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface TestResult {
@@ -274,6 +274,49 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
     URL.revokeObjectURL(url)
   }
 
+  // Export to JSON
+  const exportToJSON = () => {
+    const data = {
+      exportDate: new Date().toISOString(),
+      totalTests: filteredTests.length,
+      totalDates: dates.length,
+      dates: dates.map(d => d.date),
+      tests: filteredTests.map(test => {
+        const values = dates.map(d => {
+          const t = getTestValue(test.name, d.indices)
+          return {
+            date: d.date,
+            value: t ? t.value : null,
+            unit: t ? t.unit : test.unit,
+            status: t ? t.status : null,
+            normalRange: t ? t.normal_range : test.normalRange,
+            trend: dates.indexOf(d) > 0 ? getTrend(test.name, dates.indexOf(d)) : null
+          }
+        })
+        
+        return {
+          name: test.name,
+          category: test.category,
+          unit: test.unit,
+          normalRange: test.normalRange,
+          alternativeNames: test.originalNames.filter(n => n !== test.name),
+          values: values
+        }
+      })
+    }
+    
+    const json = JSON.stringify(data, null, 2)
+    const blob = new Blob([json], { type: "application/json;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = `сравнение-анализов-${new Date().toISOString().split("T")[0]}.json`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
   if (isLoading) {
     return (
       <motion.div
@@ -313,11 +356,20 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
             <Button
               variant="outline"
               size="sm"
+              onClick={exportToJSON}
+              className="flex items-center gap-2"
+            >
+              <FileJson className="w-4 h-4" />
+              JSON
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={exportToCSV}
               className="flex items-center gap-2"
             >
               <Download className="w-4 h-4" />
-              Экспорт CSV
+              CSV
             </Button>
             <Button
               variant="ghost"
