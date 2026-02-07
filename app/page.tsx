@@ -3,11 +3,13 @@
 import { useState, useCallback, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import UploadZone from "@/components/upload-zone"
+import MultiUploadZone from "@/components/multi-upload-zone"
 import ResultsPanel from "@/components/results-panel"
 import InsightsPanel from "@/components/insights-panel"
 import ChatDrawer from "@/components/chat-drawer"
 import ExportModal from "@/components/export-modal"
 import MobileInsightsSheet from "@/components/mobile-insights-sheet"
+import ComparisonTable from "@/components/comparison-table"
 import {
   Upload, Download, Activity, Shield,
   HeartPulse, FileText, ArrowRight,
@@ -39,6 +41,8 @@ function OrganicBlob({ className, delay = 0 }: { className?: string; delay?: num
 export default function Home() {
   const [step, setStep] = useState<"upload" | "results">("upload")
   const [testData, setTestData] = useState<any>(null)
+  const [multipleAnalyses, setMultipleAnalyses] = useState<any[] | null>(null)
+  const [showComparison, setShowComparison] = useState(false)
   const [selectedTest, setSelectedTest] = useState<any>(null)
   const [hoveredTest, setHoveredTest] = useState<any>(null)
   const [chatOpen, setChatOpen] = useState(false)
@@ -102,12 +106,26 @@ export default function Home() {
 
   const handleUploadComplete = (data: any) => {
     setTestData(data)
+    setMultipleAnalyses(null)
+    setStep("results")
+  }
+
+  const handleMultipleUploads = (results: any[]) => {
+    if (results.length === 1) {
+      setTestData(results[0])
+      setMultipleAnalyses(null)
+    } else {
+      setMultipleAnalyses(results)
+      setTestData(results[results.length - 1]) // Show the last one as current
+    }
     setStep("results")
   }
 
   const handleReset = () => {
     setStep("upload")
     setTestData(null)
+    setMultipleAnalyses(null)
+    setShowComparison(false)
     setSelectedTest(null)
     setHoveredTest(null)
     // Clear saved data
@@ -196,6 +214,19 @@ export default function Home() {
           <div className="flex items-center gap-2">
             {step === "results" && (
               <>
+                {multipleAnalyses && multipleAnalyses.length > 1 && (
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setShowComparison(true)}
+                    className="px-3 md:px-4 py-2 rounded-xl bg-accent hover:bg-accent/90 text-accent-foreground transition-all flex items-center gap-2 text-sm shadow-lg"
+                  >
+                    <Activity className="w-4 h-4" />
+                    <span className="font-medium hidden sm:inline">Сравнить ({multipleAnalyses.length})</span>
+                  </motion.button>
+                )}
                 <motion.button
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -323,8 +354,9 @@ export default function Home() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6 }}
                   >
-                    <UploadZone
+                    <MultiUploadZone
                       onUploadComplete={handleUploadComplete}
+                      onUploadMultiple={handleMultipleUploads}
                       ocrEnabled={ocrUnlocked}
                       ocrPassphrase={ocrPassphrase}
                     />
@@ -504,6 +536,14 @@ export default function Home() {
         >
           <Info className="w-5 h-5 text-primary" />
         </motion.button>
+      )}
+
+      {/* Comparison Table */}
+      {showComparison && multipleAnalyses && multipleAnalyses.length > 1 && (
+        <ComparisonTable
+          analyses={multipleAnalyses}
+          onClose={() => setShowComparison(false)}
+        />
       )}
     </main>
   )
