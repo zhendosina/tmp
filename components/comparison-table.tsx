@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react"
 import { motion } from "framer-motion"
-import { TrendingUp, TrendingDown, Minus, X, FileText, Download, Loader2 } from "lucide-react"
+import { TrendingUp, TrendingDown, Minus, X, FileText, Download, Loader2, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface TestResult {
@@ -381,14 +381,19 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
                       }`}
                     >
                       <td className="px-4 py-3 text-sm font-medium sticky left-0 bg-card z-10">
-                        <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
                           <span className={hasAbnormal ? "text-warning" : ""}>
                             {test.name}
                           </span>
                           {test.originalNames.length > 1 && (
-                            <span className="text-xs text-muted-foreground">
-                              также: {test.originalNames.filter(n => n !== test.name).join(", ")}
-                            </span>
+                            <div className="group relative">
+                              <Info className="w-4 h-4 text-muted-foreground cursor-help" />
+                              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-popover text-popover-foreground text-xs rounded-lg shadow-lg border border-border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap z-50">
+                                <div className="font-medium mb-1">Варианты названий:</div>
+                                <div>{test.originalNames.filter(n => n !== test.name).join(", ")}</div>
+                                <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-popover" />
+                              </div>
+                            </div>
                           )}
                         </div>
                       </td>
