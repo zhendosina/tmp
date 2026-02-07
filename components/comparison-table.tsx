@@ -135,6 +135,7 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
     const testMap = new Map<string, { 
       category: string; 
       unit: string; 
+      normalRange: string;
       originalNames: Set<string> 
     }>()
     
@@ -147,6 +148,7 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
           testMap.set(canonicalName, { 
             category: test.category, 
             unit: test.unit,
+            normalRange: test.normal_range,
             originalNames: new Set()
           })
         }
@@ -159,6 +161,7 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
       name,
       category: info.category,
       unit: info.unit,
+      normalRange: info.normalRange,
       originalNames: Array.from(info.originalNames)
     }))
     
@@ -172,14 +175,31 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
     return Array.from(cats).sort()
   }, [allTests])
 
-  // Get dates for columns (sorted)
+  // Get unique dates for columns (merge analyses from same date)
   const dates = useMemo(() => {
-    return sortedAnalyses.map((a, idx) => ({
-      date: a.patient_info?.date || `Анализ ${idx + 1}`,
-      index: idx,
-      fileName: a.fileName,
-      rawDate: parseDate(a.patient_info?.date)
-    }))
+    const dateGroups = new Map<string, { indices: number[]; fileNames: string[]; rawDate: Date }>()
+    
+    sortedAnalyses.forEach((a, idx) => {
+      const dateStr = a.patient_info?.date || `Анализ ${idx + 1}`
+      const rawDate = parseDate(a.patient_info?.date)
+      
+      if (!dateGroups.has(dateStr)) {
+        dateGroups.set(dateStr, { indices: [], fileNames: [], rawDate })
+      }
+      
+      const group = dateGroups.get(dateStr)!
+      group.indices.push(idx)
+      if (a.fileName) {
+        group.fileNames.push(a.fileName)
+      }
+    })
+    
+    return Array.from(dateGroups.entries()).map(([date, info]) => ({
+      date,
+      indices: info.indices,
+      fileNames: info.fileNames,
+      rawDate: info.rawDate
+    })).sort((a, b) => a.rawDate.getTime() - b.rawDate.getTime())
   }, [sortedAnalyses])
 
   // Filter tests by category
@@ -189,25 +209,33 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
   }, [allTests, selectedCategory])
 
   // Get value for a specific test and analysis (using AI canonical name matching)
-  const getTestValue = (canonicalName: string, analysisIndex: number) => {
-    const analysis = sortedAnalyses[analysisIndex]
-    if (!analysis) return null
+  // Now accepts an array of indices for merged dates
+  const getTestValue = (canonicalName: string, analysisIndices: number[]) => {
+    for (const idx of analysisIndices) {
+      const analysis = sortedAnalyses[idx]
+      if (!analysis) continue
+      
+      // Find any test that maps to this canonical name
+      const test = analysis.tests.find(t => {
+        const testCanonical = getCanonicalName(t.test_name)
+        return testCanonical === canonicalName
+      })
+      
+      if (test) return test
+    }
     
-    // Find any test that maps to this canonical name
-    const test = analysis.tests.find(t => {
-      const testCanonical = getCanonicalName(t.test_name)
-      return testCanonical === canonicalName
-    })
-    
-    return test || null
+    return null
   }
 
   // Determine trend (increasing, decreasing, stable)
-  const getTrend = (canonicalName: string, currentIndex: number) => {
-    if (currentIndex === 0) return null
+  const getTrend = (canonicalName: string, currentDateIndex: number) => {
+    if (currentDateIndex === 0) return null
     
-    const current = getTestValue(canonicalName, currentIndex)
-    const previous = getTestValue(canonicalName, currentIndex - 1)
+    const currentIndices = dates[currentDateIndex]?.indices || []
+    const previousIndices = dates[currentDateIndex - 1]?.indices || []
+    
+    const current = getTestValue(canonicalName, currentIndices)
+    const previous = getTestValue(canonicalName, previousIndices)
     
     if (!current || !previous) return null
     
@@ -225,13 +253,13 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
 
   // Export to CSV
   const exportToCSV = () => {
-    const headers = ["Анализ", "Ед. изм.", ...dates.map(d => d.date)]
+    const headers = ["Анализ", "Референс", "Ед. изм.", ...dates.map(d => d.date)]
     const rows = filteredTests.map(test => {
       const values = dates.map(d => {
-        const t = getTestValue(test.name, d.index)
+        const t = getTestValue(test.name, d.indices)
         return t ? `${t.value} ${t.status !== "Normal" ? `(${t.status === "High" ? "↑" : "↓"})` : ""}` : "-"
       })
-      return [test.name, test.unit, ...values]
+      return [test.name, test.normalRange, test.unit, ...values]
     })
     
     const csv = [headers.join(";"), ...rows.map(r => r.join(";"))].join("\n")
@@ -341,6 +369,9 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
                   <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground sticky left-0 bg-muted/50 z-10 min-w-[200px]">
                     Показатель
                   </th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground min-w-[100px]">
+                    Референс
+                  </th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
                     Ед.
                   </th>
@@ -351,9 +382,9 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
                     >
                       <div className="space-y-1">
                         <div>{d.date}</div>
-                        {d.fileName && (
+                        {d.fileNames.length > 0 && (
                           <div className="text-xs text-muted-foreground/70 truncate max-w-[120px]">
-                            {d.fileName}
+                            {d.fileNames.length > 1 ? `${d.fileNames.length} анализа` : d.fileNames[0]}
                           </div>
                         )}
                       </div>
@@ -364,7 +395,7 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
               <tbody>
                 {filteredTests.map((test, testIdx) => {
                   const values = dates.map((d, idx) => ({
-                    data: getTestValue(test.name, idx),
+                    data: getTestValue(test.name, d.indices),
                     trend: getTrend(test.name, idx)
                   }))
                   
@@ -396,6 +427,9 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
                             </div>
                           )}
                         </div>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">
+                        {test.normalRange}
                       </td>
                       <td className="px-4 py-3 text-sm text-muted-foreground">
                         {test.unit}
