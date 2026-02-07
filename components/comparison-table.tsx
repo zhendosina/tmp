@@ -36,19 +36,121 @@ interface ComparisonTableProps {
   onClose: () => void
 }
 
+// Normalize test name to handle duplicates (e.g., "Глюкоза" vs "Глюкоза в крови")
+function normalizeTestName(name: string): string {
+  const normalized = name
+    .toLowerCase()
+    .replace(/[^\u0400-\u04FFa-z0-9\s]/gi, '') // Keep Cyrillic, latin, numbers, spaces
+    .replace(/\s+/g, ' ')
+    .trim()
+  
+  // Remove common suffixes/prefixes that cause duplicates
+  return normalized
+    .replace(/в крови$/i, '')
+    .replace(/в сыворотке$/i, '')
+    .replace(/в плазме$/i, '')
+    .replace(/общий$/i, '')
+    .replace(/общая$/i, '')
+    .trim()
+}
+
+// Test name aliases/mappings for common variations
+const testAliases: Record<string, string> = {
+  'глюкоза': 'Глюкоза',
+  'glucose': 'Глюкоза',
+  'холестерин': 'Холестерин общий',
+  'холестерин общий': 'Холестерин общий',
+  'cholesterol': 'Холестерин общий',
+  'лдл': 'ЛПНП (LDL)',
+  'ldl': 'ЛПНП (LDL)',
+  'лпнп': 'ЛПНП (LDL)',
+  'холестерин лпнп': 'ЛПНП (LDL)',
+  'hdl': 'ЛПВП (HDL)',
+  'лпвп': 'ЛПВП (HDL)',
+  'холестерин лпвп': 'ЛПВП (HDL)',
+  'триглицериды': 'Триглицериды',
+  'tg': 'Триглицериды',
+  'креатинин': 'Креатинин',
+  'creatinine': 'Креатинин',
+  'мочевина': 'Мочевина',
+  'urea': 'Мочевина',
+  'алт': 'АЛТ',
+  'alanine aminotransferase': 'АЛТ',
+  'аст': 'АСТ',
+  'aspartate aminotransferase': 'АСТ',
+  'билирубин': 'Билирубин общий',
+  'билирубин общий': 'Билирубин общий',
+  'bilirubin': 'Билирубин общий',
+  'гемоглобин': 'Гемоглобин',
+  'hemoglobin': 'Гемоглобин',
+  'лейкоциты': 'Лейкоциты (WBC)',
+  'wbc': 'Лейкоциты (WBC)',
+  'эритроциты': 'Эритроциты (RBC)',
+  'rbc': 'Эритроциты (RBC)',
+  'тромбоциты': 'Тромбоциты (PLT)',
+  'plt': 'Тромбоциты (PLT)',
+  'срб': 'С-реактивный белок',
+  'crp': 'С-реактивный белок',
+  'с-реактивный белок': 'С-реактивный белок',
+  'тSH': 'ТТГ',
+  'ттг': 'ТТГ',
+  'tsh': 'ТТГ',
+  'т3': 'Т3 свободный',
+  't3': 'Т3 свободный',
+  'т4': 'Т4 свободный',
+  't4': 'Т4 свободный',
+}
+
+// Get canonical test name
+function getCanonicalName(name: string): string {
+  const normalized = normalizeTestName(name)
+  return testAliases[normalized] || name
+}
+
+// Parse date in format DD.MM.YYYY or YYYY-MM-DD
+function parseDate(dateStr: string | undefined): Date {
+  if (!dateStr) return new Date(0)
+  
+  // Try DD.MM.YYYY format
+  const ddmmyyyy = dateStr.match(/(\d{2})\.(\d{2})\.(\d{4})/)
+  if (ddmmyyyy) {
+    return new Date(parseInt(ddmmyyyy[3]), parseInt(ddmmyyyy[2]) - 1, parseInt(ddmmyyyy[1]))
+  }
+  
+  // Try YYYY-MM-DD format
+  const yyyymmdd = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/)
+  if (yyyymmdd) {
+    return new Date(parseInt(yyyymmdd[1]), parseInt(yyyymmdd[2]) - 1, parseInt(yyyymmdd[3]))
+  }
+  
+  return new Date(dateStr)
+}
+
 export default function ComparisonTable({ analyses, onClose }: ComparisonTableProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
-  // Get all unique test names across all analyses
+  // Sort analyses by date
+  const sortedAnalyses = useMemo(() => {
+    return [...analyses].sort((a, b) => {
+      const dateA = parseDate(a.patient_info?.date)
+      const dateB = parseDate(b.patient_info?.date)
+      return dateA.getTime() - dateB.getTime()
+    })
+  }, [analyses])
+
+  // Get all unique test names across all analyses (with normalization)
   const allTests = useMemo(() => {
-    const testMap = new Map<string, { category: string; unit: string }>()
+    const testMap = new Map<string, { category: string; unit: string; displayName: string }>()
     
-    analyses.forEach(analysis => {
+    sortedAnalyses.forEach(analysis => {
       analysis.tests.forEach(test => {
-        if (!testMap.has(test.test_name)) {
-          testMap.set(test.test_name, { 
+        const canonicalName = getCanonicalName(test.test_name)
+        
+        if (!testMap.has(canonicalName)) {
+          testMap.set(canonicalName, { 
             category: test.category, 
-            unit: test.unit 
+            unit: test.unit,
+            displayName: canonicalName
           })
         }
       })
@@ -58,7 +160,7 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
       name,
       ...info
     }))
-  }, [analyses])
+  }, [sortedAnalyses])
 
   // Get all categories
   const categories = useMemo(() => {
@@ -66,14 +168,15 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
     return Array.from(cats).sort()
   }, [allTests])
 
-  // Get dates for columns
+  // Get dates for columns (sorted)
   const dates = useMemo(() => {
-    return analyses.map((a, idx) => ({
+    return sortedAnalyses.map((a, idx) => ({
       date: a.patient_info?.date || `Анализ ${idx + 1}`,
       index: idx,
-      fileName: a.fileName
+      fileName: a.fileName,
+      rawDate: parseDate(a.patient_info?.date)
     }))
-  }, [analyses])
+  }, [sortedAnalyses])
 
   // Filter tests by category
   const filteredTests = useMemo(() => {
@@ -81,9 +184,20 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
     return allTests.filter(t => t.category === selectedCategory)
   }, [allTests, selectedCategory])
 
-  // Get value for a specific test and analysis
+  // Get value for a specific test and analysis (using canonical name matching)
   const getTestValue = (testName: string, analysisIndex: number) => {
-    const test = analyses[analysisIndex]?.tests.find(t => t.test_name === testName)
+    const analysis = sortedAnalyses[analysisIndex]
+    if (!analysis) return null
+    
+    // Try exact match first
+    let test = analysis.tests.find(t => t.test_name === testName)
+    
+    // If no exact match, try canonical name matching
+    if (!test) {
+      const canonicalTarget = getCanonicalName(testName)
+      test = analysis.tests.find(t => getCanonicalName(t.test_name) === canonicalTarget)
+    }
+    
     return test || null
   }
 
