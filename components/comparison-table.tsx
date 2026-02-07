@@ -321,74 +321,120 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
 
   // Export to PDF using html2canvas for proper Unicode support
   const exportToPDF = async () => {
-    const printDiv = document.createElement('div')
-    printDiv.style.cssText = `
+    // Create an iframe for style isolation
+    const iframe = document.createElement('iframe')
+    iframe.style.cssText = `
       position: fixed;
       top: -9999px;
       left: -9999px;
-      width: 1000px;
-      background: rgb(255, 255, 255);
-      padding: 30px;
-      font-family: Arial, sans-serif;
+      width: 1200px;
+      height: 800px;
+      border: none;
     `
+    document.body.appendChild(iframe)
     
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document
+    if (!iframeDoc) {
+      document.body.removeChild(iframe)
+      alert('Ошибка: не удалось создать iframe')
+      return
+    }
+    
+    // Build HTML content with inline styles only
     let tableHTML = `
-      <div style="margin-bottom: 20px;">
-        <h1 style="font-size: 24px; color: rgb(139, 58, 74); margin: 0 0 10px 0;">Сравнение анализов крови</h1>
-        <p style="color: rgb(102, 102, 102); margin: 0;">Сгенерировано ${new Date().toLocaleDateString('ru-RU')}</p>
-        <p style="color: rgb(51, 51, 51); margin: 10px 0 0 0; font-size: 14px;">
-          Всего показателей: ${filteredTests.length} | Дат анализов: ${dates.length}
-        </p>
-      </div>
-      <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
-        <thead>
-          <tr style="background-color: rgb(245, 245, 245);">
-            <th style="padding: 8px; text-align: left; border-bottom: 2px solid rgb(221, 221, 221);">Показатель</th>
-            <th style="padding: 8px; text-align: left; border-bottom: 2px solid rgb(221, 221, 221);">Референс</th>
-            <th style="padding: 8px; text-align: left; border-bottom: 2px solid rgb(221, 221, 221);">Ед.</th>
-            ${dates.map(d => `<th style="padding: 8px; text-align: center; border-bottom: 2px solid rgb(221, 221, 221);">${d.date}</th>`).join('')}
-          </tr>
-        </thead>
-        <tbody>
-    `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: Arial, sans-serif; 
+      background: white; 
+      padding: 30px;
+      color: black;
+    }
+    h1 { font-size: 24px; color: #8B3A4A; margin-bottom: 10px; }
+    .subtitle { color: #666; margin-bottom: 5px; }
+    .info { color: #333; font-size: 14px; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    th { 
+      background-color: #f5f5f5; 
+      padding: 8px; 
+      text-align: left; 
+      border-bottom: 2px solid #ddd;
+      font-weight: bold;
+    }
+    th:last-child { text-align: center; }
+    td { 
+      padding: 6px 8px; 
+      border-bottom: 1px solid #eee;
+    }
+    tr:nth-child(even) { background-color: #fafafa; }
+    tr:nth-child(odd) { background-color: white; }
+    .status-normal { color: #228B22; font-weight: bold; text-align: center; }
+    .status-high { color: #B22222; font-weight: bold; text-align: center; }
+    .status-low { color: #B8860B; font-weight: bold; text-align: center; }
+    .status-missing { color: #ccc; text-align: center; }
+    .muted { color: #666; }
+  </style>
+</head>
+<body>
+  <h1>Сравнение анализов крови</h1>
+  <p class="subtitle">Сгенерировано ${new Date().toLocaleDateString('ru-RU')}</p>
+  <p class="info">Всего показателей: ${filteredTests.length} | Дат анализов: ${dates.length}</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Показатель</th>
+        <th>Референс</th>
+        <th>Ед.</th>
+        ${dates.map(d => `<th style="text-align: center;">${d.date}</th>`).join('')}
+      </tr>
+    </thead>
+    <tbody>
+`
     
-    filteredTests.forEach((test, idx) => {
-      const bgColor = idx % 2 === 0 ? 'rgb(250, 250, 250)' : 'rgb(255, 255, 255)'
+    filteredTests.forEach((test) => {
       tableHTML += `
-        <tr style="background-color: ${bgColor};">
-          <td style="padding: 6px 8px; border-bottom: 1px solid rgb(238, 238, 238); font-weight: 500;">
-            ${test.name}
-          </td>
-          <td style="padding: 6px 8px; border-bottom: 1px solid rgb(238, 238, 238); color: rgb(102, 102, 102);">${test.normalRange || '-'}</td>
-          <td style="padding: 6px 8px; border-bottom: 1px solid rgb(238, 238, 238); color: rgb(102, 102, 102);">${test.unit}</td>
-          ${dates.map(d => {
-            const t = getTestValue(test.name, d.indices)
-            if (t) {
-              const color = t.status === 'Normal' ? 'rgb(34, 139, 34)' : t.status === 'High' ? 'rgb(178, 34, 34)' : 'rgb(184, 134, 11)'
-              return `<td style="padding: 6px 8px; border-bottom: 1px solid rgb(238, 238, 238); text-align: center; color: ${color}; font-weight: bold;">${t.value}</td>`
-            } else {
-              return `<td style="padding: 6px 8px; border-bottom: 1px solid rgb(238, 238, 238); text-align: center; color: rgb(204, 204, 204);">-</td>`
-            }
-          }).join('')}
-        </tr>
-      `
+      <tr>
+        <td style="font-weight: 500;">${test.name}</td>
+        <td class="muted">${test.normalRange || '-'}</td>
+        <td class="muted">${test.unit}</td>
+        ${dates.map(d => {
+          const t = getTestValue(test.name, d.indices)
+          if (!t) {
+            return '<td class="status-missing">-</td>'
+          }
+          const statusClass = t.status === 'Normal' ? 'status-normal' : t.status === 'High' ? 'status-high' : 'status-low'
+          return `<td class="${statusClass}">${t.value}</td>`
+        }).join('')}
+      </tr>
+`
     })
     
     tableHTML += `
-        </tbody>
-      </table>
-    `
+    </tbody>
+  </table>
+</body>
+</html>
+`
     
-    printDiv.innerHTML = tableHTML
-    document.body.appendChild(printDiv)
+    iframeDoc.open()
+    iframeDoc.write(tableHTML)
+    iframeDoc.close()
+    
+    // Wait for styles to apply
+    await new Promise(resolve => setTimeout(resolve, 100))
     
     try {
-      const canvas = await html2canvas(printDiv, {
+      const canvas = await html2canvas(iframeDoc.body, {
         scale: 1.5,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
-        allowTaint: true
+        allowTaint: true,
+        foreignObjectRendering: false
       })
       
       const imgWidth = dates.length > 3 ? 297 : 210
@@ -426,7 +472,7 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
       console.error('PDF export error:', error)
       alert('Ошибка при создании PDF: ' + (error instanceof Error ? error.message : 'Unknown error'))
     } finally {
-      document.body.removeChild(printDiv)
+      document.body.removeChild(iframe)
     }
   }
 
