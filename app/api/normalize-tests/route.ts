@@ -13,8 +13,8 @@ const openai = new OpenAI({
   }
 })
 
-// Use Sonnet 4.5 for test name normalization
-const MODEL = "anthropic/claude-sonnet-4.5"
+// Use Gemini Flash for test name normalization (cheaper)
+const MODEL = "google/gemini-2.5-flash"
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,15 +40,12 @@ export async function POST(request: NextRequest) {
 
     const prompt = `Посмотри на список параметров крови ниже.
 
-Задача: найди разные наименования для одних и тех же параметров (например, "Гемоглобин", "Гемоглобин (Hb)", "Гемоглобин (HGB)" - это один и тот же параметр, просто разные лаборатории по-разному его называют).
+Задача: найди разные наименования для одних и тех же параметров и собери их вместе под одним общим названием.
 
-Собери одинаковые параметры вместе и присвой им одно общее название (canonical name).
-
-Список параметров:
 ${testNames.map((name, idx) => `${idx + 1}. ${name}`).join('\n')}
 
 Важно:
-- Параметры с разными аббревиатурами в скобках - это ОДИН И ТОТ ЖЕ параметр (например, "Гемоглобин (Hb)" и "Гемоглобин (HGB)" = "Гемоглобин")
+- Если параметры отличаются только аббревиатурой в скобках - это один и тот же параметр
 - Используй русские названия для canonical name
 - Все варианты одного параметра должны иметь ОДИНАКОВОЕ canonical name
 
