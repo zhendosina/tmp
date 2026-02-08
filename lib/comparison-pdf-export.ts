@@ -73,41 +73,42 @@ export const exportComparisonToPDF = async (
       margin-bottom: 30px;
     }
     .header h1 {
-      font-size: 26px;
+      font-size: 30px;
       font-weight: 600;
       color: #2E86AB;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
     .header .patient-info {
-      font-size: 14px;
+      font-size: 16px;
       color: #555;
     }
     .section-header {
       background: linear-gradient(to right, #f8f9fa, #e9ecef);
       border-left: 4px solid #2E86AB;
-      padding: 10px 15px;
-      margin: 20px 0 10px 0;
+      padding: 12px 18px;
+      margin: 25px 0 12px 0;
       font-weight: 600;
-      font-size: 14px;
+      font-size: 16px;
       color: #333;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 11px;
-      margin-bottom: 15px;
+      font-size: 13px;
+      margin-bottom: 20px;
     }
     th {
       background-color: #f1f3f4;
       color: #333;
-      padding: 8px 6px;
+      padding: 12px 8px;
       text-align: center;
       font-weight: 600;
-      font-size: 10px;
+      font-size: 12px;
       border: 1px solid #ccc;
       border-bottom: 2px solid #999;
+      vertical-align: middle;
     }
     th:first-child {
       text-align: left;
@@ -118,19 +119,19 @@ export const exportComparisonToPDF = async (
       font-style: italic;
     }
     td {
-      padding: 6px;
+      padding: 10px 8px;
       border: 1px solid #ddd;
       vertical-align: middle;
       text-align: center;
-      height: 26px;
+      height: 32px;
     }
     td:first-child {
       text-align: left;
-      padding-left: 10px;
+      padding-left: 12px;
       font-weight: 500;
     }
     td:last-child {
-      font-size: 10px;
+      font-size: 11px;
       color: #555;
       font-style: italic;
     }
