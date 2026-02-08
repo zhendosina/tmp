@@ -58,6 +58,8 @@ RULES:
 5. "test_name" must be in RUSSIAN language (e.g., "Глюкоза", "Креатинин", "Тестостерон")
 6. "unit" should be in standard format (keep units as they appear: г/дл, ммоль/л, Ед/л, etc.)
 7. Extract patient_info from the report header: look for name, age/возраст, gender/пол, date/дата исследования
+   - For DATE: Look for patterns like "Дата:", "Date:", "Дата исследования:", "Дата взятия:", "Дата анализа:" or similar. Date format can be DD.MM.YYYY, DD/MM/YYYY, or DD-MM-YYYY. Also look for dates in format "06.02.2026" or "27 января 2026" or "06 фев 2026". Convert any date format to DD.MM.YYYY.
+   - If date is found in format "06 февраля 2026" or "06 фев 2026", convert month name to number (февраль/фев -> 02) and return as "06.02.2026"
 8. If any patient_info field is not found in the report, use null for that field
 
 EXTRACT every medical test parameter present AND all available patient information.
@@ -76,7 +78,46 @@ ${ocrMarkdown}
 `
 }
 
-function extractDataFromResponse(raw: string): { tests: any[], patient_info?: any } {
+// Extract date from OCR text as fallback
+function extractDateFromText(text: string): string | null {
+  // Pattern 1: DD.MM.YYYY or DD.MM.YY
+  const pattern1 = /(?:Дата[\s:]*|Date[\s:]*)(\d{2})[.-](\d{2})[.-](\d{2,4})/i
+  const match1 = text.match(pattern1)
+  if (match1) {
+    const year = match1[3].length === 2 ? `20${match1[3]}` : match1[3]
+    return `${match1[1]}.${match1[2]}.${year}`
+  }
+
+  // Pattern 2: Just date in format DD.MM.YYYY anywhere in text
+  const pattern2 = /(\d{2})\.(\d{2})\.(\d{4})/
+  const match2 = text.match(pattern2)
+  if (match2) {
+    return `${match2[1]}.${match2[2]}.${match2[3]}`
+  }
+
+  // Pattern 3: Russian date format "6 февраля 2026" or "06 фев 2026"
+  const months: Record<string, string> = {
+    'янв': '01', 'фев': '02', 'мар': '03', 'апр': '04', 'май': '05', 'мая': '05',
+    'июн': '06', 'июл': '07', 'авг': '08', 'сен': '09', 'окт': '10', 'ноя': '11', 'дек': '12',
+    'января': '01', 'февраля': '02', 'марта': '03', 'апреля': '04', 'мая': '05',
+    'июня': '06', 'июля': '07', 'августа': '08', 'сентября': '09', 'октября': '10',
+    'ноября': '11', 'декабря': '12'
+  }
+  const pattern3 = /(\d{1,2})\s+([а-я]+)\s+(\d{4})/i
+  const match3 = text.match(pattern3)
+  if (match3) {
+    const monthName = match3[2].toLowerCase()
+    const month = months[monthName]
+    if (month) {
+      const day = match3[1].padStart(2, '0')
+      return `${day}.${month}.${match3[3]}`
+    }
+  }
+
+  return null
+}
+
+function extractDataFromResponse(raw: string, ocrText?: string): { tests: any[], patient_info?: any } {
   let jsonMatch = raw.match(/\{[\s\S]*\}/)
 
   // Try to extract JSON from markdown code block if direct match fails
@@ -96,7 +137,16 @@ function extractDataFromResponse(raw: string): { tests: any[], patient_info?: an
 
   const data = JSON.parse(jsonMatch[0])
   const tests = data.tests || []
-  const patient_info = data.patient_info || null
+  let patient_info = data.patient_info || null
+
+  // If date is missing but we have OCR text, try to extract date from it
+  if (patient_info && !patient_info.date && ocrText) {
+    const extractedDate = extractDateFromText(ocrText)
+    if (extractedDate) {
+      console.log("[analyze] Extracted date from OCR text:", extractedDate)
+      patient_info.date = extractedDate
+    }
+  }
 
   console.log("[analyze] Successfully parsed", tests.length, "test results")
   if (patient_info) {
@@ -186,7 +236,7 @@ export async function POST(request: NextRequest) {
       const responseText = completion.choices[0]?.message?.content || ""
       console.log("[analyze] Text model response received:", responseText.substring(0, 200))
 
-      const extracted = extractDataFromResponse(responseText)
+      const extracted = extractDataFromResponse(responseText, markdown)
       tests = extracted.tests
       patient_info = extracted.patient_info
     } else {
