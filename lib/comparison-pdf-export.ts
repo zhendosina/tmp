@@ -1,3 +1,5 @@
+import { formatTestNameWithAbbreviation, getTestAbbreviation } from './test-abbreviations';
+
 export const exportComparisonToPDF = async (
   filteredTests: any[],
   dates: any[],
@@ -21,14 +23,52 @@ export const exportComparisonToPDF = async (
       return parts.length === 3 ? `${parts[0]}.${parts[1]}.${parts[2].slice(-2)}` : dateStr;
     };
 
-    // Helper to get values for a test
-    const getTestValues = (testName: string) => {
-      return dates.map(d => {
+    // Helper to get values for a test with trends
+    const getTestValuesWithTrends = (testName: string) => {
+      return dates.map((d, index) => {
         const t = getTestValue(testName, d.indices);
-        if (!t) return { value: '—', isAbnormal: false };
+        if (!t) return { value: '—', isAbnormal: false, trend: null };
         const isAbnormal = t.status === 'High' || t.status === 'Low';
-        return { value: t.value, isAbnormal };
+        
+        // Calculate trend if not first date
+        let trend = null;
+        if (index > 0) {
+          const prevT = getTestValue(testName, dates[index - 1].indices);
+          if (prevT && t.value && prevT.value) {
+            const current = parseFloat(String(t.value).replace(',', '.'));
+            const previous = parseFloat(String(prevT.value).replace(',', '.'));
+            if (!isNaN(current) && !isNaN(previous)) {
+              const diff = current - previous;
+              const percentChange = Math.abs(diff / previous * 100);
+              if (percentChange < 5) {
+                trend = 'stable';
+              } else if (diff > 0) {
+                trend = 'up';
+              } else {
+                trend = 'down';
+              }
+            }
+          }
+        }
+        
+        return { value: t.value, isAbnormal, trend };
       });
+    };
+
+    // Get trend icon as emoji
+    const getTrendIcon = (trend: string | null) => {
+      if (trend === 'up') return '↑';
+      if (trend === 'down') return '↓';
+      if (trend === 'stable') return '→';
+      return '';
+    };
+
+    // Get trend color
+    const getTrendColor = (trend: string | null) => {
+      if (trend === 'up') return '#27ae60';
+      if (trend === 'down') return '#e74c3c';
+      if (trend === 'stable') return '#7f8c8d';
+      return '';
     };
 
     // Determine orientation based on number of dates
@@ -108,6 +148,15 @@ export const exportComparisonToPDF = async (
             color: #c0392b;
             font-weight: bold;
         }
+        .trend-up {
+            color: #27ae60;
+        }
+        .trend-down {
+            color: #e74c3c;
+        }
+        .trend-stable {
+            color: #7f8c8d;
+        }
         tr:nth-child(even) {
             background-color: #fcfcfc;
         }
@@ -115,6 +164,11 @@ export const exportComparisonToPDF = async (
             font-size: 7pt;
             color: #95a5a6;
             margin-top: 10px;
+        }
+        .abbreviation {
+            color: #7f8c8d;
+            font-weight: normal;
+            font-size: 7pt;
         }
     </style>
 </head>
@@ -146,18 +200,21 @@ export const exportComparisonToPDF = async (
         <tbody>`;
       
       hematologyTests.forEach((test) => {
-        const values = getTestValues(test.name);
+        const values = getTestValuesWithTrends(test.name);
+        const displayName = formatTestNameWithAbbreviation(test.name);
         htmlContent += `
             <tr>
-                <td class="left-align">${test.name}${test.unit ? ' (' + test.unit + ')' : ''}</td>`;
+                <td class="left-align">${displayName}${test.unit ? ' <span class="abbreviation">(' + test.unit + ')</span>' : ''}</td>`;
         
-        values.forEach(v => {
+        values.forEach((v, idx) => {
+          const trendIcon = getTrendIcon(v.trend);
+          const trendClass = v.trend ? `trend-${v.trend}` : '';
           if (v.isAbnormal) {
             htmlContent += `
-                <td class="highlight">${v.value}</td>`;
+                <td class="highlight ${trendClass}">${v.value} ${trendIcon}</td>`;
           } else {
             htmlContent += `
-                <td>${v.value}</td>`;
+                <td class="${trendClass}">${v.value} ${trendIcon}</td>`;
           }
         });
         
@@ -195,18 +252,21 @@ export const exportComparisonToPDF = async (
         <tbody>`;
       
       biochemTests.forEach((test) => {
-        const values = getTestValues(test.name);
+        const values = getTestValuesWithTrends(test.name);
+        const displayName = formatTestNameWithAbbreviation(test.name);
         htmlContent += `
             <tr>
-                <td class="left-align">${test.name}${test.unit ? ' (' + test.unit + ')' : ''}</td>`;
+                <td class="left-align">${displayName}${test.unit ? ' <span class="abbreviation">(' + test.unit + ')</span>' : ''}</td>`;
         
-        values.forEach(v => {
+        values.forEach((v, idx) => {
+          const trendIcon = getTrendIcon(v.trend);
+          const trendClass = v.trend ? `trend-${v.trend}` : '';
           if (v.isAbnormal) {
             htmlContent += `
-                <td class="highlight">${v.value}</td>`;
+                <td class="highlight ${trendClass}">${v.value} ${trendIcon}</td>`;
           } else {
             htmlContent += `
-                <td>${v.value}</td>`;
+                <td class="${trendClass}">${v.value} ${trendIcon}</td>`;
           }
         });
         
@@ -243,18 +303,21 @@ export const exportComparisonToPDF = async (
         <tbody>`;
       
       coagulationTests.forEach((test) => {
-        const values = getTestValues(test.name);
+        const values = getTestValuesWithTrends(test.name);
+        const displayName = formatTestNameWithAbbreviation(test.name);
         htmlContent += `
             <tr>
-                <td class="left-align">${test.name}${test.unit ? ' (' + test.unit + ')' : ''}</td>`;
+                <td class="left-align">${displayName}${test.unit ? ' <span class="abbreviation">(' + test.unit + ')</span>' : ''}</td>`;
         
-        values.forEach(v => {
+        values.forEach((v, idx) => {
+          const trendIcon = getTrendIcon(v.trend);
+          const trendClass = v.trend ? `trend-${v.trend}` : '';
           if (v.isAbnormal) {
             htmlContent += `
-                <td class="highlight">${v.value}</td>`;
+                <td class="highlight ${trendClass}">${v.value} ${trendIcon}</td>`;
           } else {
             htmlContent += `
-                <td>${v.value}</td>`;
+                <td class="${trendClass}">${v.value} ${trendIcon}</td>`;
           }
         });
         
@@ -292,18 +355,21 @@ export const exportComparisonToPDF = async (
         <tbody>`;
       
       otherTests.forEach((test) => {
-        const values = getTestValues(test.name);
+        const values = getTestValuesWithTrends(test.name);
+        const displayName = formatTestNameWithAbbreviation(test.name);
         htmlContent += `
             <tr>
-                <td class="left-align">${test.name}${test.unit ? ' (' + test.unit + ')' : ''}</td>`;
+                <td class="left-align">${displayName}${test.unit ? ' <span class="abbreviation">(' + test.unit + ')</span>' : ''}</td>`;
         
-        values.forEach(v => {
+        values.forEach((v, idx) => {
+          const trendIcon = getTrendIcon(v.trend);
+          const trendClass = v.trend ? `trend-${v.trend}` : '';
           if (v.isAbnormal) {
             htmlContent += `
-                <td class="highlight">${v.value}</td>`;
+                <td class="highlight ${trendClass}">${v.value} ${trendIcon}</td>`;
           } else {
             htmlContent += `
-                <td>${v.value}</td>`;
+                <td class="${trendClass}">${v.value} ${trendIcon}</td>`;
           }
         });
         
@@ -320,7 +386,8 @@ export const exportComparisonToPDF = async (
     htmlContent += `
 
     <div class="footer">
-        * Данные сформированы автоматически на основании предоставленных лабораторных отчетов.
+        * Данные сформированы автоматически на основании предоставленных лабораторных отчетов.<br>
+        ↑ - рост, ↓ - снижение, → - стабильно
     </div>
 
 </body>

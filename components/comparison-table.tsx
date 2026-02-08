@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { TrendingUp, TrendingDown, Minus, X, FileText, Download, Loader2, Info, FileJson, FileDown, FileCode } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { exportComparisonToPDF } from "@/lib/comparison-pdf-export"
+import { formatTestNameWithAbbreviation } from "@/lib/test-abbreviations"
 
 interface TestResult {
   test_name: string
@@ -323,7 +324,7 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
     exportComparisonToPDF(filteredTests, dates, getTestValue, analyses)
   }
 
-  // Export to HTML
+// Export to HTML
   const exportToHTML = () => {
     // Get patient info
     const firstAnalysis = analyses[0]
@@ -341,14 +342,52 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
       return parts.length === 3 ? `${parts[0]}.${parts[1]}.${parts[2].slice(-2)}` : dateStr
     }
 
-    // Helper function to get values for a test
-    const getTestValues = (testName: string) => {
-      return dates.map(d => {
+    // Helper function to get values for a test with trends
+    const getTestValuesWithTrends = (testName: string) => {
+      return dates.map((d, index) => {
         const t = getTestValue(testName, d.indices)
-        if (!t) return { value: '—', isAbnormal: false }
+        if (!t) return { value: '—', isAbnormal: false, trend: null }
         const isAbnormal = t.status === 'High' || t.status === 'Low'
-        return { value: t.value, isAbnormal }
+        
+        // Calculate trend if not first date
+        let trend = null
+        if (index > 0) {
+          const prevT = getTestValue(testName, dates[index - 1].indices)
+          if (prevT && t.value && prevT.value) {
+            const current = parseFloat(String(t.value).replace(',', '.'))
+            const previous = parseFloat(String(prevT.value).replace(',', '.'))
+            if (!isNaN(current) && !isNaN(previous)) {
+              const diff = current - previous
+              const percentChange = Math.abs(diff / previous * 100)
+              if (percentChange < 5) {
+                trend = 'stable'
+              } else if (diff > 0) {
+                trend = 'up'
+              } else {
+                trend = 'down'
+              }
+            }
+          }
+        }
+        
+        return { value: t.value, isAbnormal, trend }
       })
+    }
+
+    // Get trend icon
+    const getTrendIcon = (trend: string | null) => {
+      if (trend === 'up') return '↑'
+      if (trend === 'down') return '↓'
+      if (trend === 'stable') return '→'
+      return ''
+    }
+
+    // Get trend class
+    const getTrendClass = (trend: string | null) => {
+      if (trend === 'up') return 'trend-up'
+      if (trend === 'down') return 'trend-down'
+      if (trend === 'stable') return 'trend-stable'
+      return ''
     }
 
     // Group tests by section
@@ -433,6 +472,20 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
             color: #c0392b;
             font-weight: bold;
         }
+        .trend-up {
+            color: #27ae60;
+        }
+        .trend-down {
+            color: #e74c3c;
+        }
+        .trend-stable {
+            color: #7f8c8d;
+        }
+        .abbreviation {
+            color: #7f8c8d;
+            font-weight: normal;
+            font-size: 7pt;
+        }
         tr:nth-child(even) {
             background-color: #fcfcfc;
         }
@@ -489,18 +542,21 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
         <tbody>`
       
       hematologyTests.forEach((test) => {
-        const values = getTestValues(test.name)
+        const values = getTestValuesWithTrends(test.name)
+        const displayName = formatTestNameWithAbbreviation(test.name)
         htmlContent += `
             <tr>
-                <td class="left-align">${test.name}${test.unit ? ' (' + test.unit + ')' : ''}</td>`
+                <td class="left-align">${displayName}${test.unit ? ' <span class="abbreviation">(' + test.unit + ')</span>' : ''}</td>`
         
-        values.forEach(v => {
+        values.forEach((v, idx) => {
+          const trendIcon = getTrendIcon(v.trend)
+          const trendClass = getTrendClass(v.trend)
           if (v.isAbnormal) {
             htmlContent += `
-                <td class="highlight">${v.value}</td>`
+                <td class="highlight ${trendClass}">${v.value} ${trendIcon}</td>`
           } else {
             htmlContent += `
-                <td>${v.value}</td>`
+                <td class="${trendClass}">${v.value} ${trendIcon}</td>`
           }
         })
         
@@ -536,18 +592,21 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
         <tbody>`
       
       biochemTests.forEach((test) => {
-        const values = getTestValues(test.name)
+        const values = getTestValuesWithTrends(test.name)
+        const displayName = formatTestNameWithAbbreviation(test.name)
         htmlContent += `
             <tr>
-                <td class="left-align">${test.name}${test.unit ? ' (' + test.unit + ')' : ''}</td>`
+                <td class="left-align">${displayName}${test.unit ? ' <span class="abbreviation">(' + test.unit + ')</span>' : ''}</td>`
         
-        values.forEach(v => {
+        values.forEach((v, idx) => {
+          const trendIcon = getTrendIcon(v.trend)
+          const trendClass = getTrendClass(v.trend)
           if (v.isAbnormal) {
             htmlContent += `
-                <td class="highlight">${v.value}</td>`
+                <td class="highlight ${trendClass}">${v.value} ${trendIcon}</td>`
           } else {
             htmlContent += `
-                <td>${v.value}</td>`
+                <td class="${trendClass}">${v.value} ${trendIcon}</td>`
           }
         })
         
@@ -583,18 +642,21 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
         <tbody>`
       
       coagulationTests.forEach((test) => {
-        const values = getTestValues(test.name)
+        const values = getTestValuesWithTrends(test.name)
+        const displayName = formatTestNameWithAbbreviation(test.name)
         htmlContent += `
             <tr>
-                <td class="left-align">${test.name}${test.unit ? ' (' + test.unit + ')' : ''}</td>`
+                <td class="left-align">${displayName}${test.unit ? ' <span class="abbreviation">(' + test.unit + ')</span>' : ''}</td>`
         
-        values.forEach(v => {
+        values.forEach((v, idx) => {
+          const trendIcon = getTrendIcon(v.trend)
+          const trendClass = getTrendClass(v.trend)
           if (v.isAbnormal) {
             htmlContent += `
-                <td class="highlight">${v.value}</td>`
+                <td class="highlight ${trendClass}">${v.value} ${trendIcon}</td>`
           } else {
             htmlContent += `
-                <td>${v.value}</td>`
+                <td class="${trendClass}">${v.value} ${trendIcon}</td>`
           }
         })
         
@@ -630,18 +692,21 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
         <tbody>`
       
       otherTests.forEach((test) => {
-        const values = getTestValues(test.name)
+        const values = getTestValuesWithTrends(test.name)
+        const displayName = formatTestNameWithAbbreviation(test.name)
         htmlContent += `
             <tr>
-                <td class="left-align">${test.name}${test.unit ? ' (' + test.unit + ')' : ''}</td>`
+                <td class="left-align">${displayName}${test.unit ? ' <span class="abbreviation">(' + test.unit + ')</span>' : ''}</td>`
         
-        values.forEach(v => {
+        values.forEach((v, idx) => {
+          const trendIcon = getTrendIcon(v.trend)
+          const trendClass = getTrendClass(v.trend)
           if (v.isAbnormal) {
             htmlContent += `
-                <td class="highlight">${v.value}</td>`
+                <td class="highlight ${trendClass}">${v.value} ${trendIcon}</td>`
           } else {
             htmlContent += `
-                <td>${v.value}</td>`
+                <td class="${trendClass}">${v.value} ${trendIcon}</td>`
           }
         })
         
@@ -658,7 +723,8 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
     htmlContent += `
 
     <div class="footer">
-        * Данные сформированы автоматически на основании предоставленных лабораторных отчетов.
+        * Данные сформированы автоматически на основании предоставленных лабораторных отчетов.<br>
+        ↑ - рост, ↓ - снижение, → - стабильно
     </div>
 
 </body>
