@@ -12,7 +12,7 @@ export const exportComparisonToPDF = async (
     position: fixed;
     top: -9999px;
     left: -9999px;
-    width: 1800px;
+    width: 1400px;
     height: 1200px;
     border: none;
   `;
@@ -37,8 +37,22 @@ export const exportComparisonToPDF = async (
   // Get date range
   const dateList = dates.map(d => d.date).filter(Boolean);
   const periodText = dateList.length >= 2 
-    ? `${dateList[0]} - ${dateList[dateList.length - 1]}`
+    ? `${dateList[0]} — ${dateList[dateList.length - 1]}`
     : dateList[0] || '';
+
+  // Category translations
+  const categoryNames: Record<string, string> = {
+    'Общий анализ крови': '1. Гематология (Общий анализ крови)',
+    'Лейкоцитарная формула': '2. Лейкоцитарная формула (%)',
+    'Метаболическая панель': '3. Биохимия и Гормоны',
+    'Функция печени': '3. Биохимия и Гормоны',
+    'Функция почек': '3. Биохимия и Гормоны',
+    'Липидный профиль': '3. Биохимия и Гормоны',
+    'Витамины и минералы': '3. Биохимия и Гормоны',
+    'Коагулограмма': '4. Коагулограмма (Свертываемость)',
+    'Общий анализ мочи': '5. Общий анализ мочи',
+    'Другое': '6. Дополнительные показатели'
+  };
 
   const tableHTML = `
 <!DOCTYPE html>
@@ -51,153 +65,133 @@ export const exportComparisonToPDF = async (
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       background: white;
       color: #000000;
-      line-height: 1.5;
+      line-height: 1.4;
       padding: 40px;
     }
     .header {
       text-align: center;
-      margin-bottom: 25px;
+      margin-bottom: 30px;
     }
     .header h1 {
-      font-size: 28px;
+      font-size: 26px;
       font-weight: 600;
-      color: #2d3748;
-      margin-bottom: 12px;
+      color: #2E86AB;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     .header .patient-info {
       font-size: 14px;
-      color: #4a5568;
-      margin-bottom: 4px;
+      color: #555;
     }
-    .header .period {
+    .section-header {
+      background: linear-gradient(to right, #f8f9fa, #e9ecef);
+      border-left: 4px solid #2E86AB;
+      padding: 10px 15px;
+      margin: 20px 0 10px 0;
+      font-weight: 600;
       font-size: 14px;
-      color: #4a5568;
+      color: #333;
     }
     table {
       width: 100%;
       border-collapse: collapse;
       font-size: 11px;
+      margin-bottom: 15px;
     }
     th {
-      background: linear-gradient(to right, #5dade2, #3498db);
-      color: white;
-      padding: 10px 8px;
+      background-color: #f1f3f4;
+      color: #333;
+      padding: 8px 6px;
       text-align: center;
       font-weight: 600;
       font-size: 10px;
-      border: 1px solid #bbb;
-      height: 32px;
-      vertical-align: middle;
+      border: 1px solid #ccc;
+      border-bottom: 2px solid #999;
     }
     th:first-child {
-      background-color: #3d4f5c;
       text-align: left;
+      width: 30%;
     }
-    th:nth-child(2) {
-      background-color: #3d4f5c;
-    }
-    .category-row {
-      background-color: #6b7b8c !important;
-      color: white;
-      font-weight: 600;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .category-row td {
-      padding: 7px 8px;
-      border: 1px solid #bbb;
-      background-color: #6b7b8c !important;
-      text-align: left;
-      height: 28px;
-      vertical-align: middle;
+    th:last-child {
+      width: 18%;
+      font-style: italic;
     }
     td {
-      padding: 6px 8px;
-      border: 1px solid #d0d0d0;
+      padding: 6px;
+      border: 1px solid #ddd;
       vertical-align: middle;
       text-align: center;
-      height: 30px;
+      height: 26px;
     }
-    .test-name {
+    td:first-child {
       text-align: left;
-      padding: 6px 10px;
-      font-weight: 400;
-      color: #000000;
+      padding-left: 10px;
+      font-weight: 500;
     }
-    .ref-col {
-      text-align: center;
-      font-weight: 400;
-      color: #666;
+    td:last-child {
       font-size: 10px;
+      color: #555;
+      font-style: italic;
     }
     .status-normal {
-      background-color: #C8E6C9;
       color: #000000;
       font-weight: 400;
     }
     .status-high {
-      background-color: #FFCDD2;
-      color: #000000;
-      font-weight: 700;
+      color: #dc2626;
+      font-weight: 600;
     }
     .status-low {
-      background-color: #FFF9C4;
-      color: #000000;
-      font-weight: 700;
+      color: #dc2626;
+      font-weight: 600;
     }
     .status-missing {
-      background-color: #ffffff;
       color: #999;
-      font-weight: 400;
     }
   </style>
 </head>
 <body>
   <div class="header">
-    <h1>Результаты анализов крови</h1>
-    <div class="patient-info">Пациент: ${patientName}${patientAge ? ', ' + patientAge + ' лет' : ''}${patientGender ? ', ' + patientGender : ''}</div>
-    <div class="period">Период: ${periodText}</div>
+    <h1>Полный сводный отчет с референсными значениями</h1>
+    <div class="patient-info">Пациент: ${patientName}${patientAge ? ', ' + patientAge + ' лет' : ''}${patientGender ? ', ' + patientGender : ''} | ${periodText}</div>
   </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Анализ</th>
-        <th>Референс</th>
-        ${dates.map(d => `<th>${d.date}</th>`).join('')}
-      </tr>
-    </thead>
-    <tbody>
-      ${categories.map(category => {
-        const categoryTests = filteredTests.filter(t => t.category === category);
-        if (categoryTests.length === 0) return '';
-        
-        let html = `
-        <tr class="category-row">
-          <td colspan="${dates.length + 2}">${category.toUpperCase()}</td>
+  ${categories.map((category, catIndex) => {
+    const categoryTests = filteredTests.filter(t => t.category === category);
+    if (categoryTests.length === 0) return '';
+    
+    const sectionTitle = categoryNames[category] || `${catIndex + 1}. ${category}`;
+    
+    return `
+    <div class="section-header">${sectionTitle}</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Показатель</th>
+          ${dates.map(d => `<th>${d.date}</th>`).join('')}
+          <th>Норма (Референс)</th>
         </tr>
-        `;
-        
-        html += categoryTests.map((test) => `
+      </thead>
+      <tbody>
+        ${categoryTests.map((test) => `
           <tr>
-            <td class="test-name">${test.name}</td>
-            <td class="ref-col">${test.normalRange || '—'}</td>
+            <td>${test.name}</td>
             ${dates.map(d => {
               const t = getTestValue(test.name, d.indices);
               if (!t) {
                 return '<td class="status-missing">—</td>';
               }
               const statusClass = t.status === 'Normal' ? 'status-normal' : t.status === 'High' ? 'status-high' : 'status-low';
-              return `<td class="${statusClass}">${t.value} ${t.unit}</td>`;
+              return `<td class="${statusClass}">${t.value}</td>`;
             }).join('')}
+            <td>${test.normalRange || '—'}</td>
           </tr>
-        `).join('');
-        
-        return html;
-      }).join('')}
-    </tbody>
-  </table>
+        `).join('')}
+      </tbody>
+    </table>
+    `;
+  }).join('')}
 </body>
 </html>
   `;
@@ -210,22 +204,22 @@ export const exportComparisonToPDF = async (
 
   try {
     const canvas = await html2canvas(iframeDoc.body, {
-      scale: 2.5,
+      scale: 2,
       useCORS: true,
       logging: false,
       backgroundColor: '#ffffff',
       allowTaint: true,
       foreignObjectRendering: false,
-      windowWidth: 1800,
+      windowWidth: 1400,
       windowHeight: 1200
     });
 
-    const imgWidth = dates.length > 5 ? 297 : 210;
-    const pageHeight = dates.length > 5 ? 210 : 297;
+    const imgWidth = dates.length > 4 ? 297 : 210;
+    const pageHeight = dates.length > 4 ? 210 : 297;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
     const doc = new jsPDF({
-      orientation: dates.length > 5 ? 'landscape' : 'portrait',
+      orientation: dates.length > 4 ? 'landscape' : 'portrait',
       unit: 'mm',
       format: 'a4'
     });
@@ -251,7 +245,7 @@ export const exportComparisonToPDF = async (
       }
     }
 
-    doc.save(`сравнение-анализов-${new Date().toISOString().split('T')[0]}.pdf`);
+    doc.save(`полный-отчет-${new Date().toISOString().split('T')[0]}.pdf`);
   } catch (error) {
     console.error('PDF export error:', error);
     alert('Ошибка при создании PDF: ' + (error instanceof Error ? error.message : 'Unknown error'));
