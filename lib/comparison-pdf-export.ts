@@ -12,7 +12,7 @@ export const exportComparisonToPDF = async (
     position: fixed;
     top: -9999px;
     left: -9999px;
-    width: 1400px;
+    width: 1800px;
     height: 1200px;
     border: none;
   `;
@@ -70,107 +70,105 @@ export const exportComparisonToPDF = async (
 <head>
   <meta charset="UTF-8">
   <style>
+    @page { size: A4; margin: 10mm; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
       background: white;
       color: #000000;
-      line-height: 1.4;
-      padding: 40px;
+      line-height: 1.2;
+      padding: 20px;
+      font-size: 8pt;
     }
-    .header {
+    .header-container {
+      width: 100%;
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
     }
-    .header h1 {
-      font-size: 28px;
-      font-weight: 700;
-      color: #2E5C6E;
-      margin-bottom: 10px;
+    .header-container h1 {
+      font-size: 14pt;
+      font-weight: bold;
+      color: #2c3e50;
+      margin-bottom: 8px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
-    .header .patient-info {
-      font-size: 15px;
-      color: #555;
-      font-weight: 500;
+    .header-container .info-text {
+      font-size: 10pt;
+      color: #34495e;
+      margin-bottom: 4px;
     }
     .section-header {
-      background-color: #f8f9fa;
-      border-left: 5px solid #2E5C6E;
-      padding: 10px 15px;
-      margin: 25px 0 10px 0;
-      font-weight: 700;
-      font-size: 15px;
-      color: #333;
+      background-color: #f2f2f2;
+      border-left: 4px solid #2980b9;
+      padding: 6px 10px;
+      margin: 15px 0 8px 0;
+      font-weight: bold;
+      font-size: 10pt;
+      color: #2c3e50;
+      text-align: left;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 13px;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
+      table-layout: fixed;
+    }
+    th, td {
+      border: 1px solid #bdc3c7;
+      padding: 4px 6px;
+      word-wrap: break-word;
+      overflow: hidden;
     }
     th {
-      background-color: #f1f3f4;
-      color: #333;
-      padding: 10px 8px;
+      background-color: #f2f2f2;
+      color: #2c3e50;
       text-align: center;
-      font-weight: 700;
-      font-size: 12px;
-      border: 1px solid #d1d5db;
-      vertical-align: middle;
+      font-weight: bold;
+      font-size: 8pt;
     }
     th:first-child {
       text-align: left;
-      width: 35%;
-      padding-left: 12px;
+      width: 30%;
     }
     th:last-child {
       width: 20%;
     }
     td {
-      padding: 10px 8px;
-      border: 1px solid #d1d5db;
       vertical-align: middle;
       text-align: center;
-      height: 36px;
-      color: #000;
+      height: 24px;
     }
     td:first-child {
       text-align: left;
-      padding-left: 12px;
-      font-weight: 500;
+      font-weight: bold;
+    }
+    td:last-child {
+      background-color: #f2f2f2;
+      font-style: italic;
+      color: #7f8c8d;
     }
     .test-unit {
-      font-weight: 400;
-      color: #555;
-      font-size: 12px;
+      font-weight: normal;
+      color: #7f8c8d;
+      font-size: 7pt;
+    }
+    .status-abnormal {
+      color: #c0392b;
+      font-weight: bold;
     }
     .status-normal {
       color: #000000;
-      font-weight: 400;
-    }
-    .status-high {
-      color: #dc2626;
-      font-weight: 700;
-    }
-    .status-low {
-      color: #dc2626;
-      font-weight: 700;
     }
     .status-missing {
-      color: #999;
-    }
-    .reference-cell {
-      color: #555;
-      font-size: 12px;
+      color: #bdc3c7;
     }
   </style>
 </head>
 <body>
-  <div class="header">
+  <div class="header-container">
     <h1>Полный сводный отчет с референсными значениями</h1>
-    <div class="patient-info">Пациент: ${patientName}${patientAge ? ', ' + patientAge + ' лет' : ''}${patientGender ? ', ' + patientGender : ''} | ${periodText}</div>
+    <p class="info-text">Пациент: ${patientName}${patientAge ? ', ' + patientAge + ' лет' : ''}${patientGender ? ', ' + patientGender : ''}</p>
+    <p class="info-text">Период исследования: ${periodText}</p>
   </div>
 
   ${sortedSections.map((sectionTitle) => {
@@ -184,12 +182,11 @@ export const exportComparisonToPDF = async (
         <tr>
           <th>Показатель</th>
           ${dates.map(d => {
-            // Format date to DD.MM.YY
             const parts = d.date.split('.');
             const displayDate = parts.length === 3 ? `${parts[0]}.${parts[1]}.${parts[2].slice(-2)}` : d.date;
             return `<th>${displayDate}</th>`;
           }).join('')}
-          <th>Норма (Референс)</th>
+          <th>Эталон/Цель</th>
         </tr>
       </thead>
       <tbody>
@@ -204,11 +201,11 @@ export const exportComparisonToPDF = async (
               if (!t) {
                 return '<td class="status-missing">—</td>';
               }
-              const isNormal = t.status === 'Normal';
-              const statusClass = isNormal ? 'status-normal' : (t.status === 'High' || t.status === 'Low' ? 'status-high' : 'status-normal');
+              const isAbnormal = t.status === 'High' || t.status === 'Low';
+              const statusClass = isAbnormal ? 'status-abnormal' : 'status-normal';
               return `<td class="${statusClass}">${t.value}</td>`;
             }).join('')}
-            <td class="reference-cell">${test.normalRange || '—'}</td>
+            <td>${test.normalRange || '—'}</td>
           </tr>
         `).join('')}
       </tbody>
