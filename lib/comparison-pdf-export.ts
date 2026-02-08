@@ -91,7 +91,10 @@ export const exportComparisonToPDF = async (
     }
     th:first-child {
       background-color: #3d4f5c;
-      text-align: center;
+      text-align: left;
+    }
+    th:nth-child(2) {
+      background-color: #3d4f5c;
     }
     .category-row {
       background-color: #6b7b8c !important;
@@ -116,19 +119,17 @@ export const exportComparisonToPDF = async (
       text-align: center;
       height: 30px;
     }
-    .test-name-cell {
+    .test-name {
       text-align: left;
       padding: 6px 10px;
-    }
-    .test-name {
       font-weight: 400;
       color: #000000;
-      display: block;
-      margin-bottom: 2px;
     }
-    .first-value {
+    .ref-col {
+      text-align: center;
+      font-weight: 400;
+      color: #666;
       font-size: 10px;
-      color: #000000;
     }
     .status-normal {
       background-color: #C8E6C9;
@@ -163,6 +164,7 @@ export const exportComparisonToPDF = async (
     <thead>
       <tr>
         <th>Анализ</th>
+        <th>Референс</th>
         ${dates.map(d => `<th>${d.date}</th>`).join('')}
       </tr>
     </thead>
@@ -173,31 +175,15 @@ export const exportComparisonToPDF = async (
         
         let html = `
         <tr class="category-row">
-          <td colspan="${dates.length + 1}">${category.toUpperCase()}</td>
+          <td colspan="${dates.length + 2}">${category.toUpperCase()}</td>
         </tr>
         `;
         
-        html += categoryTests.map((test) => {
-          // Get first date value for first column
-          const firstDateValue = getTestValue(test.name, dates[0].indices);
-          const firstValueText = firstDateValue 
-            ? `${firstDateValue.value} ${firstDateValue.unit}` 
-            : '—';
-          const firstStatusClass = firstDateValue?.status === 'Normal' 
-            ? 'status-normal' 
-            : firstDateValue?.status === 'High' 
-            ? 'status-high' 
-            : firstDateValue?.status === 'Low'
-            ? 'status-low'
-            : 'status-missing';
-          
-          return `
+        html += categoryTests.map((test) => `
           <tr>
-            <td class="test-name-cell ${firstStatusClass}">
-              <span class="test-name">${test.name}</span>
-              <span class="first-value">${firstValueText}</span>
-            </td>
-            ${dates.slice(1).map(d => {
+            <td class="test-name">${test.name}</td>
+            <td class="ref-col">${test.normalRange || '—'}</td>
+            ${dates.map(d => {
               const t = getTestValue(test.name, d.indices);
               if (!t) {
                 return '<td class="status-missing">—</td>';
@@ -206,8 +192,7 @@ export const exportComparisonToPDF = async (
               return `<td class="${statusClass}">${t.value} ${t.unit}</td>`;
             }).join('')}
           </tr>
-          `;
-        }).join('');
+        `).join('');
         
         return html;
       }).join('')}
