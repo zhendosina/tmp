@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
-import { TrendingUp, TrendingDown, Minus, X, FileText, Download, Loader2, Info, FileJson, FileDown } from "lucide-react"
+import { TrendingUp, TrendingDown, Minus, X, FileText, Download, Loader2, Info, FileJson, FileDown, FileCode } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { exportComparisonToPDF } from "@/lib/comparison-pdf-export"
 
@@ -323,6 +323,359 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
     exportComparisonToPDF(filteredTests, dates, getTestValue, analyses)
   }
 
+  // Export to HTML
+  const exportToHTML = () => {
+    // Get patient info
+    const firstAnalysis = analyses[0]
+    const patientName = firstAnalysis?.patient_info?.name || 'Не указано'
+    
+    // Get date range
+    const dateList = dates.map(d => d.date).filter(Boolean)
+    const periodText = dateList.length >= 2 
+      ? `${dateList[0]} — ${dateList[dateList.length - 1]}`
+      : dateList[0] || ''
+
+    // Helper function to format date
+    const formatDate = (dateStr: string) => {
+      const parts = dateStr.split('.')
+      return parts.length === 3 ? `${parts[0]}.${parts[1]}.${parts[2].slice(-2)}` : dateStr
+    }
+
+    // Helper function to get values for a test
+    const getTestValues = (testName: string) => {
+      return dates.map(d => {
+        const t = getTestValue(testName, d.indices)
+        if (!t) return { value: '—', isAbnormal: false }
+        const isAbnormal = t.status === 'High' || t.status === 'Low'
+        return { value: t.value, isAbnormal }
+      })
+    }
+
+    // Group tests by section
+    const hematologyTests = filteredTests.filter(t => t.category === 'Общий анализ крови')
+    const biochemCategories = ['Метаболическая панель', 'Функция печени', 'Функция почек', 'Липидный профиль', 'Витамины и минералы']
+    const biochemTests = filteredTests.filter(t => biochemCategories.includes(t.category))
+    const coagulationTests = filteredTests.filter(t => t.category === 'Коагулограмма')
+    const otherCategories = ['Лейкоцитарная формула', 'Общий анализ мочи', 'Другое']
+    const otherTests = filteredTests.filter(t => otherCategories.includes(t.category) || !['Общий анализ крови', 'Коагулограмма', ...biochemCategories].includes(t.category))
+
+    // Build HTML
+    let htmlContent = `<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Сводный отчет - ${patientName}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 10mm;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 8pt;
+            line-height: 1.2;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 16pt;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        .subtitle {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 10pt;
+            color: #7f8c8d;
+        }
+        h3 {
+            background-color: #f2f2f2;
+            padding: 5px 10px;
+            border-left: 5px solid #2980b9;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 10pt;
+            color: #2c3e50;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            table-layout: fixed;
+        }
+        th, td {
+            border: 1px solid #bdc3c7;
+            padding: 6px 4px;
+            text-align: center;
+            word-wrap: break-word;
+        }
+        th {
+            background-color: #ecf0f1;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .left-align {
+            text-align: left;
+            width: 30%;
+            font-weight: bold;
+            background-color: #ffffff;
+        }
+        .ref-col {
+            width: 20%;
+            background-color: #f9f9f9;
+            font-style: italic;
+            color: #7f8c8d;
+        }
+        .highlight {
+            color: #c0392b;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #fcfcfc;
+        }
+        .footer {
+            font-size: 7pt;
+            color: #95a5a6;
+            margin-top: 10px;
+        }
+        .print-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #2980b9;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12pt;
+        }
+        .print-btn:hover {
+            background: #1f5d8b;
+        }
+        @media print {
+            .print-btn { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <button class="print-btn" onclick="window.print()">🖨️ Печать / Сохранить как PDF</button>
+
+    <h1>Полный сводный отчет</h1>
+    <div class="subtitle">Пациент: ${patientName}${periodText ? ' | Период: ' + periodText : ''}</div>`
+
+    // Section 1: Гематология
+    if (hematologyTests.length > 0) {
+      htmlContent += `
+
+    <h3>1. Гематология (Общий анализ крови)</h3>
+    <table>
+        <thead>
+            <tr>
+                <th class="left-align">Показатель</th>`
+      
+      dates.forEach(d => {
+        htmlContent += `
+                <th>${formatDate(d.date)}</th>`
+      })
+      
+      htmlContent += `
+                <th class="ref-col">Норма</th>
+            </tr>
+        </thead>
+        <tbody>`
+      
+      hematologyTests.forEach((test) => {
+        const values = getTestValues(test.name)
+        htmlContent += `
+            <tr>
+                <td class="left-align">${test.name}${test.unit ? ' (' + test.unit + ')' : ''}</td>`
+        
+        values.forEach(v => {
+          if (v.isAbnormal) {
+            htmlContent += `
+                <td class="highlight">${v.value}</td>`
+          } else {
+            htmlContent += `
+                <td>${v.value}</td>`
+          }
+        })
+        
+        htmlContent += `
+                <td class="ref-col">${test.normalRange || '—'}</td>
+            </tr>`
+      })
+      
+      htmlContent += `
+        </tbody>
+    </table>`
+    }
+
+    // Section 2: Биохимия
+    if (biochemTests.length > 0) {
+      htmlContent += `
+
+    <h3>2. Биохимия и Гормоны</h3>
+    <table>
+        <thead>
+            <tr>
+                <th class="left-align">Показатель</th>`
+      
+      dates.forEach(d => {
+        htmlContent += `
+                <th>${formatDate(d.date)}</th>`
+      })
+      
+      htmlContent += `
+                <th class="ref-col">Норма</th>
+            </tr>
+        </thead>
+        <tbody>`
+      
+      biochemTests.forEach((test) => {
+        const values = getTestValues(test.name)
+        htmlContent += `
+            <tr>
+                <td class="left-align">${test.name}${test.unit ? ' (' + test.unit + ')' : ''}</td>`
+        
+        values.forEach(v => {
+          if (v.isAbnormal) {
+            htmlContent += `
+                <td class="highlight">${v.value}</td>`
+          } else {
+            htmlContent += `
+                <td>${v.value}</td>`
+          }
+        })
+        
+        htmlContent += `
+                <td class="ref-col">${test.normalRange || '—'}</td>
+            </tr>`
+      })
+      
+      htmlContent += `
+        </tbody>
+    </table>`
+    }
+
+    // Section 3: Коагулограмма
+    if (coagulationTests.length > 0) {
+      htmlContent += `
+
+    <h3>3. Коагулограмма</h3>
+    <table>
+        <thead>
+            <tr>
+                <th class="left-align">Показатель</th>`
+      
+      dates.forEach(d => {
+        htmlContent += `
+                <th>${formatDate(d.date)}</th>`
+      })
+      
+      htmlContent += `
+                <th class="ref-col">Норма</th>
+            </tr>
+        </thead>
+        <tbody>`
+      
+      coagulationTests.forEach((test) => {
+        const values = getTestValues(test.name)
+        htmlContent += `
+            <tr>
+                <td class="left-align">${test.name}${test.unit ? ' (' + test.unit + ')' : ''}</td>`
+        
+        values.forEach(v => {
+          if (v.isAbnormal) {
+            htmlContent += `
+                <td class="highlight">${v.value}</td>`
+          } else {
+            htmlContent += `
+                <td>${v.value}</td>`
+          }
+        })
+        
+        htmlContent += `
+                <td class="ref-col">${test.normalRange || '—'}</td>
+            </tr>`
+      })
+      
+      htmlContent += `
+        </tbody>
+    </table>`
+    }
+
+    // Section 4: Дополнительные
+    if (otherTests.length > 0) {
+      htmlContent += `
+
+    <h3>4. Дополнительные показатели</h3>
+    <table>
+        <thead>
+            <tr>
+                <th class="left-align">Показатель</th>`
+      
+      dates.forEach(d => {
+        htmlContent += `
+                <th>${formatDate(d.date)}</th>`
+      })
+      
+      htmlContent += `
+                <th class="ref-col">Норма</th>
+            </tr>
+        </thead>
+        <tbody>`
+      
+      otherTests.forEach((test) => {
+        const values = getTestValues(test.name)
+        htmlContent += `
+            <tr>
+                <td class="left-align">${test.name}${test.unit ? ' (' + test.unit + ')' : ''}</td>`
+        
+        values.forEach(v => {
+          if (v.isAbnormal) {
+            htmlContent += `
+                <td class="highlight">${v.value}</td>`
+          } else {
+            htmlContent += `
+                <td>${v.value}</td>`
+          }
+        })
+        
+        htmlContent += `
+                <td class="ref-col">${test.normalRange || '—'}</td>
+            </tr>`
+      })
+      
+      htmlContent += `
+        </tbody>
+    </table>`
+    }
+
+    htmlContent += `
+
+    <div class="footer">
+        * Данные сформированы автоматически на основании предоставленных лабораторных отчетов.
+    </div>
+
+</body>
+</html>`
+
+    // Create and download HTML file
+    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `сводный-отчет-${patientName.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.html`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
   if (isLoading) {
     return (
       <motion.div
@@ -367,6 +720,15 @@ export default function ComparisonTable({ analyses, onClose }: ComparisonTablePr
             >
               <FileDown className="w-4 h-4" />
               PDF
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={exportToHTML}
+              className="flex items-center gap-2"
+            >
+              <FileCode className="w-4 h-4" />
+              HTML
             </Button>
             <Button
               variant="outline"
