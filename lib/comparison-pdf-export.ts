@@ -12,7 +12,7 @@ export const exportComparisonToPDF = async (
     position: fixed;
     top: -9999px;
     left: -9999px;
-    width: 1800px;
+    width: 1400px;
     height: 1200px;
     border: none;
   `;
@@ -73,7 +73,7 @@ export const exportComparisonToPDF = async (
     @page { size: A4; margin: 10mm; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+      font-family: 'DejaVu Sans', Arial, sans-serif;
       background: white;
       color: #000000;
       line-height: 1.2;
@@ -128,7 +128,7 @@ export const exportComparisonToPDF = async (
     }
     th:first-child {
       text-align: left;
-      width: 30%;
+      width: 35%;
     }
     th:last-child {
       width: 20%;
@@ -146,6 +146,9 @@ export const exportComparisonToPDF = async (
       background-color: #f2f2f2;
       font-style: italic;
       color: #7f8c8d;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
     }
     .test-unit {
       font-weight: normal;
@@ -202,8 +205,10 @@ export const exportComparisonToPDF = async (
                 return '<td class="status-missing">—</td>';
               }
               const isAbnormal = t.status === 'High' || t.status === 'Low';
-              const statusClass = isAbnormal ? 'status-abnormal' : 'status-normal';
-              return `<td class="${statusClass}">${t.value}</td>`;
+              if (isAbnormal) {
+                return `<td><span class="status-abnormal">${t.value}</span></td>`;
+              }
+              return `<td><span class="status-normal">${t.value}</span></td>`;
             }).join('')}
             <td>${test.normalRange || '—'}</td>
           </tr>
