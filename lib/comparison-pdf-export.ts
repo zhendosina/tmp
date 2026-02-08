@@ -40,7 +40,7 @@ export const exportComparisonToPDF = async (
     ? `${dateList[0]} — ${dateList[dateList.length - 1]}`
     : dateList[0] || '';
 
-  // Category translations
+  // Category translations/groups to match reference
   const categoryNames: Record<string, string> = {
     'Общий анализ крови': '1. Гематология (Общий анализ крови)',
     'Лейкоцитарная формула': '2. Лейкоцитарная формула (%)',
@@ -53,6 +53,16 @@ export const exportComparisonToPDF = async (
     'Общий анализ мочи': '5. Общий анализ мочи',
     'Другое': '6. Дополнительные показатели'
   };
+
+  // Group tests by their final displayed section
+  const sectionGroups: Record<string, any[]> = {};
+  categories.forEach(cat => {
+    const sectionName = categoryNames[cat] || `Дополнительные показатели`;
+    if (!sectionGroups[sectionName]) sectionGroups[sectionName] = [];
+    sectionGroups[sectionName].push(...filteredTests.filter(t => t.category === cat));
+  });
+
+  const sortedSections = Object.keys(sectionGroups).sort();
 
   const tableHTML = `
 <!DOCTYPE html>
@@ -73,24 +83,25 @@ export const exportComparisonToPDF = async (
       margin-bottom: 30px;
     }
     .header h1 {
-      font-size: 30px;
-      font-weight: 600;
-      color: #2E86AB;
-      margin-bottom: 12px;
+      font-size: 28px;
+      font-weight: 700;
+      color: #2E5C6E;
+      margin-bottom: 10px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
     .header .patient-info {
-      font-size: 16px;
+      font-size: 15px;
       color: #555;
+      font-weight: 500;
     }
     .section-header {
-      background: linear-gradient(to right, #f8f9fa, #e9ecef);
-      border-left: 4px solid #2E86AB;
-      padding: 12px 18px;
-      margin: 25px 0 12px 0;
-      font-weight: 600;
-      font-size: 16px;
+      background-color: #f8f9fa;
+      border-left: 5px solid #2E5C6E;
+      padding: 10px 15px;
+      margin: 25px 0 10px 0;
+      font-weight: 700;
+      font-size: 15px;
       color: #333;
     }
     table {
@@ -102,38 +113,38 @@ export const exportComparisonToPDF = async (
     th {
       background-color: #f1f3f4;
       color: #333;
-      padding: 12px 8px;
+      padding: 10px 8px;
       text-align: center;
-      font-weight: 600;
+      font-weight: 700;
       font-size: 12px;
-      border: 1px solid #ccc;
-      border-bottom: 2px solid #999;
+      border: 1px solid #d1d5db;
       vertical-align: middle;
     }
     th:first-child {
       text-align: left;
-      width: 30%;
+      width: 35%;
+      padding-left: 12px;
     }
     th:last-child {
-      width: 18%;
-      font-style: italic;
+      width: 20%;
     }
     td {
       padding: 10px 8px;
-      border: 1px solid #ddd;
+      border: 1px solid #d1d5db;
       vertical-align: middle;
       text-align: center;
-      height: 32px;
+      height: 36px;
+      color: #000;
     }
     td:first-child {
       text-align: left;
       padding-left: 12px;
       font-weight: 500;
     }
-    td:last-child {
-      font-size: 11px;
+    .test-unit {
+      font-weight: 400;
       color: #555;
-      font-style: italic;
+      font-size: 12px;
     }
     .status-normal {
       color: #000000;
@@ -141,14 +152,18 @@ export const exportComparisonToPDF = async (
     }
     .status-high {
       color: #dc2626;
-      font-weight: 600;
+      font-weight: 700;
     }
     .status-low {
       color: #dc2626;
-      font-weight: 600;
+      font-weight: 700;
     }
     .status-missing {
       color: #999;
+    }
+    .reference-cell {
+      color: #555;
+      font-size: 12px;
     }
   </style>
 </head>
@@ -158,11 +173,9 @@ export const exportComparisonToPDF = async (
     <div class="patient-info">Пациент: ${patientName}${patientAge ? ', ' + patientAge + ' лет' : ''}${patientGender ? ', ' + patientGender : ''} | ${periodText}</div>
   </div>
 
-  ${categories.map((category, catIndex) => {
-    const categoryTests = filteredTests.filter(t => t.category === category);
-    if (categoryTests.length === 0) return '';
-    
-    const sectionTitle = categoryNames[category] || `${catIndex + 1}. ${category}`;
+  ${sortedSections.map((sectionTitle) => {
+    const tests = sectionGroups[sectionTitle];
+    if (tests.length === 0) return '';
     
     return `
     <div class="section-header">${sectionTitle}</div>
@@ -170,23 +183,32 @@ export const exportComparisonToPDF = async (
       <thead>
         <tr>
           <th>Показатель</th>
-          ${dates.map(d => `<th>${d.date}</th>`).join('')}
+          ${dates.map(d => {
+            // Format date to DD.MM.YY
+            const parts = d.date.split('.');
+            const displayDate = parts.length === 3 ? `${parts[0]}.${parts[1]}.${parts[2].slice(-2)}` : d.date;
+            return `<th>${displayDate}</th>`;
+          }).join('')}
           <th>Норма (Референс)</th>
         </tr>
       </thead>
       <tbody>
-        ${categoryTests.map((test) => `
+        ${tests.map((test) => `
           <tr>
-            <td>${test.name}</td>
+            <td>
+              ${test.name}
+              ${test.unit ? `<span class="test-unit">(${test.unit})</span>` : ''}
+            </td>
             ${dates.map(d => {
               const t = getTestValue(test.name, d.indices);
               if (!t) {
                 return '<td class="status-missing">—</td>';
               }
-              const statusClass = t.status === 'Normal' ? 'status-normal' : t.status === 'High' ? 'status-high' : 'status-low';
+              const isNormal = t.status === 'Normal';
+              const statusClass = isNormal ? 'status-normal' : (t.status === 'High' || t.status === 'Low' ? 'status-high' : 'status-normal');
               return `<td class="${statusClass}">${t.value}</td>`;
             }).join('')}
-            <td>${test.normalRange || '—'}</td>
+            <td class="reference-cell">${test.normalRange || '—'}</td>
           </tr>
         `).join('')}
       </tbody>
@@ -201,7 +223,7 @@ export const exportComparisonToPDF = async (
   iframeDoc.write(tableHTML);
   iframeDoc.close();
 
-  await new Promise(resolve => setTimeout(resolve, 300));
+  await new Promise(resolve => setTimeout(resolve, 400));
 
   try {
     const canvas = await html2canvas(iframeDoc.body, {
@@ -246,7 +268,7 @@ export const exportComparisonToPDF = async (
       }
     }
 
-    doc.save(`полный-отчет-${new Date().toISOString().split('T')[0]}.pdf`);
+    doc.save(`полный-сводный-отчет-${new Date().toISOString().split('T')[0]}.pdf`);
   } catch (error) {
     console.error('PDF export error:', error);
     alert('Ошибка при создании PDF: ' + (error instanceof Error ? error.message : 'Unknown error'));
